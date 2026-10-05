@@ -1,0 +1,7 @@
+# xcb project configuration
+# Settings here override global config (~/.config/xcb/config.toml).
+
+[defaults]
+# The demo's .xcodeproj under Demos/ is also discovered from here, so pin the package scheme.
+scheme = "MetalSprocketsGLTF-Package"
+destination = "macos"

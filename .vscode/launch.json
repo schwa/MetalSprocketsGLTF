@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:MetalSprocketsGLTF}",
+            "name": "Debug ms-gltf-render",
+            "target": "ms-gltf-render",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug ms-gltf-render"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:MetalSprocketsGLTF}",
+            "name": "Release ms-gltf-render",
+            "target": "ms-gltf-render",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release ms-gltf-render"
+        }
+    ]
+}

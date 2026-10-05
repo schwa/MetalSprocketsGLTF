@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; }
+  canvas { display: block; width: 100%; height: 100%; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "gltfref://cdn/npm/three@0.186.1/build/three.module.js",
+    "three/addons/": "gltfref://cdn/npm/three@0.186.1/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+// Reference glTF renderer driven by the WebReference package (GLTFWebReference).
+// The camera uses the caller's matrices verbatim so it lines up with the Metal render.
+
+// Single-sampled by default to match GLTFRenderer, so comparisons measure shading rather than edge aliasing.
+const antialias = new URLSearchParams(location.search).get('antialias') === '1';
+const renderer = new THREE.WebGLRenderer({ antialias, preserveDrawingBuffer: true, alpha: false });
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NeutralToneMapping;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera();
+camera.matrixAutoUpdate = false;
+
+const lights = new THREE.Group();
+scene.add(lights);
+let model = null;
+let clips = [];
+let mixer = null;
+let restTransforms = [];
+let roomEnvironment = null;
+let customEnvironment = null; // { pmrem, equirect } from setEnvironment
+let background = new THREE.Color(0, 0, 0);
+let fixedSize = null;
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+
+function resize() {
+  if (fixedSize) {
+    renderer.setPixelRatio(1);
+    renderer.setSize(fixedSize.width, fixedSize.height, true);
+  } else {
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+  }
+}
+
+function addPunctualLights(list) {
+  for (const light of list) {
+    const color = new THREE.Color().setRGB(...light.color, THREE.LinearSRGBColorSpace);
+    let object;
+    if (light.type === 0) {
+      object = new THREE.DirectionalLight(color, light.intensity);
+      object.position.set(...light.direction.map(v => -v));
+      object.target.position.set(0, 0, 0);
+      lights.add(object.target);
+    } else if (light.type === 1) {
+      object = new THREE.PointLight(color, light.intensity, light.range, 2);
+      object.position.set(...light.position);
+    } else {
+      const outer = Math.acos(light.outerConeCos);
+      const inner = Math.acos(light.innerConeCos);
+      object = new THREE.SpotLight(color, light.intensity, light.range, outer, outer > 0 ? 1 - inner / outer : 0, 2);
+      object.position.set(...light.position);
+      object.target.position.set(...light.position.map((p, i) => p + light.direction[i]));
+      lights.add(object.target);
+    }
+    lights.add(object);
+  }
+}
+
+function render() {
+  resize();
+  renderer.render(scene, camera);
+}
+
+new ResizeObserver(render).observe(document.body);
+
+window.reference = {
+  async load(url) {
+    const loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder);
+    const gltf = await loader.loadAsync(url);
+    if (model) {
+      scene.remove(model);
+      // Free the old model's GPU memory; without this, loading many models gets the page's process killed.
+      model.traverse(object => {
+        object.geometry?.dispose();
+        const materials = object.material ? (Array.isArray(object.material) ? object.material : [object.material]) : [];
+        for (const material of materials) {
+          for (const value of Object.values(material)) {
+            if (value && value.isTexture) { value.dispose(); }
+          }
+          material.dispose();
+        }
+      });
+    }
+    model = gltf.scene;
+    clips = gltf.animations;
+    mixer = new THREE.AnimationMixer(model);
+    restTransforms = [];
+    model.traverse(object => restTransforms.push([object, object.position.clone(), object.quaternion.clone(), object.scale.clone()]));
+    // GLTFLoader adds KHR_lights_punctual lights itself; the reference must use only the lights it is given.
+    const fileLights = [];
+    model.traverse(object => { if (object.isLight) { fileLights.push(object); } });
+    fileLights.forEach(light => light.removeFromParent());
+    // Match GLTFRenderer's 8x anisotropic filtering for mipmapped textures (GLTFLoader leaves it at 1).
+    model.traverse(object => {
+        const materials = object.material ? (Array.isArray(object.material) ? object.material : [object.material]) : [];
+        for (const material of materials) {
+            for (const value of Object.values(material)) {
+                if (value && value.isTexture && value.generateMipmaps !== false && value.minFilter === THREE.LinearMipmapLinearFilter) {
+                    value.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+                }
+            }
+        }
+    });
+    scene.add(model);
+    render();
+    return true;
+  },
+
+  // Poses the model with clip `index` at `time` seconds, or the rest pose when `index` is null.
+  setAnimation(index, time) {
+    mixer.stopAllAction();
+    for (const [object, position, quaternion, scale] of restTransforms) {
+      object.position.copy(position);
+      object.quaternion.copy(quaternion);
+      object.scale.copy(scale);
+    }
+    if (index !== null && clips[index]) {
+      const action = mixer.clipAction(clips[index]);
+      action.setLoop(THREE.LoopOnce);
+      action.clampWhenFinished = true;
+      action.play();
+      mixer.setTime(Math.min(time, clips[index].duration));
+    }
+    render();
+  },
+
+  // Column-major arrays. `projection` is already in WebGL clip space (-1...1 depth).
+  setView(cameraMatrix, projection) {
+    camera.matrix.fromArray(cameraMatrix);
+    camera.matrixWorld.copy(camera.matrix);
+    camera.matrixWorldInverse.copy(camera.matrix).invert();
+    camera.projectionMatrix.fromArray(projection);
+    camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
+    render();
+  },
+
+  // Linear half-float RGBA equirectangular pixels (base64), rows bottom-up. Pass null to clear.
+  setEnvironment(image) {
+    if (customEnvironment) {
+      customEnvironment.pmrem.dispose();
+      customEnvironment.equirect.dispose();
+      customEnvironment = null;
+    }
+    if (image) {
+      const bytes = Uint8Array.from(atob(image.data), c => c.charCodeAt(0));
+      const equirect = new THREE.DataTexture(new Uint16Array(bytes.buffer), image.width, image.height, THREE.RGBAFormat, THREE.HalfFloatType);
+      equirect.mapping = THREE.EquirectangularReflectionMapping;
+      equirect.colorSpace = THREE.LinearSRGBColorSpace;
+      equirect.magFilter = THREE.LinearFilter;
+      equirect.minFilter = THREE.LinearFilter;
+      equirect.needsUpdate = true;
+      customEnvironment?.equirect.dispose();
+      customEnvironment?.pmrem.dispose();
+      customEnvironment = { equirect, pmrem: pmremGenerator.fromEquirectangular(equirect).texture };
+    }
+    render();
+  },
+
+  // mode: "matched" mirrors GLTFLighting (its environment, set with setEnvironment, and lights);
+  // "environment" uses three's RoomEnvironment instead.
+  setLighting(settings) {
+    lights.clear();
+    renderer.toneMappingExposure = settings.exposure;
+    renderer.toneMapping = THREE[settings.toneMapping ?? 'NeutralToneMapping'];
+    scene.environmentRotation.set(0, settings.environmentRotation ?? 0, 0);
+    scene.backgroundRotation.set(0, settings.environmentRotation ?? 0, 0);
+    scene.environmentIntensity = settings.environmentIntensity;
+    scene.backgroundIntensity = settings.environmentIntensity;
+    scene.background = background;
+    if (settings.mode === 'environment') {
+      if (!roomEnvironment) {
+        roomEnvironment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+      }
+      scene.environment = roomEnvironment;
+      scene.environmentIntensity = 1;
+    } else if (customEnvironment) {
+      scene.environment = customEnvironment.pmrem;
+      if (settings.showsBackground) {
+        scene.background = customEnvironment.equirect;
+      }
+    }
+    if (settings.mode !== 'environment') {
+      addPunctualLights(settings.lights);
+    }
+    render();
+  },
+
+  setBackground(linearRGB) {
+    background = new THREE.Color().setRGB(...linearRGB, THREE.LinearSRGBColorSpace);
+    if (!(scene.background && scene.background.isTexture)) {
+      scene.background = background;
+    }
+    render();
+  },
+
+  // Pass null to follow the page size.
+  setFixedSize(size) {
+    fixedSize = size;
+    render();
+  },
+
+  snapshot() {
+    render();
+    return renderer.domElement.toDataURL('image/png');
+  },
+};
+
+window.webkit?.messageHandlers?.ready?.postMessage(true);
+</script>
+</body>
+</html>

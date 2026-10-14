@@ -26,7 +26,7 @@ private func maximumDifference(_ lhs: [UInt8], _ rhs: [UInt8]) -> Int {
 }
 
 // Rotation turns the environment: a quarter turn shows a different part of the studio, a full turn the same view.
-@Test(.metalValidation) @MainActor func environmentRotationTurnsTheEnvironment() throws {
+@Test(.requiresMetal4, .metalValidation) @MainActor func environmentRotationTurnsTheEnvironment() throws {
     let unrotated = try background(rotation: 0)
     #expect(maximumDifference(try background(rotation: .pi / 2), unrotated) > 20)
     #expect(maximumDifference(try background(rotation: 2 * .pi), unrotated) <= 2)

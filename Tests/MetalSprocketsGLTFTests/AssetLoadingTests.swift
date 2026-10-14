@@ -6,6 +6,7 @@ import simd
 import SwiftGLTF
 import Testing
 
+@Suite(.requiresMetal4)
 struct AssetLoadingTests {
     func contents(_ url: URL, sceneIndex: Int = 0) throws -> GLTFSceneContents {
         let container = try Container(url: url)

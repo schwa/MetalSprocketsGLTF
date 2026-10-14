@@ -68,6 +68,7 @@ private func angle(_ pose: PBRPose) -> Float {
     return atan2(axis.y, axis.x) * 180 / .pi
 }
 
+@Suite(.requiresMetal4)
 struct AnimationControllerTests {
     // A 50/50 blend gives the halfway translation and rotation.
     @Test func halfBlendIsHalfway() throws {

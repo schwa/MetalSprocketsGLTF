@@ -83,7 +83,7 @@ func makeMorphTangentTriangleFile() throws -> URL {
     return url
 }
 
-@Suite(.metalValidation)
+@Suite(.requiresMetal4, .metalValidation)
 struct MorphTargetTests {
     // TANGENT morph targets are read, so morphed normal-mapped meshes keep a correct tangent frame.
     @Test func readsTangentDeltas() throws {

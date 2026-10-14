@@ -30,7 +30,7 @@ func makeTriangleFile(nodes: String = #"[{"mesh": 0}]"#, sceneNodes: String = "[
     return url
 }
 
-@Test(.metalValidation) func loadsTriangle() throws {
+@Test(.requiresMetal4, .metalValidation) func loadsTriangle() throws {
     let asset = try GLTFAsset(url: makeTriangleFile())
     #expect(asset.opaqueInstances.count == 1)
     #expect(asset.blendedInstances.isEmpty)
@@ -60,7 +60,7 @@ func makeModePrimitiveFile(mode: Int, positions: [Float]) throws -> URL {
 
 // Point and line primitives are drawn, unlit in their base color as three.js does. Each file draws an
 // "X" through the centre, so the centre pixel is covered whatever the primitive type.
-@Test(.metalValidation, arguments: [
+@Test(.requiresMetal4, .metalValidation, arguments: [
     (0, [Float](arrayLiteral: 0, 0, 0)), // POINTS
     (1, [Float](arrayLiteral: -1, -1, 0, 1, 1, 0, -1, 1, 0, 1, -1, 0)), // LINES
     (2, [Float](arrayLiteral: -1, -1, 0, 1, 1, 0, 1, -1, 0, -1, 1, 0)), // LINE_LOOP
@@ -85,7 +85,7 @@ func drawsPointsAndLines(mode: Int, positions: [Float]) throws {
 }
 
 // KHR_node_visibility: a node with visible false hides its own mesh and every descendant's.
-@Test func hidesInvisibleNodes() throws {
+@Test(.requiresMetal4, .requiresMetal4) func hidesInvisibleNodes() throws {
     let nodes = #"""
         [
         {"children": [1], "extensions": {"KHR_node_visibility": {"visible": false}}},
@@ -98,7 +98,7 @@ func drawsPointsAndLines(mode: Int, positions: [Float]) throws {
 }
 
 // Another scene of a loaded asset is built without loading its meshes and materials again.
-@Test func switchesScenes() throws {
+@Test(.requiresMetal4, .requiresMetal4) func switchesScenes() throws {
     let nodes = #"[{"mesh": 0}, {"mesh": 0, "translation": [5, 0, 0]}]"#
     let asset = try GLTFAsset(url: makeTriangleFile(nodes: nodes, scenes: #"[{"nodes": [0]}, {"nodes": [1]}]"#))
     #expect(asset.sceneCount == 2)
@@ -114,7 +114,7 @@ func drawsPointsAndLines(mode: Int, positions: [Float]) throws {
 }
 
 // The frustum keeps boxes inside or crossing the view and rejects ones wholly outside any plane.
-@Test func frustumCullsBoundsOutsideTheView() {
+@Test(.requiresMetal4, .requiresMetal4) func frustumCullsBoundsOutsideTheView() {
     let view = simd_float4x4.lookAt(eye: [0, 0, 10], target: .zero, up: [0, 1, 0])
     let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 1, far: 20)
     let frustum = PBRFrustum(viewProjection: projection * view)
@@ -154,7 +154,7 @@ func makeIndexedQuadWithoutNormalsFile() throws -> URL {
 
 // Primitives without normals keep their shared vertices (flat normals come from the shader), and are lit as flat
 // surfaces facing their winding: a quad facing +z, lit from +z, is bright.
-@Test(.metalValidation) func primitivesWithoutNormalsKeepTheirVertices() throws {
+@Test(.requiresMetal4, .metalValidation) func primitivesWithoutNormalsKeepTheirVertices() throws {
     let asset = try GLTFAsset(url: makeIndexedQuadWithoutNormalsFile())
     let primitive = try #require(asset.opaqueInstances.first?.primitive)
     #expect(primitive.vertexCount == 4, "Unwelded to \(primitive.vertexCount) vertices")
@@ -173,7 +173,7 @@ func makeIndexedQuadWithoutNormalsFile() throws -> URL {
 }
 
 // A node hierarchy with a cycle fails to load instead of recursing forever.
-@Test func rejectsCyclicNodeHierarchy() throws {
+@Test(.requiresMetal4, .requiresMetal4) func rejectsCyclicNodeHierarchy() throws {
     let url = try makeTriangleFile(nodes: #"[{"mesh": 0, "children": [1]}, {"children": [0]}]"#, sceneNodes: "[0]")
     #expect(throws: (any Error).self) {
         try GLTFAsset(url: url)
@@ -181,7 +181,7 @@ func makeIndexedQuadWithoutNormalsFile() throws -> URL {
 }
 
 // Nodes sharing a mesh and material become one instanced draw, and every instance is drawn.
-@Test(.metalValidation) func instancesSharedMeshes() throws {
+@Test(.requiresMetal4, .metalValidation) func instancesSharedMeshes() throws {
     let nodes = #"[{"mesh": 0, "translation": [-3, 0, 0]}, {"mesh": 0}, {"mesh": 0, "translation": [3, 0, 0]}]"#
     let asset = try GLTFAsset(url: makeTriangleFile(nodes: nodes, sceneNodes: "[0, 1, 2]"))
     #expect(asset.opaqueInstances.count == 3)
@@ -209,7 +209,7 @@ func makeIndexedQuadWithoutNormalsFile() throws -> URL {
     }
 }
 
-@Test(.metalValidation) func rendersTriangle() throws {
+@Test(.requiresMetal4, .metalValidation) func rendersTriangle() throws {
     let asset = try GLTFAsset(url: makeTriangleFile())
     let camera = PBRCamera.framing(asset.bounds, aspectRatio: 1, yaw: 0, pitch: 0)
     let renderer = try OffscreenRenderer(size: CGSize(width: 64, height: 64), clearDepth: 0)
@@ -231,7 +231,7 @@ func makeIndexedQuadWithoutNormalsFile() throws -> URL {
 
 // Like three.js, unlit colors are tone mapped: PBR Neutral maps pure red (1, 0, 0) to about (0.88, 0.016, 0.016),
 // which is (241, 34, 34) in sRGB.
-@Test(.metalValidation) func unlitColorsAreToneMapped() throws {
+@Test(.requiresMetal4, .metalValidation) func unlitColorsAreToneMapped() throws {
     let asset = try GLTFAsset(url: makeTriangleFile())
     let camera = PBRCamera.framing(asset.bounds, aspectRatio: 1, yaw: 0, pitch: 0)
     let renderer = try OffscreenRenderer(size: CGSize(width: 64, height: 64), clearDepth: 0)
@@ -248,7 +248,7 @@ func makeIndexedQuadWithoutNormalsFile() throws -> URL {
     #expect(abs(pixel.0 - 241) <= 3 && abs(pixel.1 - 34) <= 3 && abs(pixel.2 - 34) <= 3, "Expected tone-mapped red, got \(pixel)")
 }
 
-@Test func triangleStripAndFanConversion() {
+@Test(.requiresMetal4, .requiresMetal4) func triangleStripAndFanConversion() {
     #expect(GLTFGeometry.triangleList(fromStrip: [0, 1, 2, 3]) == [0, 1, 2, 2, 1, 3])
     #expect(GLTFGeometry.triangleList(fromFan: [0, 1, 2, 3]) == [0, 1, 2, 0, 2, 3])
 }

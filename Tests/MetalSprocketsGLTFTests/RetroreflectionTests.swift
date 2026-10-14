@@ -7,7 +7,7 @@ import MetalSprocketsPBR
 import simd
 import Testing
 
-@Suite(.metalValidation)
+@Suite(.requiresMetal4, .metalValidation)
 struct RetroreflectionTests {
     let size = 32
     let device = MTLCreateSystemDefaultDevice()!

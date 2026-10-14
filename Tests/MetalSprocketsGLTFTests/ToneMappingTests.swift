@@ -8,7 +8,7 @@ import simd
 import Testing
 
 // The Swift list mirrors the shader's kPBRToneMapping* values; PBR Neutral is 0, the default of zeroed uniforms.
-@Test func toneMappingsMatchTheShaderValues() {
+@Test(.requiresMetal4, .requiresMetal4) func toneMappingsMatchTheShaderValues() {
     #expect(Int32(PBRToneMapping.allCases.count) == PBRShaderToneMapping.toneMappingCount.rawValue)
     #expect(PBRToneMapping.pbrNeutral.rawValue == 0)
     #expect(PBRToneMapping.agx.shaderValue == .toneMappingAgX)
@@ -39,7 +39,7 @@ private func sRGBByte(_ linear: Double) -> Int {
 }
 
 // Each operator applies its own curve (ACES and AgX are checked against three.js in the reference comparisons).
-@Test(.metalValidation) @MainActor func toneMappingAppliesTheChosenOperator() throws {
+@Test(.requiresMetal4, .metalValidation) @MainActor func toneMappingAppliesTheChosenOperator() throws {
     #expect(abs(try unlitRed(.linear) - sRGBByte(0.5)) <= 2)
     #expect(abs(try unlitRed(.reinhard) - sRGBByte(0.5 / 1.5)) <= 2)
     #expect(abs(try unlitRed(.pbrNeutral) - sRGBByte(0.5 - 0.04)) <= 2)
@@ -47,7 +47,7 @@ private func sRGBByte(_ linear: Double) -> Int {
 }
 
 // Into an rgba16Float target without tone mapping, a surface brighter than white keeps its value above 1 (HDR).
-@Test(.metalValidation) @MainActor func floatTargetKeepsValuesAboveOne() throws {
+@Test(.requiresMetal4, .metalValidation) @MainActor func floatTargetKeepsValuesAboveOne() throws {
     let asset = try GLTFAsset(url: makeExtensionMaterialFile(#"{"KHR_materials_unlit": {}}"#, extensionsUsed: ["KHR_materials_unlit"]))
     let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
     let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)

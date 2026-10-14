@@ -2,6 +2,7 @@ import MetalSprocketsGLTF
 import Testing
 
 // Animation channels through the public API only (no @testable), as a scene graph loader would read them.
+@Suite(.requiresMetal4)
 struct AnimationChannelAPITests {
     @Test func readsChannelsWithoutTestableImport() throws {
         let asset = try GLTFAsset(url: makeMorphTriangleFile())

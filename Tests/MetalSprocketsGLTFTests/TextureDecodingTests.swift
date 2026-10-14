@@ -9,7 +9,7 @@ import Testing
 
 // Base color textures must reach the GPU as sRGB texels whose stored bytes equal the PNG's sRGB pixel values,
 // whatever the PNG's pixel layout (palette, RGB, grey + alpha, RGBA).
-@Suite(.serialized, .metalValidation, .enabled(if: SampleAssets.isAvailable))
+@Suite(.requiresMetal4, .serialized, .metalValidation, .enabled(if: SampleAssets.isAvailable))
 struct TextureDecodingTests {
     /// RGBA8 bytes of `texture`'s first mip, copied to shared memory.
     func texels(_ texture: MTLTexture) throws -> [UInt8] {

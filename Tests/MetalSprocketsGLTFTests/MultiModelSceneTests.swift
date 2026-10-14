@@ -6,7 +6,7 @@ import MetalSprocketsPBRShaders
 import simd
 import Testing
 
-@Suite(.metalValidation)
+@Suite(.requiresMetal4, .metalValidation)
 struct MultiModelSceneTests {
     let size = 64
     let device = MTLCreateSystemDefaultDevice()!

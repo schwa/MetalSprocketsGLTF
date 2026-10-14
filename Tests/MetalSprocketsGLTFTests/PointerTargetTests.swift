@@ -75,6 +75,7 @@ private func makePointerTargetFile(animated: Bool = true, lightHidden: Bool = fa
     return url
 }
 
+@Suite(.requiresMetal4)
 struct PointerTargetTests {
     // Visibility, light and camera pointers are parsed, not reported as unsupported.
     @Test func parsesTheNewTargets() {

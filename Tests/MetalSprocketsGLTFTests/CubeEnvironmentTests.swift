@@ -3,6 +3,7 @@ import Metal
 import simd
 import Testing
 
+@Suite(.requiresMetal4)
 struct CubeEnvironmentTests {
     let values: [Float] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
     let axes: [SIMD3<Float>] = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]

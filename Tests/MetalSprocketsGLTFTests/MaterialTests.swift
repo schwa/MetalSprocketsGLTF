@@ -177,7 +177,7 @@ func makeVariantsTriangleFile() throws -> URL {
     return url
 }
 
-@Suite(.metalValidation)
+@Suite(.requiresMetal4, .metalValidation)
 struct MaterialTests {
     // KHR_materials_variants: a variant swaps in its mapped material; unmapped primitives keep their default.
     @Test func appliesMaterialVariants() throws {

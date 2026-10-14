@@ -26,7 +26,7 @@ private let pairs: [(id: String, compressed: String, plain: String)] = [
 ]
 
 // Without the decoder, files requiring meshopt are rejected; with it they load without warnings.
-@Test(.enabled(if: samplesAvailable), arguments: ["BrainStem/glTF-Meshopt/BrainStem.gltf", "BrainStem/glTF-Meshopt-EXT/BrainStem.gltf"])
+@Test(.requiresMetal4, .enabled(if: samplesAvailable), arguments: ["BrainStem/glTF-Meshopt/BrainStem.gltf", "BrainStem/glTF-Meshopt-EXT/BrainStem.gltf"])
 func meshoptVariantNeedsTheDecoder(_ path: String) throws {
     let url = modelsDirectory.appending(path: path)
     #expect(throws: GLTFUnsupportedExtensionsError.self) { try GLTFAsset(url: url) }
@@ -36,7 +36,7 @@ func meshoptVariantNeedsTheDecoder(_ path: String) throws {
 
 // The compressed variant renders like the uncompressed one (meshopt variants are also quantized, so close, not equal).
 // Animated models are compared mid-animation, which exercises compressed animation data too.
-@Test(.enabled(if: samplesAvailable), arguments: pairs.map(\.id))
+@Test(.requiresMetal4, .enabled(if: samplesAvailable), arguments: pairs.map(\.id))
 func meshoptVariantMatchesThePlainVariant(_ id: String) throws {
     let pair = try #require(pairs.first { $0.id == id })
     let compressed = try GLTFAsset(url: modelsDirectory.appending(path: pair.compressed), options: options)

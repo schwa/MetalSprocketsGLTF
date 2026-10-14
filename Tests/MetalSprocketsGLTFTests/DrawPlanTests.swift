@@ -4,6 +4,7 @@ import Foundation
 import simd
 import Testing
 
+@Suite(.requiresMetal4)
 struct DrawPlanTests {
     let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 100)
 

@@ -85,7 +85,7 @@ private func baseColorTexture(_ asset: GLTFAsset) throws -> MTLTexture {
 }
 
 // A registered decoder gets the texture its extension names, decodes that image's bytes, and is told the slot is sRGB.
-@Test func registeredDecoderSuppliesItsTexture() throws {
+@Test(.requiresMetal4, .requiresMetal4) func registeredDecoderSuppliesItsTexture() throws {
     let decoder = FakeDecoder()
     let url = try makeFile(texture: #"{"extensions": {"TEST_texture_fake": {"source": 0}}}"#, imageBytes: 7)
     let asset = try GLTFAsset(url: url, options: GLTFLoadOptions(textureDecoders: [decoder]))
@@ -97,14 +97,14 @@ private func baseColorTexture(_ asset: GLTFAsset) throws -> MTLTexture {
 }
 
 // The extension's image wins over the plain source (the fallback for loaders without the extension).
-@Test func registeredDecoderWinsOverTheFallbackSource() throws {
+@Test(.requiresMetal4, .requiresMetal4) func registeredDecoderWinsOverTheFallbackSource() throws {
     let url = try makeFile(texture: #"{"source": 1, "extensions": {"TEST_texture_fake": {"source": 0}}}"#)
     let asset = try GLTFAsset(url: url, options: GLTFLoadOptions(textureDecoders: [FakeDecoder()]))
     #expect(try baseColorTexture(asset).width == 3)
 }
 
 // Without the decoder, the fallback source loads through the built-in path.
-@Test func withoutTheDecoderTheFallbackSourceLoads() throws {
+@Test(.requiresMetal4, .requiresMetal4) func withoutTheDecoderTheFallbackSourceLoads() throws {
     let asset = try GLTFAsset(url: makeFile(texture: #"{"source": 1, "extensions": {"TEST_texture_fake": {"source": 0}}}"#))
     // The 1 x 1 PNG, not the fake 3 x 5 texture. The white placeholder is also 1 x 1, but using it (texture skipped
     // or failed) would add a warning.
@@ -113,7 +113,7 @@ private func baseColorTexture(_ asset: GLTFAsset) throws -> MTLTexture {
 }
 
 // A file requiring an extension nothing supports fails to load, naming it (the glTF spec's rule).
-@Test func unsupportedRequiredExtensionFailsTheLoad() throws {
+@Test(.requiresMetal4, .requiresMetal4) func unsupportedRequiredExtensionFailsTheLoad() throws {
     let url = try makeFile(texture: #"{"source": 1}"#, required: ["TEST_unknown"])
     #expect {
         try GLTFAsset(url: url)
@@ -123,14 +123,14 @@ private func baseColorTexture(_ asset: GLTFAsset) throws -> MTLTexture {
 }
 
 // The option loads it anyway, with a warning.
-@Test func unsupportedRequiredExtensionCanBeLoadedWithAWarning() throws {
+@Test(.requiresMetal4, .requiresMetal4) func unsupportedRequiredExtensionCanBeLoadedWithAWarning() throws {
     let url = try makeFile(texture: #"{"source": 1}"#, required: ["TEST_unknown"])
     let asset = try GLTFAsset(url: url, options: GLTFLoadOptions(loadsUnsupportedRequiredExtensions: true))
     #expect(asset.warnings.contains { $0.contains("TEST_unknown") }, "\(asset.warnings)")
 }
 
 // A registered decoder's extensions count as supported; built-in ones always do.
-@Test func registeredDecodersMakeTheirExtensionsSupported() throws {
+@Test(.requiresMetal4, .requiresMetal4) func registeredDecodersMakeTheirExtensionsSupported() throws {
     let url = try makeFile(texture: #"{"extensions": {"TEST_texture_fake": {"source": 0}}}"#, required: ["TEST_texture_fake", "KHR_texture_transform"])
     #expect(throws: GLTFUnsupportedExtensionsError.self) { try GLTFAsset(url: url) }
     let asset = try GLTFAsset(url: url, options: GLTFLoadOptions(textureDecoders: [FakeDecoder()]))
@@ -139,7 +139,7 @@ private func baseColorTexture(_ asset: GLTFAsset) throws -> MTLTexture {
 
 // The cache loads each (image, color space) once: a binding reuses the preloaded texture, and a failed image is not
 // decoded again when a material asks for it; it is reported as a warning.
-@Test func textureCacheLoadsEachImageOnce() throws {
+@Test(.requiresMetal4, .requiresMetal4) func textureCacheLoadsEachImageOnce() throws {
     let container = try Container(url: makeFile(texture: #"{"extensions": {"TEST_texture_fake": {"source": 0}}}"#))
     let device = try #require(MTLCreateSystemDefaultDevice())
     let index = try #require(container.document.materials.first?.pbrMetallicRoughness?.baseColorTexture).index
@@ -164,7 +164,7 @@ private func baseColorTexture(_ asset: GLTFAsset) throws -> MTLTexture {
 }
 
 // Without the decoder and without a fallback, the texture is skipped with a warning.
-@Test func withoutTheDecoderOrAFallbackTheTextureIsSkipped() throws {
+@Test(.requiresMetal4, .requiresMetal4) func withoutTheDecoderOrAFallbackTheTextureIsSkipped() throws {
     let asset = try GLTFAsset(url: makeFile(texture: #"{"extensions": {"TEST_texture_fake": {"source": 0}}}"#))
     #expect(asset.warnings.contains { $0.contains("Texture 0 skipped") }, "\(asset.warnings)")
 }

@@ -40,7 +40,7 @@ private func makeLineAndTriangleFile() throws -> URL {
 }
 
 // With drawsTrianglesOnly (foveated visionOS passes allow only triangles), lines are skipped and triangles still draw.
-@Test(.metalValidation) @MainActor func trianglesOnlySkipsLines() throws {
+@Test(.requiresMetal4, .metalValidation) @MainActor func trianglesOnlySkipsLines() throws {
     let asset = try GLTFAsset(url: makeLineAndTriangleFile())
     let view = simd_float4x4.lookAt(eye: [0, 0, 3], target: .zero, up: [0, 1, 0])
     let projection = simd_float4x4.perspective(fovY: .pi / 3, aspectRatio: 1, near: 0.1, far: 20)

@@ -142,7 +142,7 @@ func makeBlendedSkinnedAndStaticFile() throws -> URL {
     return url
 }
 
-@Suite(.metalValidation)
+@Suite(.requiresMetal4, .metalValidation)
 struct SkinningTests {
     // Merged skinned drawing (one joint palette for every skin) renders an animated frame exactly like drawing each
     // skinned primitive on its own. BrainStem has 59 skinned primitives.

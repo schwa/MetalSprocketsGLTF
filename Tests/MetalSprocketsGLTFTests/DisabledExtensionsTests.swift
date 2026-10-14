@@ -12,7 +12,7 @@ private func clearcoatFile(required: Bool = false) throws -> URL {
 }
 
 // A disabled material extension is ignored; the file still reports using it.
-@Test func disabledMaterialExtensionIsIgnored() throws {
+@Test(.requiresMetal4, .requiresMetal4) func disabledMaterialExtensionIsIgnored() throws {
     let url = try clearcoatFile()
     #expect(try GLTFAsset(url: url).materials.first?.uniforms.clearcoatFactor == 1)
     let asset = try GLTFAsset(url: url, options: GLTFLoadOptions(disabledExtensions: ["KHR_materials_clearcoat"]))
@@ -21,14 +21,14 @@ private func clearcoatFile(required: Bool = false) throws -> URL {
 }
 
 // Document-level extension data goes too: without KHR_materials_variants there are no variants.
-@Test func disabledDocumentExtensionIsIgnored() throws {
+@Test(.requiresMetal4, .requiresMetal4) func disabledDocumentExtensionIsIgnored() throws {
     let url = try makeVariantsTriangleFile()
     #expect(try GLTFAsset(url: url).variantNames == ["Blue", "Plain"])
     #expect(try GLTFAsset(url: url, options: GLTFLoadOptions(disabledExtensions: ["KHR_materials_variants"])).variantNames.isEmpty)
 }
 
 // Disabling an extension the file requires makes it unsupported: the load fails, or warns when allowed.
-@Test func disablingARequiredExtensionFailsTheLoad() throws {
+@Test(.requiresMetal4, .requiresMetal4) func disablingARequiredExtensionFailsTheLoad() throws {
     let url = try clearcoatFile(required: true)
     #expect(throws: GLTFUnsupportedExtensionsError.self) {
         try GLTFAsset(url: url, options: GLTFLoadOptions(disabledExtensions: ["KHR_materials_clearcoat"]))

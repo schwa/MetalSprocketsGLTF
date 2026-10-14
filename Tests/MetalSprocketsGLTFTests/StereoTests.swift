@@ -6,7 +6,7 @@ import MetalSprockets
 import simd
 import Testing
 
-@Suite(.metalValidation)
+@Suite(.requiresMetal4, .metalValidation)
 struct StereoTests {
     let size = 64
 

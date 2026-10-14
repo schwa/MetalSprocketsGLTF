@@ -8,7 +8,7 @@ import simd
 import Testing
 
 // The Swift list mirrors the shader's kPBRDebugView* values one for one.
-@Test func debugViewsMatchTheShaderValues() {
+@Test(.requiresMetal4, .requiresMetal4) func debugViewsMatchTheShaderValues() {
     #expect(Int32(PBRDebugView.allCases.count) == PBRShaderDebugView.debugViewCount.rawValue)
     #expect(PBRDebugView.allCases.map(\.rawValue) == Array(0 ..< Int32(PBRDebugView.allCases.count)))
     #expect(PBRDebugView.baseColor.shaderValue == .debugViewBaseColor)
@@ -61,7 +61,7 @@ private func isClose(_ pixel: SIMD3<Int>, _ expected: SIMD3<Int>, tolerance: Int
 }
 
 // Each view shows the input it names, unlit: data as its value, colors as the color.
-@Test(.metalValidation) @MainActor func debugViewsShowTheirInputs() throws {
+@Test(.requiresMetal4, .metalValidation) @MainActor func debugViewsShowTheirInputs() throws {
     let asset = try GLTFAsset(url: makeQuadFile())
     // Base color is linear, so the sRGB target shows its sRGB encoding: 0.2, 0.4, 0.8 -> 124, 170, 231.
     let baseColor = try center(.baseColor, asset: asset)

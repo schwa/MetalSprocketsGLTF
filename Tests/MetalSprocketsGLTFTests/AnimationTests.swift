@@ -197,7 +197,7 @@ func makeTwoMaterialAnimatedFile() throws -> URL {
     return url
 }
 
-@Suite(.metalValidation)
+@Suite(.requiresMetal4, .metalValidation)
 struct AnimationTests {
     /// Red and green bytes at world points after rendering `asset` with `pose`, viewed head-on.
     func colors(_ asset: GLTFAsset, pose: PBRPose?, at points: [SIMD3<Float>]) throws -> [(red: UInt8, green: UInt8)] {

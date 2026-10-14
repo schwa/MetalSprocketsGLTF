@@ -6,7 +6,7 @@ import MetalSprocketsPBRShaders
 import simd
 import Testing
 
-@Suite(.metalValidation)
+@Suite(.requiresMetal4, .metalValidation)
 struct TransmissionCoverageTests {
     let size = 32
     let device = MTLCreateSystemDefaultDevice()!

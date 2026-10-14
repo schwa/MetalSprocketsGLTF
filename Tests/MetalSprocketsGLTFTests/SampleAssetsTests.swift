@@ -53,7 +53,7 @@ enum SampleAssets {
     }
 }
 
-@Suite(.serialized, .metalValidation)
+@Suite(.requiresMetal4, .serialized, .metalValidation)
 struct SampleAssetsTests {
     // EXT_texture_webp: textures whose only source is a WebP image.
     @Test(.enabled(if: SampleAssets.isAvailable)) func loadsWebPTextures() throws {

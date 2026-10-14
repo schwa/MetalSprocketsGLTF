@@ -2,7 +2,7 @@
 import Testing
 
 // An indexed quad: one node, mesh and primitive; two triangles from four stored vertices; no textures.
-@Test func statisticsCountAQuad() throws {
+@Test(.requiresMetal4, .requiresMetal4) func statisticsCountAQuad() throws {
     let statistics = try GLTFAsset(url: makeIndexedQuadWithoutNormalsFile()).statistics
     #expect(statistics.version == "2.0")
     #expect(statistics.nodes == 1)
@@ -18,7 +18,7 @@ import Testing
 }
 
 // Instanced copies count as drawn triangles, but their vertices are stored once.
-@Test(.enabled(if: SampleAssets.isAvailable)) func statisticsCountInstancedCopies() throws {
+@Test(.requiresMetal4, .enabled(if: SampleAssets.isAvailable)) func statisticsCountInstancedCopies() throws {
     let asset = try GLTFAsset(url: SampleAssets.modelsDirectory.appending(path: "SimpleInstancing/glTF-Binary/SimpleInstancing.glb"))
     let statistics = asset.statistics
     #expect(statistics.primitives == 1)

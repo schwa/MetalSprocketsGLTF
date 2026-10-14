@@ -50,13 +50,13 @@ private func backlitCenter(diffuseTransmission: String?) throws -> SIMD3<Int> {
 }
 
 // Without the extension, light behind an opaque surface does not reach its front.
-@Test(.metalValidation) func backlitSurfaceIsDarkWithoutDiffuseTransmission() throws {
+@Test(.requiresMetal4, .metalValidation) func backlitSurfaceIsDarkWithoutDiffuseTransmission() throws {
     let center = try backlitCenter(diffuseTransmission: nil)
     #expect(center.x < 10 && center.y < 10 && center.z < 10, "\(center)")
 }
 
 // Diffusely transmitted light from behind shows on the front, tinted by diffuseTransmissionColorFactor.
-@Test(.metalValidation) func diffuseTransmissionLetsBacklightThroughTinted() throws {
+@Test(.requiresMetal4, .metalValidation) func diffuseTransmissionLetsBacklightThroughTinted() throws {
     let center = try backlitCenter(diffuseTransmission: #"{"diffuseTransmissionFactor": 1, "diffuseTransmissionColorFactor": [1, 0, 0]}"#)
     #expect(center.x > 120, "\(center)")
     // Tone mapping desaturates bright values slightly, so green and blue are small but not zero.
@@ -64,7 +64,7 @@ private func backlitCenter(diffuseTransmission: String?) throws -> SIMD3<Int> {
 }
 
 // diffuseTransmissionFactor blends: half transmits half as much light as full.
-@Test(.metalValidation) func diffuseTransmissionFactorScalesTransmittedLight() throws {
+@Test(.requiresMetal4, .metalValidation) func diffuseTransmissionFactorScalesTransmittedLight() throws {
     let half = try backlitCenter(diffuseTransmission: #"{"diffuseTransmissionFactor": 0.5}"#)
     let full = try backlitCenter(diffuseTransmission: #"{"diffuseTransmissionFactor": 1}"#)
     #expect(half.x > 20 && half.x < full.x, "half \(half), full \(full)")

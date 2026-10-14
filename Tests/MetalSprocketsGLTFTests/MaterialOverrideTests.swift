@@ -6,7 +6,7 @@ import MetalSprockets
 import simd
 import Testing
 
-@Suite(.metalValidation)
+@Suite(.requiresMetal4, .metalValidation)
 struct MaterialOverrideTests {
     func render(_ asset: GLTFAsset, overrides: PBRModel.MaterialOverrides = [:], merging: Bool = true) throws -> [UInt8] {
         let size = 96

@@ -21,13 +21,13 @@ private func distinctRedValues(sampleCount: Int) throws -> Set<UInt8> {
 }
 
 // Single-sampled, a flat triangle's edges are hard: only the background and the triangle's color appear.
-@Test(.metalValidation) @MainActor func singleSampledEdgesAreHard() throws {
+@Test(.requiresMetal4, .metalValidation) @MainActor func singleSampledEdgesAreHard() throws {
     let values = try distinctRedValues(sampleCount: 1)
     #expect(values.count == 2, "\(values.sorted())")
 }
 
 // With 4x MSAA, edge pixels blend the two colors.
-@Test(.metalValidation) @MainActor func multisampledEdgesAreBlended() throws {
+@Test(.requiresMetal4, .metalValidation) @MainActor func multisampledEdgesAreBlended() throws {
     let values = try distinctRedValues(sampleCount: 4)
     #expect(values.count > 2, "\(values.sorted())")
 }

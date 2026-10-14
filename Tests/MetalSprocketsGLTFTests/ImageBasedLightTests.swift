@@ -55,6 +55,7 @@ private func texel(_ light: GLTFImageBasedLight, _ direction: SIMD3<Float>) -> S
     return SIMD3(Float(light.rgba[base]), Float(light.rgba[base + 1]), Float(light.rgba[base + 2]))
 }
 
+@Suite(.requiresMetal4)
 struct ImageBasedLightTests {
     // Opaque gray levels: a face's value is (level / 255)^2.2 (RGBD with D = 1).
     let levels: [UInt8] = [40, 80, 120, 160, 200, 240]

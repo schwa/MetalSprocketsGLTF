@@ -3,7 +3,7 @@ import simd
 import Testing
 
 // EXT_mesh_gpu_instancing: SimpleInstancing places one cube mesh 125 times (a 5 x 5 x 5 grid) from one node.
-@Test(.enabled(if: SampleAssets.isAvailable)) func gpuInstancingDrawsEveryCopy() throws {
+@Test(.requiresMetal4, .enabled(if: SampleAssets.isAvailable)) func gpuInstancingDrawsEveryCopy() throws {
     let url = SampleAssets.modelsDirectory.appending(path: "SimpleInstancing/glTF-Binary/SimpleInstancing.glb")
     let asset = try GLTFAsset(url: url)
     #expect(asset.opaqueInstances.count == 125)

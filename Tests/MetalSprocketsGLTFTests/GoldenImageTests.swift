@@ -13,7 +13,7 @@ import UniformTypeIdentifiers
 // To add or update a golden: delete it (or add the model to `models`), run the tests, and copy the image named in the
 // failure from the output directory into Tests/MetalSprocketsGLTFTests/GoldenImages.
 
-@Suite(.serialized, .metalValidation, .enabled(if: SampleAssets.isAvailable))
+@Suite(.requiresMetal4, .serialized, .metalValidation, .enabled(if: SampleAssets.isAvailable))
 struct GoldenImageTests {
     static let models = [
         "AlphaBlendModeTest",

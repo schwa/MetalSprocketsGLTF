@@ -26,7 +26,7 @@ private func pixel(_ pixels: [UInt8], x: Int, y: Int) -> SIMD3<Int> {
 
 // The two triangles share the quad's diagonal, which runs along y = 63 - x in the image (y points down): wireframe
 // turns it cyan. A point well inside one triangle, away from every edge, is unchanged.
-@Test(.metalValidation) @MainActor func wireframeDrawsTriangleEdgesOnly() throws {
+@Test(.requiresMetal4, .metalValidation) @MainActor func wireframeDrawsTriangleEdgesOnly() throws {
     let plain = try renderQuad(wireframe: false)
     let wired = try renderQuad(wireframe: true)
     let edge = pixel(wired, x: 31, y: 32)

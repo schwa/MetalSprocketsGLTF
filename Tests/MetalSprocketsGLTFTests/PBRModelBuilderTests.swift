@@ -33,6 +33,7 @@ func makeColorMaterial(_ color: SIMD4<Float>, device: MTLDevice) throws -> PBRMa
     return try PBRMaterial(uniforms: uniforms, placeholder: PBRMaterial.placeholderBinding(device: device), device: device)
 }
 
+@Suite(.requiresMetal4)
 struct PBRModelBuilderTests {
     // The PBR defaults are exactly what a glTF material without any properties loads as.
     @Test func defaultUniformsMatchGLTF() throws {

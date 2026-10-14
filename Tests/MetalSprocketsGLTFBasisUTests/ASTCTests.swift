@@ -53,7 +53,7 @@ private let astcOptions = GLTFLoadOptions(textureDecoders: [GLTFASTCTextureDecod
 
 // An ASTC image with a full mip chain (as the spec requires for mipmapped samplers) is uploaded as-is: the same block
 // size and every level, sRGB in a color slot and linear in a data slot.
-@Test func astcWithMipsStaysASTC() throws {
+@Test(.requiresMetal4, .requiresMetal4) func astcWithMipsStaysASTC() throws {
     let asset = try GLTFAsset(url: makeASTCFile(fallback: true, image: "astc_8x8_srgb_zstd"), options: astcOptions)
     #expect(asset.warnings.isEmpty, "\(asset.warnings)")
     let material = try #require(asset.materials.first)
@@ -65,7 +65,7 @@ private let astcOptions = GLTFLoadOptions(textureDecoders: [GLTFASTCTextureDecod
 
 // A single-level ASTC image (256 x 256) gets a generated mip chain, stored uncompressed: Metal cannot generate mipmaps
 // for compressed formats. Color space still follows the slot.
-@Test func singleLevelASTCIsDecodedForMipmaps() throws {
+@Test(.requiresMetal4, .requiresMetal4) func singleLevelASTCIsDecodedForMipmaps() throws {
     let asset = try GLTFAsset(url: makeASTCFile(fallback: true), options: astcOptions)
     #expect(asset.warnings.isEmpty, "\(asset.warnings)")
     let material = try #require(asset.materials.first)
@@ -77,7 +77,7 @@ private let astcOptions = GLTFLoadOptions(textureDecoders: [GLTFASTCTextureDecod
 }
 
 // Without the decoder, the texture falls back to its PNG source.
-@Test func astcFallsBackWithoutTheDecoder() throws {
+@Test(.requiresMetal4, .requiresMetal4) func astcFallsBackWithoutTheDecoder() throws {
     let asset = try GLTFAsset(url: makeASTCFile(fallback: true))
     let material = try #require(asset.materials.first)
     #expect(material[texture: kPBRTextureBaseColor].texture.pixelFormat != .astc_6x6_srgb)
@@ -85,7 +85,7 @@ private let astcOptions = GLTFLoadOptions(textureDecoders: [GLTFASTCTextureDecod
 }
 
 // A file that requires the extension (no fallback) needs the decoder.
-@Test func requiredASTCNeedsTheDecoder() throws {
+@Test(.requiresMetal4, .requiresMetal4) func requiredASTCNeedsTheDecoder() throws {
     let url = try makeASTCFile(fallback: false)
     #expect(throws: GLTFUnsupportedExtensionsError.self) { try GLTFAsset(url: url) }
     let asset = try GLTFAsset(url: url, options: astcOptions)

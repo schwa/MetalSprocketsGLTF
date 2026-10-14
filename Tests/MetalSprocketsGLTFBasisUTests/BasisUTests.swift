@@ -25,7 +25,7 @@ private let pairs: [(name: String, ktx: String, plain: String)] = [
 ]
 
 // Without the decoder, a file that requires KHR_texture_basisu is rejected; with it, it loads without warnings.
-@Test(.enabled(if: samplesAvailable)) func ktxVariantNeedsTheDecoder() throws {
+@Test(.requiresMetal4, .enabled(if: samplesAvailable)) func ktxVariantNeedsTheDecoder() throws {
     let url = modelsDirectory.appending(path: "FlightHelmet/glTF-KTX-BasisU/FlightHelmet.gltf")
     #expect(throws: GLTFUnsupportedExtensionsError.self) { try GLTFAsset(url: url) }
     let asset = try GLTFAsset(url: url, options: options)
@@ -35,7 +35,7 @@ private let pairs: [(name: String, ktx: String, plain: String)] = [
 
 // The KTX2 variant renders like the PNG/JPEG one. Transcoding is lossy, so they are close but not equal; a wrong
 // color space (sRGB vs linear) would brighten or darken every textured surface and fail this.
-@Test(.enabled(if: samplesAvailable), arguments: pairs.map(\.name))
+@Test(.requiresMetal4, .enabled(if: samplesAvailable), arguments: pairs.map(\.name))
 func ktxVariantMatchesThePlainVariant(_ name: String) throws {
     let pair = try #require(pairs.first { $0.name == name })
     let directory = modelsDirectory.appending(path: name)

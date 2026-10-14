@@ -23,6 +23,7 @@ private func redChannel(upscaling: PBRUpscaling?) throws -> [UInt8] {
     return (0 ..< 64 * 64).map { pixels[$0 * 4] }
 }
 
+@Suite(.requiresMetal4)
 struct UpscalingTests {
     // Drawn at half size and upscaled with MetalFX, the frame matches the full-size one except near edges.
     @Test(.metalValidation) @MainActor

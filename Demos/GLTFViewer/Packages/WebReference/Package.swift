@@ -14,7 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../../../.."),
-        .package(path: "../../../../../MetalSprocketsPBR"),
+        .package(url: "https://github.com/schwa/MetalSprocketsPBR", branch: "main"),
         .package(url: "https://github.com/schwa/MetalSprockets", from: "0.2.2"),
         .package(url: "https://github.com/schwa/MetalSupport", from: "1.0.7"),
         .package(url: "https://github.com/schwa/GoldenImage", from: "0.1.5")

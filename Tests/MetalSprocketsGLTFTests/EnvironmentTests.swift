@@ -7,7 +7,7 @@ import MetalSprocketsPBR
 import simd
 import Testing
 
-@Suite(.metalValidation)
+@Suite(.requiresMetal4, .metalValidation)
 struct EnvironmentTests {
     /// Every texel of every face of `texture` at `level`, as RGBA.
     func cubeTexels(_ texture: MTLTexture, level: Int) -> [SIMD4<Float>] {

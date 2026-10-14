@@ -48,7 +48,7 @@ private func frontLitCenter(scatters: Bool) throws -> SIMD3<Int> {
 
 // Without scattering, a fully diffuse-transmitting dense volume returns almost nothing toward a front light; with
 // scattering, light comes back out in the multiscatter color.
-@Test(.metalValidation) @MainActor func volumeScatterReturnsTintedLight() throws {
+@Test(.requiresMetal4, .metalValidation) @MainActor func volumeScatterReturnsTintedLight() throws {
     let plain = try frontLitCenter(scatters: false)
     let scattered = try frontLitCenter(scatters: true)
     #expect(plain.x < 30 && plain.y < 30 && plain.z < 30, "\(plain)")

@@ -4,10 +4,10 @@ import MetalSprockets
 import MetalSprocketsGLTF
 import MetalSprocketsGLTFBasisU
 import MetalSprocketsGLTFMeshopt
-import WebReference
 import MetalSprocketsUI
 import simd
 import SwiftUI
+import WebReference
 
 /// Peak signal-to-noise ratio of two images in sRGB bytes, over RGB; infinity when they are identical. Images of
 /// different sizes are compared at the first one's size.

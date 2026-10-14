@@ -60,8 +60,8 @@ struct GLTFRenderCommand: ParsableCommand {
     @Option(name: .shortAndLong, help: "Output PNG, or OpenEXR (.exr: rendered into a float target, linear, values above 1 kept with --tone-mapping none). Defaults to the input name with .png.")
     var output: String?
 
-    @Option var width: Int = 1024
-    @Option var height: Int = 1024
+    @Option var width: Int = 1_024
+    @Option var height: Int = 1_024
 
     @Option(help: "Use the glTF camera with this index instead of auto-framing.")
     var camera: Int?

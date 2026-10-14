@@ -10,7 +10,7 @@ import Testing
 struct MetalValidationTrait: TestTrait, SuiteTrait, TestScoping {
     var isRecursive: Bool { true }
 
-    func provideScope(for test: Test, testCase: Test.Case?, performing function: @Sendable () async throws -> Void) async throws {
+    func provideScope(for _: Test, testCase _: Test.Case?, performing function: @Sendable () async throws -> Void) async throws {
         try #require(MetalValidation.isEnabled, "Metal API validation is not active: the Metal device was created before MTL_DEBUG_LAYER was set.")
         try await function()
     }

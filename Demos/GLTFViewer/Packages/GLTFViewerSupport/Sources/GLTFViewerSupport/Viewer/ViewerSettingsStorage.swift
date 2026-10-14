@@ -1,7 +1,7 @@
 import Foundation
 import MetalSprocketsGLTF
-import WebReference
 import MetalSprocketsPBR
+import WebReference
 
 // ViewerSettings persist across launches as JSON in UserDefaults (SamplesView's @AppStorage). Each field decodes on
 // its own and falls back to its default, so a value that no longer exists (a removed tab, debug view or HDRI, a sample
@@ -90,6 +90,7 @@ extension ViewerEnvironment {
         case "model": self = .model
         case "studio": self = .studio
         case "gray": self = .gray
+
         default:
             guard storedValue.hasPrefix("hdri:"), let hdri = BundledHDRI(rawValue: String(storedValue.dropFirst(5))) else { return nil }
             self = .hdri(hdri)

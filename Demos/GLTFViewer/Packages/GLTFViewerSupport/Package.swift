@@ -7,10 +7,10 @@ let package = Package(
     platforms: [
         .macOS(.v26),
         .iOS(.v26),
-        .visionOS(.v26),
+        .visionOS(.v26)
     ],
     products: [
-        .library(name: "GLTFViewerSupport", targets: ["GLTFViewerSupport"]),
+        .library(name: "GLTFViewerSupport", targets: ["GLTFViewerSupport"])
     ],
     dependencies: [
         .package(path: "../../../.."),
@@ -19,7 +19,7 @@ let package = Package(
         .package(url: "https://github.com/schwa/MetalSprockets", branch: "main"),
         .package(url: "https://github.com/schwa/SwiftGLTF", branch: "main"),
         .package(url: "https://github.com/schwa/Interaction3D", from: "0.1.13"),
-        .package(url: "https://github.com/schwa/SwiftMesh", branch: "main"),
+        .package(url: "https://github.com/schwa/SwiftMesh", branch: "main")
     ],
     targets: [
         .target(
@@ -34,7 +34,7 @@ let package = Package(
                 .product(name: "MetalSprocketsUI", package: "MetalSprockets"),
                 .product(name: "Interaction3D", package: "Interaction3D"),
                 .product(name: "SwiftGLTF", package: "SwiftGLTF"),
-                .product(name: "SwiftMesh", package: "SwiftMesh"),
+                .product(name: "SwiftMesh", package: "SwiftMesh")
             ],
             // Built by `just basic-shapes`.
             resources: [.copy("Resources/BasicShapes")]
@@ -47,9 +47,9 @@ let package = Package(
                 .product(name: "MetalSprocketsGLTF", package: "MetalSprocketsGLTF"),
                 .product(name: "MetalSprocketsGLTFMeshopt", package: "MetalSprocketsGLTF"),
                 .product(name: "MetalSprocketsPBR", package: "MetalSprocketsPBR"),
-                .product(name: "SwiftGLTF", package: "SwiftGLTF"),
+                .product(name: "SwiftGLTF", package: "SwiftGLTF")
             ]
-        ),
+        )
     ],
     swiftLanguageModes: [.v6]
 )

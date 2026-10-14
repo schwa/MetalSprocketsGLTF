@@ -43,8 +43,8 @@ func measureFrames<Content: Element>(frames: Int, warmUpFrames: Int = 10, render
         let start = ContinuousClock.now
         let rendering = try renderer.render(try scene(frame + warmUpFrames))
         let elapsed = ContinuousClock.now - start
-        totals.append(Double(elapsed.components.attoseconds) / 1e15 + Double(elapsed.components.seconds) * 1000)
-        gpus.append((rendering.gpuTime ?? 0) * 1000)
+        totals.append(Double(elapsed.components.attoseconds) / 1e15 + Double(elapsed.components.seconds) * 1_000)
+        gpus.append((rendering.gpuTime ?? 0) * 1_000)
     }
     let cpus = zip(totals, gpus).map { max($0 - $1, 0) }
     return FrameTimings(frame: TimingSummary(totals), gpu: TimingSummary(gpus), cpu: TimingSummary(cpus))

@@ -11,7 +11,7 @@ public extension PBRCamera {
         } else if let orthographic = camera.orthographic {
             projectionMatrix = .orthographic(halfWidth: orthographic.xmag, halfHeight: orthographic.ymag, near: orthographic.znear, far: orthographic.zfar)
         } else {
-            projectionMatrix = .perspective(fovY: .pi / 4, aspectRatio: aspectRatio, near: 0.01, far: 1000)
+            projectionMatrix = .perspective(fovY: .pi / 4, aspectRatio: aspectRatio, near: 0.01, far: 1_000)
         }
         self.init(viewMatrix: worldMatrix.inverse, projectionMatrix: projectionMatrix)
     }

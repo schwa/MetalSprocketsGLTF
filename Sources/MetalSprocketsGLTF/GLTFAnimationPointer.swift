@@ -24,12 +24,16 @@ enum GLTFAnimationPointer {
         switch parts[0] {
         case "nodes" where property == "extensions/KHR_node_visibility/visible":
             return .visibility(index)
+
         case "nodes" where parts.count == 3:
             return GLTFAnimationClip.NodeProperty(rawValue: parts[2]).map { .node(index, $0) }
+
         case "materials":
             return MaterialProperty(property) != nil ? .material(index, property) : nil
+
         case "cameras":
             return cameraProperties.contains(property) ? .camera(index, property) : nil
+
         default:
             return nil
         }
@@ -43,7 +47,7 @@ enum GLTFAnimationPointer {
         "intensity": { if let value = $1.first { $0.intensity = value } },
         "range": { if let value = $1.first { $0.range = value } },
         "spot/innerConeAngle": { if let value = $1.first { $0.innerConeCos = cos(value) } },
-        "spot/outerConeAngle": { if let value = $1.first { $0.outerConeCos = cos(value) } },
+        "spot/outerConeAngle": { if let value = $1.first { $0.outerConeCos = cos(value) } }
     ]
 
     static func apply(_ properties: [String: [Float]], to light: inout PBRLight) {
@@ -57,7 +61,7 @@ enum GLTFAnimationPointer {
     /// Properties below `/cameras/N/`, each `group/name` in the camera's JSON.
     static let cameraProperties: Set<String> = [
         "perspective/yfov", "perspective/znear", "perspective/zfar", "perspective/aspectRatio",
-        "orthographic/xmag", "orthographic/ymag", "orthographic/znear", "orthographic/zfar",
+        "orthographic/xmag", "orthographic/ymag", "orthographic/znear", "orthographic/zfar"
     ]
 
     /// `camera` with animated properties applied. Properties of a projection the camera lacks are ignored.

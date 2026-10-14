@@ -38,7 +38,7 @@ struct StereoTests {
         let center = asset.bounds.center
         let views = [
             simd_float4x4.lookAt(eye: center + [-0.4, 0.3, 4], target: center, up: [0, 1, 0]),
-            simd_float4x4.lookAt(eye: center + [0.4, 0.3, 4], target: center, up: [0, 1, 0]),
+            simd_float4x4.lookAt(eye: center + [0.4, 0.3, 4], target: center, up: [0, 1, 0])
         ]
         func pbrRenderer(view: simd_float4x4) -> PBRRenderer {
             PBRRenderer(asset: asset, viewMatrix: view, projectionMatrix: projection, lighting: lighting)
@@ -90,7 +90,7 @@ struct StereoTests {
         // the other eye's slice would show the wrong side of it.
         let views = [
             simd_float4x4.lookAt(eye: [-3, 0, 2], target: .zero, up: [0, 1, 0]),
-            simd_float4x4.lookAt(eye: [3, 0, 2], target: .zero, up: [0, 1, 0]),
+            simd_float4x4.lookAt(eye: [3, 0, 2], target: .zero, up: [0, 1, 0])
         ]
 
         let viewport = MTLViewport(originX: 0, originY: 0, width: Double(size), height: Double(size), znear: 0, zfar: 1)

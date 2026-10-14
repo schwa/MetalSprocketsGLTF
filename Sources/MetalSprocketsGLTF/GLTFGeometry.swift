@@ -84,20 +84,26 @@ enum GLTFGeometry {
         case .TRIANGLES:
             primitiveType = .triangle
             indices.removeLast(indices.count % 3)
+
         case .TRIANGLE_STRIP:
             primitiveType = .triangle
             indices = triangleList(fromStrip: indices)
+
         case .TRIANGLE_FAN:
             primitiveType = .triangle
             indices = triangleList(fromFan: indices)
+
         case .POINTS:
             primitiveType = .point
+
         case .LINES:
             primitiveType = .line
             indices.removeLast(indices.count % 2)
+
         case .LINE_STRIP:
             primitiveType = .line
             indices = lineList(fromStrip: indices, closed: false)
+
         case .LINE_LOOP:
             primitiveType = .line
             indices = lineList(fromStrip: indices, closed: true)
@@ -165,8 +171,10 @@ enum GLTFGeometry {
             switch componentType {
             case .UNSIGNED_BYTE:
                 return raw.map { UInt32($0) }
+
             case .UNSIGNED_SHORT:
                 return (0 ..< raw.count / 2).map { UInt32(raw.loadUnaligned(fromByteOffset: $0 * 2, as: UInt16.self)) }
+
             default:
                 return (0 ..< raw.count / 4).map { raw.loadUnaligned(fromByteOffset: $0 * 4, as: UInt32.self) }
             }

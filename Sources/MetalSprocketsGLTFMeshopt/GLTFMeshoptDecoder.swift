@@ -114,8 +114,10 @@ public struct GLTFMeshoptDecoder: BufferViewDecoder {
                 switch compression.mode {
                 case .attributes:
                     return meshopt_decodeVertexBuffer(destination.baseAddress, compression.count, compression.byteStride, input.baseAddress, input.count)
+
                 case .triangles:
                     return meshopt_decodeIndexBuffer(destination.baseAddress, compression.count, compression.byteStride, input.baseAddress, input.count)
+
                 case .indices:
                     return meshopt_decodeIndexSequence(destination.baseAddress, compression.count, compression.byteStride, input.baseAddress, input.count)
                 }

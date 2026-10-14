@@ -130,6 +130,6 @@ struct EnvironmentTests {
         let studio = PBREnvironment.studio
         #expect(studio.specular.textureType == .typeCube)
         #expect(studio.specular.mipmapLevelCount > 1)
-        #expect(studio.source.width == 2048)
+        #expect(studio.source.width == 2_048)
     }
 }

@@ -1,8 +1,8 @@
 import Metal
 import MetalSprocketsGLTF
-import WebReference
 import simd
 import SwiftUI
+import WebReference
 
 struct WebInspector: View {
     @Environment(ViewerPreferences.self) private var preferences

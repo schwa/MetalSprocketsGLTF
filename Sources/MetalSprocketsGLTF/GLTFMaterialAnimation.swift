@@ -13,6 +13,7 @@ extension PBRMaterial {
             switch property {
             case .factor(let setter):
                 setter(&uniforms, value)
+
             case let .textureTransform(texturePath, component):
                 guard var transform = textureTransforms[texturePath] else { return }
                 switch component {

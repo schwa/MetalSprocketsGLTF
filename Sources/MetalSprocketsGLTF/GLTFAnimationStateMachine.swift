@@ -35,6 +35,7 @@ public struct GLTFAnimationStateMachine: Sendable {
         public var fadeDuration: Float
         public var condition: @Sendable (Context) -> Bool
 
+        @preconcurrency
         public init(from: String?, to: String, fadeDuration: Float = 0.25, when condition: @escaping @Sendable (Context) -> Bool) {
             self.from = from
             self.to = to

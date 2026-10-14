@@ -31,17 +31,17 @@ private func section(_ items: [DocumentOutlineItem], _ id: String) -> DocumentOu
 // Node trees nest children, mark lights, and stop at cycles; every ID is unique.
 @Test func outlinesHierarchiesLightsAndCycles() throws {
     let json = #"""
-    {
-      "asset": {"version": "2.0"},
-      "extensionsUsed": ["KHR_lights_punctual"],
-      "extensions": {"KHR_lights_punctual": {"lights": [{"type": "spot", "intensity": 5, "spot": {}}]}},
-      "scenes": [{"nodes": [0]}],
-      "nodes": [
+        {
+        "asset": {"version": "2.0"},
+        "extensionsUsed": ["KHR_lights_punctual"],
+        "extensions": {"KHR_lights_punctual": {"lights": [{"type": "spot", "intensity": 5, "spot": {}}]}},
+        "scenes": [{"nodes": [0]}],
+        "nodes": [
         {"name": "Root", "children": [1, 2]},
         {"name": "Lamp", "extensions": {"KHR_lights_punctual": {"light": 0}}},
         {"name": "Loop", "children": [0]}
-      ]
-    }
+        ]
+        }
     """#
     // The loader rejects the cycle, so outline the document directly.
     let document = try JSONDecoder().decode(Document.self, from: Data(json.utf8))
@@ -59,12 +59,12 @@ private func section(_ items: [DocumentOutlineItem], _ id: String) -> DocumentOu
 // Outline items refer to what they show, and the detail view lists its properties.
 @Test func itemsHaveReferencesAndProperties() throws {
     let json = #"""
-    {
-      "asset": {"version": "2.0"},
-      "scenes": [{"nodes": [0]}],
-      "nodes": [{"name": "Root", "translation": [1, 2, 3], "children": [1]}, {"name": "Child"}],
-      "materials": [{"name": "Red", "doubleSided": true, "pbrMetallicRoughness": {"baseColorFactor": [1, 0, 0, 1]}}]
-    }
+        {
+        "asset": {"version": "2.0"},
+        "scenes": [{"nodes": [0]}],
+        "nodes": [{"name": "Root", "translation": [1, 2, 3], "children": [1]}, {"name": "Child"}],
+        "materials": [{"name": "Red", "doubleSided": true, "pbrMetallicRoughness": {"baseColorFactor": [1, 0, 0, 1]}}]
+        }
     """#
     let document = try JSONDecoder().decode(Document.self, from: Data(json.utf8))
     var path = Set<Int>()

@@ -56,6 +56,7 @@ public struct SampleModel: Codable, Hashable, Identifiable, Sendable {
 }
 
 /// Downloads the sample index and individual models on demand, caching both on disk.
+@preconcurrency
 @MainActor
 @Observable
 public final class SampleLibrary {

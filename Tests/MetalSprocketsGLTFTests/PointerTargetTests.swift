@@ -90,7 +90,7 @@ struct PointerTargetTests {
         var light = PBRLight()
         GLTFAnimationPointer.apply([
             "color": [0, 1, 0], "intensity": [5], "range": [7],
-            "spot/innerConeAngle": [0.1], "spot/outerConeAngle": [0.2],
+            "spot/innerConeAngle": [0.1], "spot/outerConeAngle": [0.2]
         ], to: &light)
         #expect(light.color == [0, 1, 0])
         #expect(light.intensity == 5)

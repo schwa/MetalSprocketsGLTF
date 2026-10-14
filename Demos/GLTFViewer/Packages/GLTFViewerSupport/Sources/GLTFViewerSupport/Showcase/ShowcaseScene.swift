@@ -54,47 +54,48 @@ public enum ShowcaseScene: String, CaseIterable, Identifiable, Sendable {
                     let roughness = max(Float(column) / Float(steps - 1), 0.04)
                     let material = builder.addMaterial([
                         "name": "metallic \(metallic) roughness \(roughness)",
-                        "pbrMetallicRoughness": ["baseColorFactor": [0.95, 0.55, 0.25, 1], "metallicFactor": metallic, "roughnessFactor": roughness],
+                        "pbrMetallicRoughness": ["baseColorFactor": [0.95, 0.55, 0.25, 1], "metallicFactor": metallic, "roughnessFactor": roughness]
                     ])
                     builder.addNode(mesh: sphere, material: material, translation: [Float(column - steps / 2), Float(steps / 2 - row), 0])
                 }
             }
+
         case .showcase:
             let checker = builder.addImage(try Self.checkerPNG())
             let floor = builder.addMaterial([
                 "name": "Checkered Floor",
-                "pbrMetallicRoughness": ["baseColorTexture": ["index": checker], "metallicFactor": 0, "roughnessFactor": 0.7],
+                "pbrMetallicRoughness": ["baseColorTexture": ["index": checker], "metallicFactor": 0, "roughnessFactor": 0.7]
             ])
             builder.addNode(mesh: builder.addMesh(.plane(size: 4.5)), material: floor, translation: [0, 0, 0])
             let pieces: [(mesh: ShapeMesh, material: [String: Any], rotation: simd_quatf?)] = [
                 (.sphere(radius: 0.5, segments: 64, rings: 32), [
                     "name": "Gold",
-                    "pbrMetallicRoughness": ["baseColorFactor": [1, 0.766, 0.336, 1], "metallicFactor": 1, "roughnessFactor": 0.18],
+                    "pbrMetallicRoughness": ["baseColorFactor": [1, 0.766, 0.336, 1], "metallicFactor": 1, "roughnessFactor": 0.18]
                 ], nil),
                 (.sphere(radius: 0.5, segments: 64, rings: 32), [
                     "name": "Glass",
                     "pbrMetallicRoughness": ["baseColorFactor": [0.95, 1, 0.97, 1], "metallicFactor": 0, "roughnessFactor": 0.03],
-                    "extensions": ["KHR_materials_transmission": ["transmissionFactor": 1], "KHR_materials_ior": ["ior": 1.5], "KHR_materials_volume": ["thicknessFactor": 0.6, "attenuationColor": [0.85, 0.97, 0.9], "attenuationDistance": 1.5]],
+                    "extensions": ["KHR_materials_transmission": ["transmissionFactor": 1], "KHR_materials_ior": ["ior": 1.5], "KHR_materials_volume": ["thicknessFactor": 0.6, "attenuationColor": [0.85, 0.97, 0.9], "attenuationDistance": 1.5]]
                 ], nil),
                 (.torus(radius: 0.35, tubeRadius: 0.15, segments: 64, tubeSegments: 32), [
                     "name": "Car Paint",
                     "pbrMetallicRoughness": ["baseColorFactor": [0.55, 0.02, 0.03, 1], "metallicFactor": 0.4, "roughnessFactor": 0.45],
-                    "extensions": ["KHR_materials_clearcoat": ["clearcoatFactor": 1, "clearcoatRoughnessFactor": 0.03]],
+                    "extensions": ["KHR_materials_clearcoat": ["clearcoatFactor": 1, "clearcoatRoughnessFactor": 0.03]]
                 ], simd_quatf(angle: .pi / 2, axis: [1, 0, 0])),
                 (.cube(size: 0.9), [
                     "name": "Velvet",
                     "pbrMetallicRoughness": ["baseColorFactor": [0.18, 0.04, 0.25, 1], "metallicFactor": 0, "roughnessFactor": 0.9],
-                    "extensions": ["KHR_materials_sheen": ["sheenColorFactor": [0.85, 0.5, 1], "sheenRoughnessFactor": 0.4]],
+                    "extensions": ["KHR_materials_sheen": ["sheenColorFactor": [0.85, 0.5, 1], "sheenRoughnessFactor": 0.4]]
                 ], simd_quatf(angle: .pi / 5, axis: [0, 1, 0])),
                 (.cone(radius: 0.5, height: 1, segments: 64), [
                     "name": "Iridescent",
                     "pbrMetallicRoughness": ["baseColorFactor": [0.9, 0.9, 0.9, 1], "metallicFactor": 1, "roughnessFactor": 0.15],
-                    "extensions": ["KHR_materials_iridescence": ["iridescenceFactor": 1, "iridescenceIor": 1.3, "iridescenceThicknessMinimum": 100, "iridescenceThicknessMaximum": 400]],
+                    "extensions": ["KHR_materials_iridescence": ["iridescenceFactor": 1, "iridescenceIor": 1.3, "iridescenceThicknessMinimum": 100, "iridescenceThicknessMaximum": 400]]
                 ], nil),
                 (.cylinder(radius: 0.4, height: 1, segments: 64), [
                     "name": "Satin Plastic",
-                    "pbrMetallicRoughness": ["baseColorFactor": [0.1, 0.35, 0.85, 1], "metallicFactor": 0, "roughnessFactor": 0.35],
-                ], nil),
+                    "pbrMetallicRoughness": ["baseColorFactor": [0.1, 0.35, 0.85, 1], "metallicFactor": 0, "roughnessFactor": 0.35]
+                ], nil)
             ]
             for (index, piece) in pieces.enumerated() {
                 let column = Float(index % 3) - 1
@@ -161,8 +162,8 @@ struct GLBBuilder {
     }
 
     private mutating func appendAccessor(_ values: [Float], components: Int, type: String, bounds: (SIMD3<Float>, SIMD3<Float>)? = nil) -> Int {
-        let view = appendView(values.withUnsafeBytes { Data($0) }, target: 34962)
-        var accessor: [String: Any] = ["bufferView": view, "componentType": 5126, "count": values.count / components, "type": type]
+        let view = appendView(values.withUnsafeBytes { Data($0) }, target: 34_962)
+        var accessor: [String: Any] = ["bufferView": view, "componentType": 5_126, "count": values.count / components, "type": type]
         if let (minimum, maximum) = bounds {
             accessor["min"] = [minimum.x, minimum.y, minimum.z]
             accessor["max"] = [maximum.x, maximum.y, maximum.z]
@@ -178,8 +179,8 @@ struct GLBBuilder {
         let positions = appendAccessor(mesh.positions.flatMap { [$0.x, $0.y, $0.z] }, components: 3, type: "VEC3", bounds: (minimum, maximum))
         let normals = appendAccessor(mesh.normals.flatMap { [$0.x, $0.y, $0.z] }, components: 3, type: "VEC3")
         let texCoords = appendAccessor(mesh.texCoords.flatMap { [$0.x, $0.y] }, components: 2, type: "VEC2")
-        let indexView = appendView(mesh.indices.withUnsafeBytes { Data($0) }, target: 34963)
-        accessors.append(["bufferView": indexView, "componentType": 5125, "count": mesh.indices.count, "type": "SCALAR"])
+        let indexView = appendView(mesh.indices.withUnsafeBytes { Data($0) }, target: 34_963)
+        accessors.append(["bufferView": indexView, "componentType": 5_125, "count": mesh.indices.count, "type": "SCALAR"])
         meshAccessors.append((positions, normals, texCoords, accessors.count - 1))
         return meshAccessors.count - 1
     }
@@ -234,12 +235,12 @@ struct GLBBuilder {
             "materials": materials,
             "accessors": accessors,
             "bufferViews": bufferViews,
-            "buffers": [["byteLength": binary.count]],
+            "buffers": [["byteLength": binary.count]]
         ]
         if !images.isEmpty {
             json["images"] = images
             json["textures"] = images.indices.map { ["source": $0, "sampler": 0] }
-            json["samplers"] = [["magFilter": 9729, "minFilter": 9987, "wrapS": 10497, "wrapT": 10497]]
+            json["samplers"] = [["magFilter": 9_729, "minFilter": 9_987, "wrapS": 10_497, "wrapT": 10_497]]
         }
         if !extensionsUsed.isEmpty {
             json["extensionsUsed"] = extensionsUsed.sorted()

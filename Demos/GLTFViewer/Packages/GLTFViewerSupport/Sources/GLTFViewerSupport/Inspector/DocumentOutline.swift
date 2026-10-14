@@ -61,7 +61,7 @@ enum DocumentOutline {
             section("cameras", "Cameras", "camera", cameras(document)),
             section("lights", "Lights", "lightbulb", lights.enumerated().map { index, light in
                 DocumentOutlineItem(id: "lights/\(index)", title: light.name ?? "Light \(index)", detail: lightDetail(light), systemImage: "lightbulb", reference: .light(index))
-            }),
+            })
         ].compactMap(\.self)
     }
 

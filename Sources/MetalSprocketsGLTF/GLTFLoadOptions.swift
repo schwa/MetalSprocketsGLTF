@@ -56,7 +56,7 @@ public extension GLTFAsset {
         EXTMeshGPUInstancing.extensionName,
         EXTLightsImageBased.extensionName,
         // Metadata only; nothing to render.
-        "KHR_xmp_json_ld",
+        "KHR_xmp_json_ld"
     ])
 }
 

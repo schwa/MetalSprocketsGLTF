@@ -1,9 +1,9 @@
 import Metal
 import MetalSprocketsGLTF
-import WebReference
 import MetalSprocketsPBR
 import simd
 import SwiftUI
+import WebReference
 
 struct DisplayInspector: View {
     nonisolated static let renderScales: [Float] = [1, 0.75, 0.5]
@@ -56,8 +56,8 @@ struct DisplayInspector: View {
                 }
                 LabeledContent("Exposure") {
                     Slider(value: $preferences.settings.exposure, in: -4 ... 4)
-                    .frame(width: 100)
-                    .fixedSize()
+                        .frame(width: 100)
+                        .fixedSize()
                     Text(preferences.settings.exposure, format: .number.precision(.fractionLength(1)).sign(strategy: .always(includingZero: false)))
                         .monospacedDigit()
                         .frame(width: 40)

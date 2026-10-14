@@ -28,13 +28,13 @@ struct GoldenImageTests {
         "TextureSettingsTest",
         "TextureTransformTest",
         "UnlitTest",
-        "VertexColorTest",
+        "VertexColorTest"
     ]
 
     /// Yaw and pitch in degrees; models not listed are viewed head-on.
     static let cameraAngles: [String: SIMD2<Float>] = [
         // Matches the Khronos screenshot so all three arrows are visible.
-        "OrientationTest": [45, -30],
+        "OrientationTest": [45, -30]
     ]
 
     static let size = 256

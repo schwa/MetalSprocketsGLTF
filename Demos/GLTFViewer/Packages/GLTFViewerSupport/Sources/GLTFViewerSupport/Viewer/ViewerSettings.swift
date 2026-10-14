@@ -4,11 +4,11 @@ import MetalSprockets
 import MetalSprocketsGLTF
 import MetalSprocketsGLTFBasisU
 import MetalSprocketsGLTFMeshopt
-import WebReference
 import MetalSprocketsPBR
 import MetalSprocketsUI
 import simd
 import SwiftUI
+import WebReference
 
 /// How the Metal render is shown next to the three.js reference.
 enum ComparisonMode: String, CaseIterable, Identifiable {

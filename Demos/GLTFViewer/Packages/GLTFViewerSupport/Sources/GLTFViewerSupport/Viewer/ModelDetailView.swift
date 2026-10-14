@@ -17,8 +17,10 @@ struct ModelDetailView: View {
             switch viewer.phase {
             case .loading:
                 ProgressView("Loading \(viewer.title)…")
+
             case .loaded(let model):
                 GLTFView(model: model)
+
             case .failed(let message):
                 ContentUnavailableView {
                     Label("Failed to Load", systemImage: "exclamationmark.triangle")

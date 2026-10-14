@@ -282,8 +282,10 @@ extension PBRLight {
         switch light.type {
         case .directional:
             type = .directional
+
         case .point:
             type = .point
+
         case .spot:
             type = .spot
             innerConeCos = cos(light.spot?.innerConeAngle ?? 0)

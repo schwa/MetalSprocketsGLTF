@@ -1,8 +1,8 @@
 import Metal
 import MetalSprocketsGLTF
-import WebReference
 import simd
 import SwiftUI
+import WebReference
 
 /// The image-based lighting: which environment, how bright, and its rotation.
 struct EnvironmentSection: View {
@@ -41,10 +41,12 @@ struct EnvironmentSection: View {
             case .loading:
                 ProgressView("Preparing \(preferences.settings.environment.name)")
                     .controlSize(.small)
+
             case .failed(let message):
                 Text("Cannot load \(preferences.settings.environment.name): \(message)")
                     .font(.caption)
                     .foregroundStyle(.red)
+
             case .ready, nil:
                 EmptyView()
             }

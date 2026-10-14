@@ -1,8 +1,8 @@
 import Metal
 import MetalSprocketsGLTF
-import WebReference
 import simd
 import SwiftUI
+import WebReference
 
 /// The extensions the file uses, each with a toggle that reloads the model without it. Extensions the file requires,
 /// and ones this app does not support, are listed without a toggle.

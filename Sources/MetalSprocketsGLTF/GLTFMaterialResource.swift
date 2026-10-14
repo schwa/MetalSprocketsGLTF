@@ -117,6 +117,7 @@ final class GLTFTextureCache {
         switch image(ImageKey(imageIndex: imageIndex, sRGB: sRGB), decoder: decoder) {
         case .success(let loaded):
             metalTexture = loaded
+
         case .failure(let error):
             if failedImages[imageIndex] == nil {
                 failedImages[imageIndex] = error
@@ -221,7 +222,7 @@ final class GLTFTextureCache {
             .generateMipmaps: hasMipmaps,
             .allocateMipmaps: hasMipmaps,
             .textureUsage: MTLTextureUsage.shaderRead.rawValue,
-            .textureStorageMode: MTLStorageMode.private.rawValue,
+            .textureStorageMode: MTLStorageMode.private.rawValue
         ]
         // MTKTextureLoader picks the format from the image: palette PNGs lose the sRGB format and grey + alpha PNGs
         // become two-channel textures. Only keep its result when it is four-channel with the requested color space.
@@ -278,17 +279,22 @@ final class GLTFTextureCache {
         switch sampler?.minFilter {
         case .NEAREST:
             descriptor.minFilter = .nearest
+
         case .NEAREST_MIPMAP_NEAREST:
             descriptor.minFilter = .nearest
             descriptor.mipFilter = .nearest
+
         case .LINEAR_MIPMAP_NEAREST:
             descriptor.minFilter = .linear
             descriptor.mipFilter = .nearest
+
         case .NEAREST_MIPMAP_LINEAR:
             descriptor.minFilter = .nearest
             descriptor.mipFilter = .linear
+
         case .LINEAR:
             descriptor.minFilter = .linear
+
         default:
             descriptor.minFilter = .linear
             descriptor.mipFilter = .linear

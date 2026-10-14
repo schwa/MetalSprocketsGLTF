@@ -24,7 +24,7 @@ import Testing
     let model = SampleModel(label: "Duck", name: "Duck", variants: [
         "glTF": "Duck.gltf", "glTF-Binary": "Duck.glb", "glTF-Draco": "Duck.gltf", "glTF-Quantized": "Duck.gltf",
         "glTF-Embedded": "Duck.gltf", "glTF-KTX-BasisU": "Duck.gltf", "glTF-Meshopt": "Duck.gltf",
-        "glTF-KTX-BasisU-Draco": "Duck.gltf",
+        "glTF-KTX-BasisU-Draco": "Duck.gltf"
     ])
     let choices = model.variantChoices
     #expect(choices.first?.folder == "glTF-Binary")

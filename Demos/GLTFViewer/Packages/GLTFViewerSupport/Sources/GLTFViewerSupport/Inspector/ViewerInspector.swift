@@ -32,12 +32,16 @@ struct ViewerInspector: View {
                 switch preferences.settings.inspectorTab {
                 case .camera:
                     CameraInspector(asset: loaded.asset)
+
                 case .model:
                     ModelInspector(loaded: loaded)
+
                 case .document:
                     DocumentInspector(asset: loaded.asset)
+
                 case .display:
                     DisplayInspector(hasFileEnvironment: loaded.asset.imageBasedLight != nil)
+
                 case .web:
                     WebInspector()
                 }

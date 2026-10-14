@@ -32,7 +32,7 @@ struct GLTFBenchCommand: ParsableCommand {
         Scene(name: "AnimationPointerUVs", path: "AnimationPointerUVs/glTF-Binary/AnimationPointerUVs.glb", animation: 0),
         Scene(name: "AlphaBlendModeTest", path: "AlphaBlendModeTest/glTF-Binary/AlphaBlendModeTest.glb"),
         Scene(name: "TransmissionTest", path: "TransmissionTest/glTF-Binary/TransmissionTest.glb"),
-        Scene(name: "CarConcept", path: "CarConcept/glTF-Binary/CarConcept.glb"),
+        Scene(name: "CarConcept", path: "CarConcept/glTF-Binary/CarConcept.glb")
     ]
 
     struct Baseline: Codable {
@@ -60,8 +60,8 @@ struct GLTFBenchCommand: ParsableCommand {
     @Option(help: "Rounds over all scenes; each scene keeps its fastest round, which filters out clock and power-state noise.")
     var repeats = 3
 
-    @Option var width = 1024
-    @Option var height = 1024
+    @Option var width = 1_024
+    @Option var height = 1_024
 
     @Option(help: "Allowed CPU slowdown as a fraction of the baseline median.")
     var margin = 0.15

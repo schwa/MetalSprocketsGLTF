@@ -46,7 +46,7 @@ private final class FailingDecoder: GLTFTextureDecoder, @unchecked Sendable {
         (try? texture.extensionValue(FakeTextureExtension.self))?.source
     }
 
-    func makeTexture(data: Data, sRGB: Bool, device: MTLDevice) throws -> MTLTexture {
+    func makeTexture(data _: Data, sRGB _: Bool, device _: MTLDevice) throws -> MTLTexture {
         lock.withLock { count += 1 }
         throw GLTFError.unsupported("broken")
     }

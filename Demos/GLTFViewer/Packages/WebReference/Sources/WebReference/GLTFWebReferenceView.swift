@@ -12,12 +12,12 @@ public struct GLTFWebReferenceView {
 
 #if os(macOS)
 extension GLTFWebReferenceView: NSViewRepresentable {
-    public func makeNSView(context: Context) -> WKWebView { reference.webView }
-    public func updateNSView(_ nsView: WKWebView, context: Context) {}
+    public func makeNSView(context _: Context) -> WKWebView { reference.webView }
+    public func updateNSView(_: WKWebView, context _: Context) {}
 }
 #else
 extension GLTFWebReferenceView: UIViewRepresentable {
-    public func makeUIView(context: Context) -> WKWebView { reference.webView }
-    public func updateUIView(_ uiView: WKWebView, context: Context) {}
+    public func makeUIView(context _: Context) -> WKWebView { reference.webView }
+    public func updateUIView(_: WKWebView, context _: Context) {}
 }
 #endif

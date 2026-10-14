@@ -7,12 +7,12 @@ let package = Package(
     platforms: [
         .macOS(.v26),
         .iOS(.v26),
-        .visionOS(.v26),
+        .visionOS(.v26)
     ],
     products: [
         .library(name: "MetalSprocketsGLTF", targets: ["MetalSprocketsGLTF"]),
         .library(name: "MetalSprocketsGLTFBasisU", targets: ["MetalSprocketsGLTFBasisU"]),
-        .library(name: "MetalSprocketsGLTFMeshopt", targets: ["MetalSprocketsGLTFMeshopt"]),
+        .library(name: "MetalSprocketsGLTFMeshopt", targets: ["MetalSprocketsGLTFMeshopt"])
     ],
     dependencies: [
         .package(url: "https://github.com/schwa/SwiftGLTF", from: "1.0.4"),
@@ -22,7 +22,7 @@ let package = Package(
         .package(url: "https://github.com/schwa/MetalSupport", from: "1.0.7"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.0"),
         .package(url: "https://github.com/schwa/GoldenImage", from: "0.1.5"),
-        .package(url: "https://github.com/schwa/BasisUniversalMetal", from: "0.0.2"),
+        .package(url: "https://github.com/schwa/BasisUniversalMetal", from: "0.0.2")
     ],
     targets: [
         .target(
@@ -35,7 +35,7 @@ let package = Package(
                 .product(name: "SwiftMeshMikkTSpace", package: "SwiftMesh"),
                 .product(name: "MetalSprockets", package: "MetalSprockets"),
                 .product(name: "MetalSprocketsUI", package: "MetalSprockets"),
-                .product(name: "MetalSupport", package: "MetalSupport"),
+                .product(name: "MetalSupport", package: "MetalSupport")
             ]
         ),
         .executableTarget(
@@ -45,7 +45,7 @@ let package = Package(
                 "MetalSprocketsGLTFBasisU",
                 "MetalSprocketsGLTFMeshopt",
                 .product(name: "MetalSprocketsPBR", package: "MetalSprocketsPBR"),
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
         ),
         .target(
@@ -53,7 +53,7 @@ let package = Package(
             dependencies: [
                 "MetalSprocketsGLTF",
                 .product(name: "SwiftGLTF", package: "SwiftGLTF"),
-                .product(name: "BasisUniversalMetal", package: "BasisUniversalMetal"),
+                .product(name: "BasisUniversalMetal", package: "BasisUniversalMetal")
             ]
         ),
         // meshoptimizer's decoder (vendored, MIT; see Sources/CMeshoptimizer/VERSION).
@@ -65,7 +65,7 @@ let package = Package(
             name: "MetalSprocketsGLTFMeshopt",
             dependencies: [
                 "CMeshoptimizer",
-                .product(name: "SwiftGLTF", package: "SwiftGLTF"),
+                .product(name: "SwiftGLTF", package: "SwiftGLTF")
             ]
         ),
         .testTarget(
@@ -76,7 +76,7 @@ let package = Package(
                 .product(name: "MetalSprocketsPBR", package: "MetalSprocketsPBR"),
                 .product(name: "SwiftGLTF", package: "SwiftGLTF"),
                 .product(name: "MetalSprockets", package: "MetalSprockets"),
-                .product(name: "GoldenImage", package: "GoldenImage"),
+                .product(name: "GoldenImage", package: "GoldenImage")
             ]
         ),
         .testTarget(
@@ -87,7 +87,7 @@ let package = Package(
                 .product(name: "MetalSprocketsPBR", package: "MetalSprocketsPBR"),
                 .product(name: "SwiftGLTF", package: "SwiftGLTF"),
                 .product(name: "MetalSprockets", package: "MetalSprockets"),
-                .product(name: "GoldenImage", package: "GoldenImage"),
+                .product(name: "GoldenImage", package: "GoldenImage")
             ],
             // Plain ASTC KTX2 images for EXT_texture_astc, from BasisUniversalMetal's tests: astc_6x6_srgb (one level)
             // and astc_8x8_srgb_zstd (full mip chain).
@@ -100,11 +100,11 @@ let package = Package(
                 .product(name: "MetalSprocketsPBRShaders", package: "MetalSprocketsPBR"),
                 "MetalSprocketsGLTF",
                 .product(name: "MetalSupport", package: "MetalSupport"),
-                .product(name: "GoldenImage", package: "GoldenImage"),
+                .product(name: "GoldenImage", package: "GoldenImage")
             ],
             resources: [
-                .copy("GoldenImages"),
+                .copy("GoldenImages")
             ]
-        ),
+        )
     ]
 )

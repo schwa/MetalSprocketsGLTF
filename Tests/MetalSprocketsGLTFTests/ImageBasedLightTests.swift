@@ -107,7 +107,7 @@ struct ImageBasedLightTests {
         let asset = try GLTFAsset(url: url)
         #expect(asset.warnings.isEmpty, "\(asset.warnings)")
         let light = try #require(asset.imageBasedLight)
-        #expect(light.width == 1024 && light.height == 512)
+        #expect(light.width == 1_024 && light.height == 512)
         #expect(light.rgba.contains { $0 > 1 })
     }
 }

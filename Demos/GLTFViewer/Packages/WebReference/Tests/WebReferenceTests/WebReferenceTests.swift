@@ -1,9 +1,9 @@
 import CoreGraphics
 import Foundation
 import MetalSprocketsGLTF
-import WebReference
 import MetalSprocketsPBR
 import Testing
+import WebReference
 
 // Skipped when three.js is neither cached nor downloadable (the first run downloads it from a CDN).
 @Suite(.serialized, .enabled(if: SampleAssets.isAvailable && GLTFWebReference.isAvailable))

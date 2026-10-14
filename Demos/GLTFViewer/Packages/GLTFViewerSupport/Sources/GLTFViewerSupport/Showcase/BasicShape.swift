@@ -147,17 +147,17 @@ struct ShapeMesh {
             "materials": [["name": "Neutral", "pbrMetallicRoughness": ["baseColorFactor": [Self.neutralColor.x, Self.neutralColor.y, Self.neutralColor.z, Self.neutralColor.w], "metallicFactor": 0, "roughnessFactor": 0.5]]],
             "buffers": [["byteLength": binary.count]],
             "bufferViews": [
-                ["buffer": 0, "byteOffset": positions.offset, "byteLength": positions.length, "target": 34962],
-                ["buffer": 0, "byteOffset": normals.offset, "byteLength": normals.length, "target": 34962],
-                ["buffer": 0, "byteOffset": texCoords.offset, "byteLength": texCoords.length, "target": 34962],
-                ["buffer": 0, "byteOffset": indices.offset, "byteLength": indices.length, "target": 34963],
+                ["buffer": 0, "byteOffset": positions.offset, "byteLength": positions.length, "target": 34_962],
+                ["buffer": 0, "byteOffset": normals.offset, "byteLength": normals.length, "target": 34_962],
+                ["buffer": 0, "byteOffset": texCoords.offset, "byteLength": texCoords.length, "target": 34_962],
+                ["buffer": 0, "byteOffset": indices.offset, "byteLength": indices.length, "target": 34_963]
             ],
             "accessors": [
-                ["bufferView": 0, "componentType": 5126, "count": self.positions.count, "type": "VEC3", "min": [minimum.x, minimum.y, minimum.z], "max": [maximum.x, maximum.y, maximum.z]],
-                ["bufferView": 1, "componentType": 5126, "count": self.normals.count, "type": "VEC3"],
-                ["bufferView": 2, "componentType": 5126, "count": self.texCoords.count, "type": "VEC2"],
-                ["bufferView": 3, "componentType": 5125, "count": self.indices.count, "type": "SCALAR"],
-            ],
+                ["bufferView": 0, "componentType": 5_126, "count": self.positions.count, "type": "VEC3", "min": [minimum.x, minimum.y, minimum.z], "max": [maximum.x, maximum.y, maximum.z]],
+                ["bufferView": 1, "componentType": 5_126, "count": self.normals.count, "type": "VEC3"],
+                ["bufferView": 2, "componentType": 5_126, "count": self.texCoords.count, "type": "VEC2"],
+                ["bufferView": 3, "componentType": 5_125, "count": self.indices.count, "type": "SCALAR"]
+            ]
         ]
         var jsonChunk = try JSONSerialization.data(withJSONObject: json, options: [.sortedKeys])
         jsonChunk.append(contentsOf: [UInt8](repeating: 0x20, count: (4 - jsonChunk.count % 4) % 4))

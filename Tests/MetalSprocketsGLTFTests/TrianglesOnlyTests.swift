@@ -10,7 +10,7 @@ import Testing
 private func makeLineAndTriangleFile() throws -> URL {
     let floats: [Float] = [
         -1, 0, 0, 1, 0, 0, // line, offset 0
-        -0.5, 0.3, 0, 0.5, 0.3, 0, 0, 0.9, 0, // triangle, offset 24
+        -0.5, 0.3, 0, 0.5, 0.3, 0, 0, 0.9, 0 // triangle, offset 24
     ]
     let buffer = floats.withUnsafeBytes { Data($0) }.base64EncodedString()
     let json = """

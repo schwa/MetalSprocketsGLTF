@@ -11,6 +11,7 @@ import WebKit
 /// Renders glTF files with three.js in a `WKWebView`, as a reference to compare ``GLTFRenderer`` against.
 ///
 /// Takes the same view and projection matrices and ``PBRLighting`` as `GLTFRenderer`, so both show the same view.
+@preconcurrency
 @MainActor
 public final class GLTFWebReference: NSObject {
     public enum LightingMode: String, CaseIterable, Sendable {
@@ -120,7 +121,7 @@ public final class GLTFWebReference: NSObject {
         let depthRemap = simd_float4x4(columns: ([1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -2, 0], [0, 0, 1, 1]))
         try await call("reference.setView(cameraMatrix, projection)", [
             "cameraMatrix": viewMatrix.inverse.array,
-            "projection": (depthRemap * projectionMatrix).array,
+            "projection": (depthRemap * projectionMatrix).array
         ])
     }
 
@@ -130,7 +131,7 @@ public final class GLTFWebReference: NSObject {
         let environmentID = ObjectIdentifier(lighting.environment)
         if environmentID != sentEnvironment {
             // A full-resolution HDR is large to pass through JavaScript; 1024 wide is plenty for comparison.
-            let pixels = lighting.environment.equirectangularPixels(maxWidth: 1024)
+            let pixels = lighting.environment.equirectangularPixels(maxWidth: 1_024)
             let image: [String: Any] = ["width": pixels.width, "height": pixels.height, "data": pixels.data.base64EncodedString()]
             try await call("reference.setEnvironment(image)", ["image": image])
             sentEnvironment = environmentID
@@ -144,7 +145,7 @@ public final class GLTFWebReference: NSObject {
                 "intensity": Double(light.intensity),
                 "range": Double(light.range),
                 "innerConeCos": Double(light.innerConeCos),
-                "outerConeCos": Double(light.outerConeCos),
+                "outerConeCos": Double(light.outerConeCos)
             ]
         }
         try await call("reference.setLighting(settings)", ["settings": [
@@ -154,7 +155,7 @@ public final class GLTFWebReference: NSObject {
             "environmentRotation": Double(lighting.environmentRotation),
             "environmentIntensity": Double(lighting.environmentIntensity),
             "showsBackground": showsBackground,
-            "lights": lights,
+            "lights": lights
         ] as [String: Any]])
     }
 
@@ -249,7 +250,7 @@ private final class NavigationObserver: NSObject, WKNavigationDelegate {
         self.owner = owner
     }
 
-    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+    func webViewWebContentProcessDidTerminate(_: WKWebView) {
         MainActor.assumeIsolated {
             owner?.contentProcessDidTerminate()
         }
@@ -263,7 +264,7 @@ private final class MessageHandler: NSObject, WKScriptMessageHandler {
         self.owner = owner
     }
 
-    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+    func userContentController(_: WKUserContentController, didReceive _: WKScriptMessage) {
         MainActor.assumeIsolated {
             owner?.markReady()
         }
@@ -276,7 +277,7 @@ private final class SchemeHandler: NSObject, WKURLSchemeHandler {
     static let scheme = "gltfref"
     var modelURL: URL?
 
-    func webView(_ webView: WKWebView, start task: any WKURLSchemeTask) {
+    func webView(_: WKWebView, start task: any WKURLSchemeTask) {
         guard let url = task.request.url else { return }
         if url.host == "cdn" {
             serveCDNFile(url: url, task: task)
@@ -354,14 +355,14 @@ private final class SchemeHandler: NSObject, WKURLSchemeHandler {
         let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [
             "Content-Type": mimeType,
             "Content-Length": "\(data.count)",
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": "*"
         ])!
         task.didReceive(response)
         task.didReceive(data)
         task.didFinish()
     }
 
-    func webView(_ webView: WKWebView, stop task: any WKURLSchemeTask) {
+    func webView(_: WKWebView, stop task: any WKURLSchemeTask) {
         stoppedTasks.insert(ObjectIdentifier(task))
     }
 }

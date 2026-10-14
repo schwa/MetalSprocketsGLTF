@@ -14,6 +14,7 @@ func showcaseSceneLoads(_ scene: ShowcaseScene) throws {
     case .materialGrid:
         #expect(asset.materials.count == 25)
         #expect(asset.opaqueInstances.count == 25)
+
     case .showcase:
         #expect(asset.materials.count == 7)
         #expect(asset.hasTransmission)

@@ -52,6 +52,7 @@ public enum ViewerEnvironment: Hashable, Sendable {
 }
 
 /// Builds and caches environments (prefiltering takes a moment), downloading HDRIs when needed.
+@preconcurrency
 @MainActor
 @Observable
 public final class EnvironmentLibrary {
@@ -108,10 +109,13 @@ public final class EnvironmentLibrary {
         switch choice {
         case .studio, .model:
             return .studio
+
         case .gray:
             return .uniform([0.5, 0.5, 0.5])
+
         case .file(let url):
             return .equirectangular(url)
+
         case .hdri(let hdri):
             let directory = URL.cachesDirectory.appending(path: "GLTFViewer/HDRIs", directoryHint: .isDirectory)
             let file = directory.appending(path: "\(hdri.rawValue)_1k.hdr")

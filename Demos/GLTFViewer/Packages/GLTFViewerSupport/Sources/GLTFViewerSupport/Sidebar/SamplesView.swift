@@ -37,6 +37,7 @@ public struct SamplesView: View {
                 switch result {
                 case .success(let url):
                     open(url)
+
                 case .failure(let error):
                     showOpenError(error.localizedDescription)
                 }
@@ -155,12 +156,14 @@ public struct SamplesView: View {
         switch library.state {
         case .downloading:
             ProgressView("Downloading sample index…")
+
         case .failed(let message):
             VStack(alignment: .leading) {
                 Text("Download failed: \(message)")
                     .font(.caption)
                 Button("Try Again") { Task { await library.downloadIndex() } }
             }
+
         case .notDownloaded:
             VStack(alignment: .leading) {
                 Text("Khronos glTF sample models, downloaded when selected and cached.")
@@ -168,6 +171,7 @@ public struct SamplesView: View {
                     .foregroundStyle(.secondary)
                 Button("Download Sample Index") { Task { await library.downloadIndex() } }
             }
+
         case .loaded:
             EmptyView()
         }
@@ -239,17 +243,20 @@ public struct SamplesView: View {
                 } else {
                     ContentUnavailableView("Select a Model", systemImage: "cube")
                 }
+
             case .showcase(let scene):
                 ModelDetailView(title: scene.name) { _ in
                     try scene.fileURL()
                 }
                 .id(selection)
+
             case .shape(let shape):
                 ModelDetailView(title: shape.name) { _ in
                     guard let url = shape.fileURL else { throw CocoaError(.fileNoSuchFile) }
                     return url
                 }
                 .id(selection)
+
             case .sample(let id):
                 if let model = models.first(where: { $0.id == id }) {
                     ModelDetailView(model: model, library: library)
@@ -257,6 +264,7 @@ public struct SamplesView: View {
                 } else {
                     ContentUnavailableView("Select a Model", systemImage: "cube")
                 }
+
             case nil:
                 ContentUnavailableView("Select a Model", systemImage: "cube", description: Text("Pick a basic shape or a sample model, or open a glTF file."))
             }

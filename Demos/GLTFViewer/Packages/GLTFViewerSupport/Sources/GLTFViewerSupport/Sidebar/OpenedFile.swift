@@ -32,7 +32,7 @@ final class OpenedFile {
 
     static let contentTypes: [UTType] = [
         UTType(filenameExtension: "glb") ?? .data,
-        UTType(filenameExtension: "gltf") ?? .json,
+        UTType(filenameExtension: "gltf") ?? .json
     ]
 
     /// Whether `url` references files outside itself (buffers or images that are not data URIs).

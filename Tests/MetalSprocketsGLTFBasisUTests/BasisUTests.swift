@@ -21,7 +21,7 @@ private let pairs: [(name: String, ktx: String, plain: String)] = [
     ("FlightHelmet", "glTF-KTX-BasisU/FlightHelmet.gltf", "glTF/FlightHelmet.gltf"),
     ("StainedGlassLamp", "glTF-KTX-BasisU/StainedGlassLamp.gltf", "glTF/StainedGlassLamp.gltf"),
     ("AnisotropyBarnLamp", "glTF-KTX-BasisU/AnisotropyBarnLamp.gltf", "glTF-Binary/AnisotropyBarnLamp.glb"),
-    ("ChronographWatch", "glTF-KTX-BasisU/ChronographWatch.gltf", "glTF-Binary/ChronographWatch.glb"),
+    ("ChronographWatch", "glTF-KTX-BasisU/ChronographWatch.gltf", "glTF-Binary/ChronographWatch.glb")
 ]
 
 // Without the decoder, a file that requires KHR_texture_basisu is rejected; with it, it loads without warnings.

@@ -3,9 +3,9 @@ import Foundation
 import GoldenImage
 import MetalSprockets
 import MetalSprocketsGLTF
-import WebReference
 import MetalSprocketsPBR
 import Testing
+import WebReference
 
 // Compares GLTFRenderer with the three.js reference for every binary Khronos sample model.
 //

@@ -178,7 +178,7 @@ struct AnimationControllerTests {
             transitions: [
                 .init(from: "idle", to: "move", fadeDuration: 1) { ($0.parameters["speed"] ?? 0) > 0.5 },
                 .init(from: nil, to: "wave", fadeDuration: 0) { ($0.parameters["wave"] ?? 0) > 0 },
-                .init(from: "wave", to: "idle", fadeDuration: 0) { $0.normalizedTime >= 1 },
+                .init(from: "wave", to: "idle", fadeDuration: 0) { $0.normalizedTime >= 1 }
             ],
             initial: "idle"
         )

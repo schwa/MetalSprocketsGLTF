@@ -1,8 +1,8 @@
 import Metal
 import MetalSprocketsGLTF
-import WebReference
 import simd
 import SwiftUI
+import WebReference
 
 struct CameraInspector: View {
     var asset: GLTFAsset
@@ -29,12 +29,12 @@ struct CameraInspector: View {
             Section("Orbit") {
                 LabeledContent("Field of View") {
                     Slider(value: $viewer.fieldOfViewDegrees, in: 10 ... 120)
-                    .frame(width: 100)
-                    .fixedSize()
+                        .frame(width: 100)
+                        .fixedSize()
                     Text(viewer.fieldOfViewDegrees, format: .number.precision(.fractionLength(0)))
-                    .monospacedDigit()
-                    .frame(width: 40)
-                    .fixedSize()
+                        .monospacedDigit()
+                        .frame(width: 40)
+                        .fixedSize()
                 }
                 LabeledContent("Distance", value: orbit.distance, format: .number.precision(.significantDigits(3)))
                 LabeledContent("Target", value: vectorDescription(orbit.target))

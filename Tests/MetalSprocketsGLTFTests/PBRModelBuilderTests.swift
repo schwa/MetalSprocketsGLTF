@@ -17,7 +17,7 @@ extension PBRGeometryBuilder {
             attributes: [
                 .positions(corners.map { SIMD3($0, 0) }),
                 .normals(Array(repeating: [0, 0, 1], count: 4)),
-                .textureCoordinates(corners.map { $0 + 0.5 }),
+                .textureCoordinates(corners.map { $0 + 0.5 })
             ],
             indices: [0, 1, 2, 0, 2, 3],
             label: "Quad"
@@ -113,7 +113,7 @@ struct PBRModelBuilderTests {
         let pose = PBRPose(worldMatrices: [
             simd_float4x4(translation: [-1, 0, 0]),
             simd_float4x4(translation: [1, 0, 0]),
-            simd_float4x4(translation: [0, 2, 0]),
+            simd_float4x4(translation: [0, 2, 0])
         ])
         var builder = PBRModelBuilder(device: device, restPose: pose)
         builder.addInstance(quad, material: red, node: 0)

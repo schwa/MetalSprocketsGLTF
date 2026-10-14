@@ -2,11 +2,11 @@ import Interaction3D
 import Metal
 import MetalSprockets
 import MetalSprocketsGLTF
-import WebReference
 import MetalSprocketsPBR
 import MetalSprocketsUI
 import simd
 import SwiftUI
+import WebReference
 
 /// Renders a loaded model with Interaction3D camera controls (drag to orbit, scroll or pinch to zoom, Command-drag to
 /// pan), optionally next to the same view rendered by three.js. Reads ``ViewerModel`` and ``ViewerPreferences``
@@ -158,15 +158,15 @@ struct GLTFView: View {
         }
         #else
         .inspector(isPresented: $preferences.settings.showsInspector) {
-            ViewerInspector()
-                .inspectorColumnWidth(min: 260, ideal: 300, max: 420)
-                .toolbar {
-                    ToolbarItem {
-                        Button(settings.showsInspector ? "Hide Inspector" : "Show Inspector", systemImage: "sidebar.trailing") {
-                            preferences.settings.showsInspector.toggle()
-                        }
-                    }
-                }
+        ViewerInspector()
+        .inspectorColumnWidth(min: 260, ideal: 300, max: 420)
+        .toolbar {
+        ToolbarItem {
+        Button(settings.showsInspector ? "Hide Inspector" : "Show Inspector", systemImage: "sidebar.trailing") {
+        preferences.settings.showsInspector.toggle()
+        }
+        }
+        }
         }
         #endif
     }
@@ -194,8 +194,10 @@ struct GLTFView: View {
         switch comparison {
         case .metal:
             metalView
+
         case .web:
             webView
+
         case .sideBySide:
             HStack(spacing: 1) {
                 metalView
@@ -204,6 +206,7 @@ struct GLTFView: View {
                     .overlay(alignment: .top) { rendererLabel(webLabel) }
             }
             .background(.separator)
+
         case .split:
             ZStack {
                 metalView

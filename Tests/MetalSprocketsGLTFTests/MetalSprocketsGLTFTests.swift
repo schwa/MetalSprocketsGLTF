@@ -64,7 +64,7 @@ func makeModePrimitiveFile(mode: Int, positions: [Float]) throws -> URL {
     (0, [Float](arrayLiteral: 0, 0, 0)), // POINTS
     (1, [Float](arrayLiteral: -1, -1, 0, 1, 1, 0, -1, 1, 0, 1, -1, 0)), // LINES
     (2, [Float](arrayLiteral: -1, -1, 0, 1, 1, 0, 1, -1, 0, -1, 1, 0)), // LINE_LOOP
-    (3, [Float](arrayLiteral: -1, -1, 0, 1, 1, 0, 1, -1, 0, -1, 1, 0)), // LINE_STRIP
+    (3, [Float](arrayLiteral: -1, -1, 0, 1, 1, 0, 1, -1, 0, -1, 1, 0)) // LINE_STRIP
 ])
 func drawsPointsAndLines(mode: Int, positions: [Float]) throws {
     let asset = try GLTFAsset(url: makeModePrimitiveFile(mode: mode, positions: positions))
@@ -87,11 +87,11 @@ func drawsPointsAndLines(mode: Int, positions: [Float]) throws {
 // KHR_node_visibility: a node with visible false hides its own mesh and every descendant's.
 @Test func hidesInvisibleNodes() throws {
     let nodes = #"""
-    [
-      {"children": [1], "extensions": {"KHR_node_visibility": {"visible": false}}},
-      {"mesh": 0},
-      {"mesh": 0, "translation": [5, 0, 0], "extensions": {"KHR_node_visibility": {"visible": true}}}
-    ]
+        [
+        {"children": [1], "extensions": {"KHR_node_visibility": {"visible": false}}},
+        {"mesh": 0},
+        {"mesh": 0, "translation": [5, 0, 0], "extensions": {"KHR_node_visibility": {"visible": true}}}
+        ]
     """#
     let asset = try GLTFAsset(url: makeTriangleFile(nodes: nodes, sceneNodes: "[0, 2]"))
     #expect(asset.opaqueInstances.map(\.nodeIndex) == [2])

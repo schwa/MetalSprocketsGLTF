@@ -269,7 +269,7 @@ final class ViewerModel {
         let fadingTime = fade.start.map { duration > 0 ? Float(Date().timeIntervalSince($0)).truncatingRemainder(dividingBy: duration) : 0 } ?? fade.heldTime
         return asset.pose(layers: [
             GLTFAnimationLayer(animation: fade.animation, time: fadingTime, weight: 1 - progress),
-            GLTFAnimationLayer(animation: animationIndex, time: animationTime, weight: progress),
+            GLTFAnimationLayer(animation: animationIndex, time: animationTime, weight: progress)
         ])
     }
 }

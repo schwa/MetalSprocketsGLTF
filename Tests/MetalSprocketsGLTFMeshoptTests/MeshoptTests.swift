@@ -22,7 +22,7 @@ private let pairs: [(id: String, compressed: String, plain: String)] = [
     ("BrainStem EXT", "BrainStem/glTF-Meshopt-EXT/BrainStem.gltf", "BrainStem/glTF-Binary/BrainStem.glb"),
     ("DragonAttenuation KHR", "DragonAttenuation/glTF-Meshopt/DragonAttenuation.gltf", "DragonAttenuation/glTF-Binary/DragonAttenuation.glb"),
     ("DragonAttenuation EXT", "DragonAttenuation/glTF-Meshopt-EXT/DragonAttenuation.gltf", "DragonAttenuation/glTF-Binary/DragonAttenuation.glb"),
-    ("MeshoptCubeTest", "MeshoptCubeTest/glTF-Meshopt/MeshoptCubeTest.gltf", "MeshoptCubeTest/glTF/MeshoptCubeTest.gltf"),
+    ("MeshoptCubeTest", "MeshoptCubeTest/glTF-Meshopt/MeshoptCubeTest.gltf", "MeshoptCubeTest/glTF/MeshoptCubeTest.gltf")
 ]
 
 // Without the decoder, files requiring meshopt are rejected; with it they load without warnings.

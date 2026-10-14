@@ -322,10 +322,12 @@ public extension GLTFAsset {
                 let delta = simd_slerp(simd_quatf(ix: 0, iy: 0, iz: 0, r: 1), restRotation.inverse * sampled, weight)
                 let result = simd_normalize(baseRotation * delta).vector
                 values[channel.target] = [result.x, result.y, result.z, result.w]
+
             case .scale:
                 values[channel.target] = (0 ..< 3).map { index in
                     rest[index] == 0 ? base[index] : base[index] * pow(sample[index] / rest[index], weight)
                 }
+
             default:
                 values[channel.target] = (0 ..< rest.count).map { base[$0] + (sample[$0] - rest[$0]) * weight }
             }
@@ -372,30 +374,39 @@ public extension GLTFAsset {
                 switch path {
                 case .translation where value.count == 3:
                     transforms[node].translation = SIMD3(value[0], value[1], value[2])
+
                 case .rotation where value.count == 4:
                     transforms[node].rotation = simd_quatf(vector: SIMD4(value[0], value[1], value[2], value[3]))
+
                 case .scale where value.count == 3:
                     transforms[node].scale = SIMD3(value[0], value[1], value[2])
+
                 case .weights:
                     morphWeights[node] = value
+
                 default:
                     break
                 }
+
             case let .material(index, property) where materials.indices.contains(index):
                 // Parsed once at load (Resources.materialProperties).
                 guard let parsed = resources.materialProperties[property] else { break }
                 var state = animatedMaterials[index] ?? materials[index].animatedState()
                 state.apply(parsed, value: value)
                 animatedMaterials[index] = state
+
             case let .visibility(node) where visible.indices.contains(node):
                 // A boolean; glTF stores it as a number, normally with step interpolation.
                 visible[node] = (value.first ?? 1) > 0.5
+
             case let .light(index, property):
                 lightProperties[index, default: [:]][property] = value
+
             case let .camera(index, property):
                 if let value = value.first {
                     cameraParameters[index, default: [:]][property] = value
                 }
+
             default:
                 break
             }

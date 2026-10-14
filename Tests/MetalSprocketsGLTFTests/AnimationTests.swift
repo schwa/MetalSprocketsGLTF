@@ -12,7 +12,7 @@ func makeAnimatedTriangleFile() throws -> URL {
     let floats: [Float] = [
         -1, -1, 0, 1, -1, 0, 0, 1, 0, // positions, offset 0
         0, 1, // keyframe times, offset 36
-        -2, 0, 0, 2, 0, 0, // translations, offset 44
+        -2, 0, 0, 2, 0, 0 // translations, offset 44
     ]
     let buffer = floats.withUnsafeBytes { Data($0) }.base64EncodedString()
     let json = """
@@ -55,7 +55,7 @@ func makeMirroringTriangleFile() throws -> URL {
     let floats: [Float] = [
         -1, -1, 0, 1, -1, 0, 0, 1, 0, // positions, offset 0
         0, 1, // keyframe times, offset 36
-        1, 1, 1, -1, 1, 1, // scales, offset 44
+        1, 1, 1, -1, 1, 1 // scales, offset 44
     ]
     let buffer = floats.withUnsafeBytes { Data($0) }.base64EncodedString()
     let json = """
@@ -156,7 +156,7 @@ func makeTwoMaterialAnimatedFile() throws -> URL {
         -0.5, -0.5, 0, 0.5, -0.5, 0, 0, 0.5, 0, // positions, offset 0
         0, 1, // times, offset 36
         -2, 0, 0, -2, 2, 0, // translations, offset 44
-        1, 1, 1, -1, 1, 1, // scales, offset 68
+        1, 1, 1, -1, 1, 1 // scales, offset 68
     ]
     let buffer = floats.withUnsafeBytes { Data($0) }.base64EncodedString()
     let json = """

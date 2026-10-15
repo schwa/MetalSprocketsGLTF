@@ -2,6 +2,7 @@
 import Foundation
 import MetalSprockets
 import MetalSprocketsGLTF
+import MetalSprocketsPBR
 import MetalSprocketsUI
 import simd
 import SwiftUI

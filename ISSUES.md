@@ -3444,12 +3444,13 @@ simd_quatf(ix: 0, iy: 0, iz: 0, r: 1) is written out in GLTFAnimation.swift (x2)
 ## 174: GLTFViewer: drop local helpers that duplicate GeometryLite3D
 
 +++
-status: open
+status: closed
 priority: medium
 kind: task
 labels: effort:xs, area:demo
 created: 2026-10-15T17:18:41Z
-updated: 2026-10-15T22:05:29Z
+updated: 2026-10-15T22:09:45Z
+closed: 2026-10-15T22:09:45Z
 +++
 
 GLTFView.swift defines its own SIMD4.xyz (GeometryLite3D has one). ShowcaseScene.addMesh and BasicShape compute position min/max with reduce; BoundingBox3D(points:) does this.

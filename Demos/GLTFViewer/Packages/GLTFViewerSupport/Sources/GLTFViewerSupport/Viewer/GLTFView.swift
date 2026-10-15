@@ -492,7 +492,3 @@ private struct WebUpdate: Equatable {
     var showsBackground: Bool
     var isLoaded: Bool
 }
-
-extension SIMD4 {
-    var xyz: SIMD3<Scalar> { SIMD3(x, y, z) }
-}

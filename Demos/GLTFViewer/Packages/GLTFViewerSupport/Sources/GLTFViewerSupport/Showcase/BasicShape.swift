@@ -1,4 +1,5 @@
 import Foundation
+import GeometryLite3D
 import Metal
 import MetalSprocketsPBR
 import MetalSprocketsPBRShaders
@@ -136,8 +137,9 @@ struct ShapeMesh {
         let normals = append(packed(self.normals))
         let texCoords = append(self.texCoords.flatMap { [$0.x, $0.y] })
         let indices = append(self.indices)
-        let minimum = self.positions.reduce(SIMD3<Float>(repeating: .infinity)) { simd_min($0, $1) }
-        let maximum = self.positions.reduce(SIMD3<Float>(repeating: -.infinity)) { simd_max($0, $1) }
+        let bounds = BoundingBox3D(points: self.positions) ?? .empty
+        let minimum = bounds.min
+        let maximum = bounds.max
         let json: [String: Any] = [
             "asset": ["version": "2.0", "generator": "GLTFViewer BasicShape"],
             "scene": 0,

@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import ImageIO
 import simd
 import UniformTypeIdentifiers
@@ -174,9 +175,8 @@ struct GLBBuilder {
 
     /// Vertex data for `mesh`; returns a handle for ``addNode(mesh:material:translation:rotation:)``.
     mutating func addMesh(_ mesh: ShapeMesh) -> Int {
-        let minimum = mesh.positions.reduce(SIMD3<Float>(repeating: .infinity)) { simd_min($0, $1) }
-        let maximum = mesh.positions.reduce(SIMD3<Float>(repeating: -.infinity)) { simd_max($0, $1) }
-        let positions = appendAccessor(mesh.positions.flatMap { [$0.x, $0.y, $0.z] }, components: 3, type: "VEC3", bounds: (minimum, maximum))
+        let bounds = BoundingBox3D(points: mesh.positions) ?? .empty
+        let positions = appendAccessor(mesh.positions.flatMap { [$0.x, $0.y, $0.z] }, components: 3, type: "VEC3", bounds: (bounds.min, bounds.max))
         let normals = appendAccessor(mesh.normals.flatMap { [$0.x, $0.y, $0.z] }, components: 3, type: "VEC3")
         let texCoords = appendAccessor(mesh.texCoords.flatMap { [$0.x, $0.y] }, components: 2, type: "VEC2")
         let indexView = appendView(mesh.indices.withUnsafeBytes { Data($0) }, target: 34_963)

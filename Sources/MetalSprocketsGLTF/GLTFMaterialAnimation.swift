@@ -4,12 +4,12 @@ import simd
 
 extension PBRMaterial {
     /// A material's uniforms during posing, with the texture transforms its channels have touched.
-    struct AnimatedState {
-        var uniforms: PBRMaterialUniforms
+    public struct AnimatedState {
+        public var uniforms: PBRMaterialUniforms
         var textureTransforms: [String: TextureTransform]
 
         /// Applies a KHR_animation_pointer value for a property below `/materials/N/`.
-        mutating func apply(_ property: GLTFAnimationPointer.MaterialProperty, value: [Float]) {
+        public mutating func apply(_ property: GLTFAnimationPointer.MaterialProperty, value: [Float]) {
             switch property {
             case .factor(let setter):
                 setter(&uniforms, value)
@@ -28,7 +28,7 @@ extension PBRMaterial {
         }
     }
 
-    func animatedState() -> AnimatedState {
+    public func animatedState() -> AnimatedState {
         AnimatedState(uniforms: uniforms, textureTransforms: textureTransforms)
     }
 }

@@ -3461,12 +3461,13 @@ GLTFView.swift defines its own SIMD4.xyz (GeometryLite3D has one). ShowcaseScene
 ## 175: KHR_animation_pointer material properties are not usable outside MetalSprocketsGLTF
 
 +++
-status: open
+status: closed
 priority: low
 kind: enhancement
 labels: effort:m, area:api, area:animation
 created: 2026-10-15T21:57:51Z
-updated: 2026-10-15T22:05:29Z
+updated: 2026-10-15T22:15:25Z
+closed: 2026-10-15T22:15:25Z
 +++
 
 MetalSprocketsGLTF parses KHR_animation_pointer material targets (/materials/N/...) into GLTFAnimationPointer.MaterialProperty and applies them through PBRMaterial.AnimatedState. Both are internal. GLTFAnimationClip.Target.material(Int, String) is public, but it only exposes the raw pointer string.

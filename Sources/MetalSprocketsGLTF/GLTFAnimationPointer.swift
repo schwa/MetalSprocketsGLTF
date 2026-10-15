@@ -7,7 +7,7 @@ import SwiftGLTF
 // KHR_animation_pointer: which JSON pointers this renderer can animate, and how each animated value is applied.
 // Every supported property is listed once here, so parsing a pointer and applying its value cannot disagree.
 
-enum GLTFAnimationPointer {
+public enum GLTFAnimationPointer {
     typealias Target = GLTFAnimationClip.Target
 
     /// Parses a JSON pointer into a node, material, visibility, light or camera target; nil when unsupported.
@@ -103,18 +103,19 @@ enum GLTFAnimationPointer {
     // MARK: Materials
 
     /// A property below `/materials/N/`: a factor in the uniforms, or a KHR_texture_transform component of a texture.
-    enum MaterialProperty {
+    public enum MaterialProperty: Sendable {
         case factor(@Sendable (inout PBRMaterialUniforms, [Float]) -> Void)
         /// `texturePath` is the texture's path below `/materials/N/`, as in ``GLTFMaterialTextureSlot/pointerPaths``.
         case textureTransform(texturePath: String, component: TextureTransformComponent)
 
-        enum TextureTransformComponent: String, CaseIterable {
+        public enum TextureTransformComponent: String, CaseIterable, Sendable {
             case offset
             case rotation
             case scale
         }
 
-        init?(_ property: String) {
+        /// `property` is the pointer below `/materials/N/`, as in ``GLTFAnimationClip/Target/material(_:_:)``.
+        public init?(_ property: String) {
             if let setter = GLTFMaterialFeature.animatableFactors[property] {
                 self = .factor(setter)
                 return

@@ -3381,3 +3381,55 @@ GLTFExtensionFilter (GLTFLoadOptions.disabledExtensions) encodes the whole Docum
 Blocked on SwiftGLTF #68 (an option to keep the declarations). Then replace GLTFExtensionFilter with the SwiftGLTF call; DisabledExtensionsTests must still pass unchanged.
 
 ---
+
+## 171: Use GeometryLite3D Transform3D for EXT_mesh_gpu_instancing matrices
+
++++
+status: new
+priority: medium
+kind: task
+created: 2026-10-15T17:18:40Z
++++
+
+EXTMeshGPUInstancing.swift builds each instance's TRS matrix by hand. Transform3D(translation:rotation:scale:).matrix composes T*R*S the same way. Keep the simd_normalize on rotation.
+
+---
+
+## 172: Back GLTFNodeHierarchy.Transform with GeometryLite3D Transform3D
+
++++
+status: new
+priority: medium
+kind: task
+created: 2026-10-15T17:18:40Z
++++
+
+GLTFNodeHierarchy.Transform (GLTFAnimation.swift) repeats Transform3D's translation/rotation/scale fields and hand-writes localMatrix. Wrap a Transform3D and keep the optional raw glTF matrix. Watch the animation hot path for a perf change.
+
+---
+
+## 173: Use simd_quatf.identity from GeometryLite3D
+
++++
+status: new
+priority: medium
+kind: task
+created: 2026-10-15T17:18:40Z
++++
+
+simd_quatf(ix: 0, iy: 0, iz: 0, r: 1) is written out in GLTFAnimation.swift (x2), EXTMeshGPUInstancing.swift and EXTLightsImageBased.swift. GeometryLite3D has simd_quatf.identity.
+
+---
+
+## 174: GLTFViewer: drop local helpers that duplicate GeometryLite3D
+
++++
+status: new
+priority: medium
+kind: task
+created: 2026-10-15T17:18:41Z
++++
+
+GLTFView.swift defines its own SIMD4.xyz (GeometryLite3D has one). ShowcaseScene.addMesh and BasicShape compute position min/max with reduce; BoundingBox3D(points:) does this.
+
+---

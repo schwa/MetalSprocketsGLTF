@@ -3397,12 +3397,13 @@ Blocked on SwiftGLTF #68 (an option to keep the declarations). Then replace GLTF
 ## 171: Use GeometryLite3D Transform3D for EXT_mesh_gpu_instancing matrices
 
 +++
-status: open
+status: closed
 priority: medium
 kind: task
 labels: effort:xs, area:architecture
 created: 2026-10-15T17:18:40Z
-updated: 2026-10-15T22:05:29Z
+updated: 2026-10-15T22:07:45Z
+closed: 2026-10-15T22:07:45Z
 +++
 
 EXTMeshGPUInstancing.swift builds each instance's TRS matrix by hand. Transform3D(translation:rotation:scale:).matrix composes T*R*S the same way. Keep the simd_normalize on rotation.

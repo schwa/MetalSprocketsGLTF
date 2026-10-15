@@ -1,4 +1,5 @@
 import Foundation
+import GeometryLite3D
 import simd
 import SwiftGLTF
 
@@ -53,9 +54,7 @@ extension Container {
             let translation = translations.map { SIMD3($0[index * 3], $0[index * 3 + 1], $0[index * 3 + 2]) } ?? .zero
             let rotation = rotations.map { simd_quatf(ix: $0[index * 4], iy: $0[index * 4 + 1], iz: $0[index * 4 + 2], r: $0[index * 4 + 3]) } ?? simd_quatf(ix: 0, iy: 0, iz: 0, r: 1)
             let scale = scales.map { SIMD3($0[index * 3], $0[index * 3 + 1], $0[index * 3 + 2]) } ?? SIMD3<Float>(repeating: 1)
-            var matrix = simd_float4x4(simd_normalize(rotation)) * simd_float4x4(diagonal: SIMD4(scale, 1))
-            matrix.columns.3 = SIMD4(translation, 1)
-            return matrix
+            return Transform3D(translation: translation, rotation: simd_normalize(rotation), scale: scale).matrix
         }
     }
 }

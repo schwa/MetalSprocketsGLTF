@@ -3413,12 +3413,13 @@ EXTMeshGPUInstancing.swift builds each instance's TRS matrix by hand. Transform3
 ## 172: Back GLTFNodeHierarchy.Transform with GeometryLite3D Transform3D
 
 +++
-status: open
+status: closed
 priority: medium
 kind: task
 labels: effort:s, area:animation, area:architecture
 created: 2026-10-15T17:18:40Z
-updated: 2026-10-15T22:05:29Z
+updated: 2026-10-15T22:12:35Z
+closed: 2026-10-15T22:12:35Z
 +++
 
 GLTFNodeHierarchy.Transform (GLTFAnimation.swift) repeats Transform3D's translation/rotation/scale fields and hand-writes localMatrix. Wrap a Transform3D and keep the optional raw glTF matrix. Watch the animation hot path for a perf change.

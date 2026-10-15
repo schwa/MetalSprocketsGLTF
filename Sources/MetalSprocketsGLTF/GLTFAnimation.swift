@@ -124,7 +124,7 @@ extension GLTFNodeHierarchy {
     /// A node's rest value for `path`, as an animation sampler would give it; nil for nodes that use `matrix`.
     func restValue(node: Int, path: GLTFAnimationClip.NodeProperty) -> [Float]? {
         guard rest.indices.contains(node), rest[node].matrix == nil else { return nil }
-        let transform = rest[node]
+        let transform = rest[node].trs
         switch path {
         case .translation: return [transform.translation.x, transform.translation.y, transform.translation.z]
         case .rotation: return [transform.rotation.vector.x, transform.rotation.vector.y, transform.rotation.vector.z, transform.rotation.vector.w]
@@ -137,22 +137,12 @@ extension GLTFNodeHierarchy {
 /// Rest transforms and parent links for the nodes of a scene. The rest build and every pose use the same walk of the node tree.
 struct GLTFNodeHierarchy: Sendable {
     struct Transform: Sendable {
-        var translation: SIMD3<Float>
-        var rotation: simd_quatf
-        var scale: SIMD3<Float>
+        var trs: Transform3D
         /// Set when the node uses `matrix`, which glTF does not allow to be animated.
         var matrix: simd_float4x4?
 
         var localMatrix: simd_float4x4 {
-            if let matrix {
-                return matrix
-            }
-            var result = simd_float4x4(rotation)
-            result.columns.0 *= scale.x
-            result.columns.1 *= scale.y
-            result.columns.2 *= scale.z
-            result.columns.3 = SIMD4(translation, 1)
-            return result
+            matrix ?? trs.matrix
         }
     }
 
@@ -184,12 +174,12 @@ struct GLTFNodeHierarchy: Sendable {
         }
         rest = document.nodes.map { node in
             let matrix = node.matrix.flatMap { $0 == matrix_identity_float4x4 ? nil : $0 }
-            return Transform(
+            let trs = Transform3D(
                 translation: node.translation ?? .zero,
                 rotation: node.rotation.map { simd_quatf(vector: $0) } ?? .identity,
-                scale: node.scale ?? [1, 1, 1],
-                matrix: matrix
+                scale: node.scale ?? [1, 1, 1]
             )
+            return Transform(trs: trs, matrix: matrix)
         }
         restMorphWeights = document.nodes.map { (try? $0.morphWeights(in: document)) ?? [] }
         restVisible = document.nodes.map(\.isVisible)
@@ -374,13 +364,13 @@ public extension GLTFAsset {
             case let .node(node, path) where transforms.indices.contains(node):
                 switch path {
                 case .translation where value.count == 3:
-                    transforms[node].translation = SIMD3(value[0], value[1], value[2])
+                    transforms[node].trs.translation = SIMD3(value[0], value[1], value[2])
 
                 case .rotation where value.count == 4:
-                    transforms[node].rotation = simd_quatf(vector: SIMD4(value[0], value[1], value[2], value[3]))
+                    transforms[node].trs.rotation = simd_quatf(vector: SIMD4(value[0], value[1], value[2], value[3]))
 
                 case .scale where value.count == 3:
-                    transforms[node].scale = SIMD3(value[0], value[1], value[2])
+                    transforms[node].trs.scale = SIMD3(value[0], value[1], value[2])
 
                 case .weights:
                     morphWeights[node] = value

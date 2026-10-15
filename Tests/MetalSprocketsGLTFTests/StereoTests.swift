@@ -1,4 +1,5 @@
 import CoreGraphics
+import GeometryLite3D
 import Metal
 import MetalSprockets
 @testable import MetalSprocketsGLTF
@@ -34,11 +35,11 @@ struct StereoTests {
         let device = try #require(MTLCreateSystemDefaultDevice())
         let asset = try GLTFAsset(url: makeTwoMaterialAnimatedFile())
         let lighting = PBRLighting(lights: [.directional(direction: [-1, -1, -1], intensity: 2)], environment: try PBREnvironment(source: .uniform([0.3, 0.4, 0.5]), specularSize: 16, irradianceSize: 4))
-        let projection = simd_float4x4.perspective(fovY: .pi / 3, aspectRatio: 1, near: 0.1, far: 50)
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 3), depthMode: .reversed(zClip: 0.1 ... 50)).projectionMatrix(aspectRatio: 1)
         let center = asset.bounds.center
         let views = [
-            simd_float4x4.lookAt(eye: center + [-0.4, 0.3, 4], target: center, up: [0, 1, 0]),
-            simd_float4x4.lookAt(eye: center + [0.4, 0.3, 4], target: center, up: [0, 1, 0])
+            LookAt(position: center + [-0.4, 0.3, 4], target: center, up: [0, 1, 0]).viewMatrix,
+            LookAt(position: center + [0.4, 0.3, 4], target: center, up: [0, 1, 0]).viewMatrix
         ]
         func pbrRenderer(view: simd_float4x4) -> PBRRenderer {
             PBRRenderer(asset: asset, viewMatrix: view, projectionMatrix: projection, lighting: lighting)
@@ -85,12 +86,12 @@ struct StereoTests {
         let device = try #require(MTLCreateSystemDefaultDevice())
         let asset = try GLTFAsset(url: makeGlassInFrontOfRedFile())
         let lighting = PBRLighting(lights: [], environment: try PBREnvironment(source: .uniform([0.05, 0.05, 0.05]), specularSize: 16, irradianceSize: 4))
-        let projection = simd_float4x4.perspective(fovY: .pi / 3, aspectRatio: 1, near: 0.1, far: 50)
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 3), depthMode: .reversed(zClip: 0.1 ... 50)).projectionMatrix(aspectRatio: 1)
         // Far apart and close, so each eye sees the red quad's edge behind a different part of the glass: sampling
         // the other eye's slice would show the wrong side of it.
         let views = [
-            simd_float4x4.lookAt(eye: [-3, 0, 2], target: .zero, up: [0, 1, 0]),
-            simd_float4x4.lookAt(eye: [3, 0, 2], target: .zero, up: [0, 1, 0])
+            LookAt(position: [-3, 0, 2], target: .zero, up: [0, 1, 0]).viewMatrix,
+            LookAt(position: [3, 0, 2], target: .zero, up: [0, 1, 0]).viewMatrix
         ]
 
         let viewport = MTLViewport(originX: 0, originY: 0, width: Double(size), height: Double(size), znear: 0, zfar: 1)

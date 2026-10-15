@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 import MetalSprocketsPBR
@@ -69,8 +70,8 @@ func makeModePrimitiveFile(mode: Int, positions: [Float]) throws -> URL {
 func drawsPointsAndLines(mode: Int, positions: [Float]) throws {
     let asset = try GLTFAsset(url: makeModePrimitiveFile(mode: mode, positions: positions))
     #expect(asset.opaqueInstances.count == 1, "\(asset.warnings)")
-    let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
-    let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+    let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
+    let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
     let renderer = try OffscreenRenderer(size: CGSize(width: 33, height: 33), clearDepth: 0)
     let image = try renderer.render(
         try RenderPass {
@@ -115,10 +116,10 @@ func drawsPointsAndLines(mode: Int, positions: [Float]) throws {
 
 // The frustum keeps boxes inside or crossing the view and rejects ones wholly outside any plane.
 @Test(.requiresMetal4, .requiresMetal4) func frustumCullsBoundsOutsideTheView() {
-    let view = simd_float4x4.lookAt(eye: [0, 0, 10], target: .zero, up: [0, 1, 0])
-    let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 1, far: 20)
-    let frustum = PBRFrustum(viewProjection: projection * view)
-    func box(_ center: SIMD3<Float>) -> PBRBounds { PBRBounds(min: center - 0.5, max: center + 0.5) }
+    let view = LookAt(position: [0, 0, 10], target: .zero, up: [0, 1, 0]).viewMatrix
+    let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 1 ... 20)).projectionMatrix(aspectRatio: 1)
+    let frustum = Frustum(viewProjection: projection * view)
+    func box(_ center: SIMD3<Float>) -> BoundingBox3D { BoundingBox3D(min: center - 0.5, max: center + 0.5) }
     #expect(frustum.intersects(box([0, 0, 0])))
     #expect(frustum.intersects(box([0, 0, 9.4])), "Crosses the near plane")
     #expect(!frustum.intersects(box([0, 0, 12])), "Behind the camera")
@@ -161,8 +162,8 @@ func makeIndexedQuadWithoutNormalsFile() throws -> URL {
     #expect(!primitive.hasNormals)
 
     let lighting = PBRLighting(lights: [.directional(direction: [0, 0, -1], intensity: 3)], environmentIntensity: 0)
-    let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
-    let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+    let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
+    let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
     let image = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0).render(try RenderPass {
         GLTFRenderer(asset: asset, viewMatrix: view, projectionMatrix: projection, lighting: lighting)
     }).cgImage

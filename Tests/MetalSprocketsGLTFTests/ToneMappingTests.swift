@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 import MetalSprocketsPBR
@@ -22,8 +23,8 @@ private func unlitRed(_ toneMapping: PBRToneMapping) throws -> Int {
     let json = try String(contentsOf: file, encoding: .utf8).replacingOccurrences(of: #"{"emissiveFactor""#, with: #"{"pbrMetallicRoughness": {"baseColorFactor": [0.5, 0.5, 0.5, 1]}, "emissiveFactor""#)
     try json.write(to: file, atomically: true, encoding: .utf8)
     let asset = try GLTFAsset(url: file)
-    let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
-    let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+    let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
+    let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
     var lighting = PBRLighting()
     lighting.toneMapping = toneMapping
     let scene = GLTFScene(asset: asset, viewMatrix: view, projectionMatrix: projection, lighting: lighting, viewportSize: CGSize(width: 32, height: 32))
@@ -49,8 +50,8 @@ private func sRGBByte(_ linear: Double) -> Int {
 // Into an rgba16Float target without tone mapping, a surface brighter than white keeps its value above 1 (HDR).
 @Test(.requiresMetal4, .metalValidation) @MainActor func floatTargetKeepsValuesAboveOne() throws {
     let asset = try GLTFAsset(url: makeExtensionMaterialFile(#"{"KHR_materials_unlit": {}}"#, extensionsUsed: ["KHR_materials_unlit"]))
-    let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
-    let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+    let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
+    let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
     var lighting = PBRLighting()
     lighting.toneMapping = .none
     lighting.exposure = 4

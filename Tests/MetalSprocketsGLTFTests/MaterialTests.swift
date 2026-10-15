@@ -1,6 +1,7 @@
 import CoreGraphics
 import Foundation
 import GoldenImage
+import GeometryLite3D
 import ImageIO
 import MetalSprockets
 @testable import MetalSprocketsGLTF
@@ -204,8 +205,8 @@ struct MaterialTests {
     func renderGlassCenter(withTransmissionPass: Bool, backIsTransmissiveBackFace: Bool = false, target givenTarget: GLTFTransmissionTarget? = nil) throws -> (red: Int, green: Int, blue: Int) {
         let asset = try GLTFAsset(url: makeGlassInFrontOfRedFile(backIsTransmissiveBackFace: backIsTransmissiveBackFace))
         let lighting = PBRLighting(environment: try PBREnvironment(source: .uniform([0, 0, 1]), specularSize: 16, irradianceSize: 4))
-        let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+        let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
         let target = withTransmissionPass ? try givenTarget ?? GLTFTransmissionTarget(size: 64) : nil
         let renderer = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0)
         let image = try renderer.render(
@@ -246,8 +247,8 @@ struct MaterialTests {
     @Test func sceneShowsWhatIsBehindGlass() throws {
         let asset = try GLTFAsset(url: makeGlassInFrontOfRedFile())
         let lighting = PBRLighting(environment: try PBREnvironment(source: .uniform([0, 0, 1]), specularSize: 16, irradianceSize: 4))
-        let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+        let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
         let image = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0).render(
             GLTFScene(asset: asset, viewMatrix: view, projectionMatrix: projection, lighting: lighting, viewportSize: CGSize(width: 32, height: 32))
         ).cgImage

@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 import MetalSprocketsPBR
@@ -177,8 +178,8 @@ struct PointerTargetTests {
     // The renderer hides the rest pose's hidden instance even when no pose is given, and draws it once shown.
     @Test func rendersAnimatedVisibility() throws {
         let asset = try GLTFAsset(url: makePointerTargetFile())
-        let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+        let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
         func centerRed(pose: PBRPose?) throws -> Int {
             let image = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0).render(
                 try RenderPass { GLTFRenderer(asset: asset, viewMatrix: view, projectionMatrix: projection, pose: pose) }

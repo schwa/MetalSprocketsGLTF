@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 import MetalSprocketsPBR
@@ -35,8 +36,8 @@ private func frontLitCenter(scatters: Bool) throws -> SIMD3<Int> {
     try Data(json.utf8).write(to: url)
     let asset = try GLTFAsset(url: url)
     let lighting = PBRLighting(lights: [.directional(direction: [0, 0, -1], intensity: 3)], environmentIntensity: 0)
-    let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
-    let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+    let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
+    let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
     let scene = GLTFScene(asset: asset, viewMatrix: view, projectionMatrix: projection, lighting: lighting, viewportSize: CGSize(width: 32, height: 32))
     let image = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0).render(scene).cgImage
     let context = try #require(CGContext(data: nil, width: 32, height: 32, bitsPerComponent: 8, bytesPerRow: 128, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))

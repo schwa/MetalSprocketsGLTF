@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import Metal
 import MetalSprockets
 @testable import MetalSprocketsGLTF
@@ -29,8 +30,8 @@ struct RetroreflectionTests {
         let angle: Float = 50 * .pi / 180
         let eye = SIMD3<Float>(0, sin(angle), cos(angle)) * 2
         let lighting = PBRLighting(lights: [.point(position: eye, intensity: 8)], environmentIntensity: 0)
-        let view = simd_float4x4.lookAt(eye: eye, target: .zero, up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 6, aspectRatio: 1, near: 0.1, far: 10)
+        let view = LookAt(position: eye, target: .zero, up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 6), depthMode: .reversed(zClip: 0.1 ... 10)).projectionMatrix(aspectRatio: 1)
         let image = try OffscreenRenderer(size: CGSize(width: size, height: size), clearDepth: 0).render(
             PBRScene(model: model, viewMatrix: view, projectionMatrix: projection, lighting: lighting, viewportSize: CGSize(width: size, height: size))
         ).cgImage

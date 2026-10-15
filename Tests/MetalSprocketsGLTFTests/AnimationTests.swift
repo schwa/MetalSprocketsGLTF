@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 import MetalSprocketsPBR
@@ -201,8 +202,8 @@ func makeTwoMaterialAnimatedFile() throws -> URL {
 struct AnimationTests {
     /// Red and green bytes at world points after rendering `asset` with `pose`, viewed head-on.
     func colors(_ asset: GLTFAsset, pose: PBRPose?, at points: [SIMD3<Float>]) throws -> [(red: UInt8, green: UInt8)] {
-        let view = simd_float4x4.lookAt(eye: [0, 1, 10], target: [0, 1, 0], up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 100)
+        let view = LookAt(position: [0, 1, 10], target: [0, 1, 0], up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 100)).projectionMatrix(aspectRatio: 1)
         let renderer = try OffscreenRenderer(size: CGSize(width: 64, height: 64), clearDepth: 0)
         let image = try renderer.render(
             try RenderPass {
@@ -264,8 +265,8 @@ struct AnimationTests {
     // An animation that mirrors a node flips its winding too, so its front faces stay visible.
     @Test func mirroringAnimationKeepsFrontFaces() throws {
         let asset = try GLTFAsset(url: makeMirroringTriangleFile())
-        let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+        let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
         for time: Float in [0, 1] {
             let renderer = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0)
             let image = try renderer.render(
@@ -320,8 +321,8 @@ struct AnimationTests {
         let asset = try GLTFAsset(url: makeAnimatedTriangleFile())
         let width = 128
         let height = 64
-        let view = simd_float4x4.lookAt(eye: [0, 1, 12], target: [0, 1, 0], up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: Float(width) / Float(height), near: 0.1, far: 100)
+        let view = LookAt(position: [0, 1, 12], target: [0, 1, 0], up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 100)).projectionMatrix(aspectRatio: Float(width) / Float(height))
         let renderer = try OffscreenRenderer(size: CGSize(width: width, height: height), clearDepth: 0)
         let image = try renderer.render(
             try RenderPass {

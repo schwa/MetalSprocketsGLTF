@@ -1,6 +1,7 @@
 import CoreGraphics
 import Foundation
 import GoldenImage
+import GeometryLite3D
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 @testable import MetalSprocketsPBR
@@ -168,8 +169,8 @@ struct SkinningTests {
     // before the near static green one, so green dominates where they overlap.
     @Test func blendedSkinnedAndStaticShareOneSortOrder() throws {
         let asset = try GLTFAsset(url: makeBlendedSkinnedAndStaticFile())
-        let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: [0, 0, -0.5], up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 100)
+        let view = LookAt(position: [0, 0, 4], target: [0, 0, -0.5], up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 100)).projectionMatrix(aspectRatio: 1)
         let renderer = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0)
         let image = try renderer.render(
             try RenderPass {
@@ -189,8 +190,8 @@ struct SkinningTests {
     @Test func scaledJointNormalsUseInverseTranspose() throws {
         let asset = try GLTFAsset(url: makeScaledJointTriangleFile())
         let lighting = PBRLighting(lights: [.directional(direction: [0, 0, -1], intensity: 3)], environmentIntensity: 0)
-        let view = simd_float4x4.lookAt(eye: [0, 0, 12], target: .zero, up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 100)
+        let view = LookAt(position: [0, 0, 12], target: .zero, up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 100)).projectionMatrix(aspectRatio: 1)
         let renderer = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0)
         let image = try renderer.render(
             try RenderPass {
@@ -208,8 +209,8 @@ struct SkinningTests {
     func redValues(_ asset: GLTFAsset, pose: PBRPose?, at points: [SIMD3<Float>]) throws -> [UInt8] {
         let width = 160
         let height = 64
-        let view = simd_float4x4.lookAt(eye: [3, 0, 20], target: [3, 0, 0], up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: Float(width) / Float(height), near: 0.1, far: 100)
+        let view = LookAt(position: [3, 0, 20], target: [3, 0, 0], up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 100)).projectionMatrix(aspectRatio: Float(width) / Float(height))
         let renderer = try OffscreenRenderer(size: CGSize(width: width, height: height), clearDepth: 0)
         let image = try renderer.render(
             try RenderPass {

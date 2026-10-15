@@ -1,4 +1,5 @@
 import CoreGraphics
+import GeometryLite3D
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 import simd
@@ -8,8 +9,8 @@ import Testing
 @MainActor
 private func renderQuad(wireframe: Bool) throws -> [UInt8] {
     let asset = try GLTFAsset(url: makeIndexedQuadWithoutNormalsFile())
-    let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
-    let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+    let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
+    let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
     var scene = GLTFScene(asset: asset, viewMatrix: view, projectionMatrix: projection, viewportSize: CGSize(width: 64, height: 64))
     scene.showsWireframe = wireframe
     let image = try OffscreenRenderer(size: CGSize(width: 64, height: 64), clearDepth: 0).render(scene).cgImage

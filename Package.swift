@@ -16,13 +16,14 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/schwa/SwiftGLTF", from: "1.0.4"),
-        .package(url: "https://github.com/schwa/SwiftMesh", from: "0.0.6"),
+        .package(url: "https://github.com/schwa/SwiftMesh", from: "0.0.8"),
+        .package(url: "https://github.com/schwa/GeometryLite3D", from: "0.2.2"),
         .package(url: "https://github.com/schwa/MetalSprockets", from: "0.2.2"),
         .package(url: "https://github.com/schwa/MetalSprocketsPBR", branch: "main"),
         .package(url: "https://github.com/schwa/MetalSupport", from: "1.0.7"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.0"),
         .package(url: "https://github.com/schwa/GoldenImage", from: "0.1.5"),
-        .package(url: "https://github.com/schwa/BasisUniversalMetal", from: "0.0.2")
+        .package(url: "https://github.com/schwa/BasisUniversalMetal", from: "0.0.3")
     ],
     targets: [
         .target(
@@ -33,6 +34,7 @@ let package = Package(
                 .product(name: "SwiftGLTF", package: "SwiftGLTF"),
                 .product(name: "SwiftMesh", package: "SwiftMesh"),
                 .product(name: "SwiftMeshMikkTSpace", package: "SwiftMesh"),
+                .product(name: "GeometryLite3D", package: "GeometryLite3D"),
                 .product(name: "MetalSprockets", package: "MetalSprockets"),
                 .product(name: "MetalSprocketsUI", package: "MetalSprockets"),
                 .product(name: "MetalSupport", package: "MetalSupport")
@@ -99,6 +101,7 @@ let package = Package(
                 .product(name: "MetalSprocketsPBR", package: "MetalSprocketsPBR"),
                 .product(name: "MetalSprocketsPBRShaders", package: "MetalSprocketsPBR"),
                 "MetalSprocketsGLTF",
+                .product(name: "GeometryLite3D", package: "GeometryLite3D"),
                 .product(name: "MetalSupport", package: "MetalSupport"),
                 .product(name: "GoldenImage", package: "GoldenImage")
             ],

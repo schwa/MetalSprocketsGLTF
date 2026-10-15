@@ -1,4 +1,5 @@
 import Foundation
+import GeometryLite3D
 import Metal
 import MetalKit
 import MetalSprockets
@@ -66,7 +67,7 @@ public final class GLTFAsset: @unchecked Sendable {
     public var hasTransmission: Bool { model.hasTransmission }
     public var lights: [PBRLight] { model.lights }
     public var skins: [Skin] { model.skins }
-    public var bounds: PBRBounds { model.bounds }
+    public var bounds: BoundingBox3D { model.bounds }
     /// See ``PBRModel/resourceCollection``.
     public var resourceCollection: ResourceCollection { model.resourceCollection }
     /// The scene at rest.
@@ -215,12 +216,12 @@ public extension GLTFAsset {
     }
 
     /// World bounds of everything drawn with `pose`.
-    func bounds(for pose: PBRPose) -> PBRBounds {
+    func bounds(for pose: PBRPose) -> BoundingBox3D {
         model.bounds(for: pose)
     }
 
     /// World bounds of a batch's instances drawn with `pose`.
-    func worldBounds(of batch: Batch, pose: PBRPose) -> PBRBounds {
+    func worldBounds(of batch: Batch, pose: PBRPose) -> BoundingBox3D {
         model.worldBounds(of: batch, pose: pose)
     }
 

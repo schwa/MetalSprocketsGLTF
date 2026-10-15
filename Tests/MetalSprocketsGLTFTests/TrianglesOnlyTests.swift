@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 @testable import MetalSprocketsPBR
@@ -42,8 +43,8 @@ private func makeLineAndTriangleFile() throws -> URL {
 // With drawsTrianglesOnly (foveated visionOS passes allow only triangles), lines are skipped and triangles still draw.
 @Test(.requiresMetal4, .metalValidation) @MainActor func trianglesOnlySkipsLines() throws {
     let asset = try GLTFAsset(url: makeLineAndTriangleFile())
-    let view = simd_float4x4.lookAt(eye: [0, 0, 3], target: .zero, up: [0, 1, 0])
-    let projection = simd_float4x4.perspective(fovY: .pi / 3, aspectRatio: 1, near: 0.1, far: 20)
+    let view = LookAt(position: [0, 0, 3], target: .zero, up: [0, 1, 0]).viewMatrix
+    let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 3), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
     func render(trianglesOnly: Bool) throws -> (line: Int, triangle: Int) {
         var renderer = PBRRenderer(model: asset.model, viewMatrix: view, projectionMatrix: projection)
         renderer.drawsTrianglesOnly = trianglesOnly

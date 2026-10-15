@@ -19,7 +19,8 @@ let package = Package(
         .package(url: "https://github.com/schwa/MetalSprockets", branch: "main"),
         .package(url: "https://github.com/schwa/SwiftGLTF", branch: "main"),
         .package(url: "https://github.com/schwa/Interaction3D", from: "0.1.13"),
-        .package(url: "https://github.com/schwa/SwiftMesh", branch: "main")
+        .package(url: "https://github.com/schwa/SwiftMesh", branch: "main"),
+        .package(url: "https://github.com/schwa/GeometryLite3D", from: "0.2.2")
     ],
     targets: [
         .target(
@@ -34,7 +35,8 @@ let package = Package(
                 .product(name: "MetalSprocketsUI", package: "MetalSprockets"),
                 .product(name: "Interaction3D", package: "Interaction3D"),
                 .product(name: "SwiftGLTF", package: "SwiftGLTF"),
-                .product(name: "SwiftMesh", package: "SwiftMesh")
+                .product(name: "SwiftMesh", package: "SwiftMesh"),
+                .product(name: "GeometryLite3D", package: "GeometryLite3D")
             ],
             // Built by `just basic-shapes`.
             resources: [.copy("Resources/BasicShapes")]

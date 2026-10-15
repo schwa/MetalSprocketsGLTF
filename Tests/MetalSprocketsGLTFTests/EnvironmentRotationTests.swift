@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 import MetalSprocketsPBR
@@ -11,8 +12,8 @@ import Testing
 private func background(rotation: Float) throws -> [UInt8] {
     var lighting = PBRLighting()
     lighting.environmentRotation = rotation
-    let view = simd_float4x4.lookAt(eye: .zero, target: [0, 0, -1], up: [0, 1, 0])
-    let projection = simd_float4x4.perspective(fovY: .pi / 2, aspectRatio: 1, near: 0.1, far: 10)
+    let view = LookAt(position: .zero, target: [0, 0, -1], up: [0, 1, 0]).viewMatrix
+    let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 2), depthMode: .reversed(zClip: 0.1 ... 10)).projectionMatrix(aspectRatio: 1)
     let image = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0).render(try RenderPass {
         PBREnvironmentBackground(lighting: lighting, viewMatrix: view, projectionMatrix: projection)
     }).cgImage

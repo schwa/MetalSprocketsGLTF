@@ -1,10 +1,11 @@
 import CoreGraphics
+import GeometryLite3D
 import MetalSprocketsPBR
 import simd
 
 // Old GLTF-prefixed names for the renderer types in MetalSprocketsPBR (#118).
 
-public typealias GLTFBounds = PBRBounds
+public typealias GLTFBounds = BoundingBox3D
 public typealias GLTFPose = PBRPose
 public typealias GLTFMaterialResource = PBRMaterial
 public typealias GLTFGeometryBuffers = PBRGeometryBuffers
@@ -14,7 +15,7 @@ public typealias GLTFEnvironmentError = PBREnvironmentError
 public typealias GLTFEnvironmentBackground = PBREnvironmentBackground
 public typealias GLTFToneMapping = PBRToneMapping
 public typealias GLTFDebugView = PBRDebugView
-public typealias GLTFFrustum = PBRFrustum
+public typealias GLTFFrustum = Frustum
 public typealias GLTFCamera = PBRCamera
 public typealias GLTFRenderer = PBRRenderer
 public typealias GLTFScene = PBRScene

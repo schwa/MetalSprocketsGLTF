@@ -1,4 +1,5 @@
 import CoreGraphics
+import GeometryLite3D
 import Metal
 import MetalSprockets
 @testable import MetalSprocketsGLTF
@@ -94,7 +95,7 @@ struct PBRModelBuilderTests {
         #expect(line.vertexCount == 2 && line.indexCount == 2 && line.primitiveType == .line)
         #expect(triangle.hasNormals && !triangle.hasTangents)
         // Bounds grow by the morph target (weights in 0...1).
-        #expect(line.bounds == PBRBounds(min: [5, 5, 5], max: [6, 5, 6]))
+        #expect(line.bounds == BoundingBox3D(min: [5, 5, 5], max: [6, 5, 6]))
         #expect(line.morphTargetCount == 1)
         #expect(line.mesh.morphTargets?.targets.first?.positionOffsets?.count == 2)
         #expect(line.mesh.morphTargets?.defaultWeights == [0.5])
@@ -107,7 +108,7 @@ struct PBRModelBuilderTests {
         var geometry = PBRGeometryBuilder(device: device)
         let quadIndex = try geometry.addQuad()
         let quad = try geometry.build()[quadIndex]
-        #expect(quad.bounds == PBRBounds(min: [-0.5, -0.5, 0], max: [0.5, 0.5, 0]))
+        #expect(quad.bounds == BoundingBox3D(min: [-0.5, -0.5, 0], max: [0.5, 0.5, 0]))
 
         let red = try makeColorMaterial([1, 0, 0, 1], device: device)
         let glass = try makeColorMaterial([1, 1, 1, 0.5], device: device)
@@ -125,7 +126,7 @@ struct PBRModelBuilderTests {
         #expect(model.opaqueBatches.count == 1)
         #expect(model.opaqueBatches.first?.instanceCount == 2)
         #expect(model.blendedBatches.count == 1)
-        #expect(model.bounds == PBRBounds(min: [-1.5, -0.5, 0], max: [1.5, 2.5, 0]))
+        #expect(model.bounds == BoundingBox3D(min: [-1.5, -0.5, 0], max: [1.5, 2.5, 0]))
         // Moving a node in a pose moves its instances' bounds.
         var moved = pose
         moved.worldMatrices[2] = simd_float4x4(translation: [0, 5, 0])
@@ -143,8 +144,8 @@ struct PBRModelBuilderTests {
         let model = try builder.build()
 
         let lighting = PBRLighting(environment: try PBREnvironment(source: .uniform([1, 1, 1]), specularSize: 16, irradianceSize: 4))
-        let view = simd_float4x4.lookAt(eye: [0, 0, 2], target: .zero, up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+        let view = LookAt(position: [0, 0, 2], target: .zero, up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
         let image = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0).render(
             PBRScene(model: model, viewMatrix: view, projectionMatrix: projection, lighting: lighting, viewportSize: CGSize(width: 32, height: 32))
         ).cgImage

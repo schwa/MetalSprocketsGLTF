@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 import MetalSprocketsPBR
@@ -37,8 +38,8 @@ private func backlitCenter(diffuseTransmission: String?) throws -> SIMD3<Int> {
     let asset = try GLTFAsset(url: makeQuadFile(diffuseTransmission: diffuseTransmission))
     // The light travels toward +z, so it shines on the quad's back.
     let lighting = PBRLighting(lights: [.directional(direction: [0, 0, 1], intensity: 3)], environmentIntensity: 0)
-    let view = simd_float4x4.lookAt(eye: [0, 0, 4], target: .zero, up: [0, 1, 0])
-    let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: 1, near: 0.1, far: 20)
+    let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
+    let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
     let image = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0).render(try RenderPass {
         GLTFRenderer(asset: asset, viewMatrix: view, projectionMatrix: projection, lighting: lighting)
     }).cgImage

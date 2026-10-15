@@ -1,13 +1,13 @@
 {
-  "originHash" : "32d92c7ae63d1d10ebd53813f86da6dd6402ec6e57cec48ea139b1aeb1650c9b",
+  "originHash" : "4f5b626e3a84a647eee3e5fe8721d8bce6c22bd21c3e9d0713107f33f55ea68a",
   "pins" : [
     {
       "identity" : "basisuniversalmetal",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/BasisUniversalMetal",
       "state" : {
-        "revision" : "67a8610ae61c1230f91374ec8b388a4915b4915f",
-        "version" : "0.0.2"
+        "revision" : "002f03eae0e1b0cbb0f3deb3fed1ab2b5290b5a4",
+        "version" : "0.0.3"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/GeometryLite3D",
       "state" : {
-        "revision" : "898b2f439607760e3c9f8c239f51664c9bbd3692",
-        "version" : "0.1.1"
+        "revision" : "0eddc584482eec5a991c8caff2ec1c864299e377",
+        "version" : "0.2.2"
       }
     },
     {
@@ -61,7 +61,7 @@
       "location" : "https://github.com/schwa/MetalSprocketsPBR",
       "state" : {
         "branch" : "main",
-        "revision" : "29f4616114c07ace16c427fd0e353c6c180d1f4d"
+        "revision" : "9b5495b6d51fe274a5be471fc577a9b3f9f88986"
       }
     },
     {
@@ -123,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/SwiftMesh",
       "state" : {
-        "revision" : "93ae4066f79097344376445ad5b033a3b0bf8a38",
-        "version" : "0.0.6"
+        "revision" : "cdb410e46388fb95edf7fbebdd0e988af9163db4",
+        "version" : "0.0.8"
       }
     }
   ],

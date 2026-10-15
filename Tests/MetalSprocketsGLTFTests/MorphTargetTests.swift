@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 import MetalSprocketsPBR
@@ -101,8 +102,8 @@ struct MorphTargetTests {
     func redValues(_ asset: GLTFAsset, pose: PBRPose?, at points: [SIMD3<Float>]) throws -> [UInt8] {
         let width = 160
         let height = 64
-        let view = simd_float4x4.lookAt(eye: [2.5, 0, 20], target: [2.5, 0, 0], up: [0, 1, 0])
-        let projection = simd_float4x4.perspective(fovY: .pi / 4, aspectRatio: Float(width) / Float(height), near: 0.1, far: 100)
+        let view = LookAt(position: [2.5, 0, 20], target: [2.5, 0, 0], up: [0, 1, 0]).viewMatrix
+        let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 100)).projectionMatrix(aspectRatio: Float(width) / Float(height))
         let renderer = try OffscreenRenderer(size: CGSize(width: width, height: height), clearDepth: 0)
         let image = try renderer.render(
             try RenderPass {

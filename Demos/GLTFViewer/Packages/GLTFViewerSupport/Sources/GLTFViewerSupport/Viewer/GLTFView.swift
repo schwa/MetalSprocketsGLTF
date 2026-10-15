@@ -1,3 +1,4 @@
+import GeometryLite3D
 import Interaction3D
 import Metal
 import MetalSprockets
@@ -331,7 +332,7 @@ struct GLTFView: View {
         let distanceToCenter = simd_distance(cameraMatrix.columns.3.xyz, asset.bounds.center)
         let far = distanceToCenter + radius * 2
         let near = max(distanceToCenter - radius * 2, far * 1e-4)
-        return PBRCamera(viewMatrix: cameraMatrix.inverse, projectionMatrix: .perspective(fovY: viewer.orbit.fieldOfView, aspectRatio: aspectRatio, near: near, far: far))
+        return PBRCamera(viewMatrix: cameraMatrix.inverse, projectionMatrix: PerspectiveProjection(verticalAngleOfView: .radians(viewer.orbit.fieldOfView), depthMode: .reversed(zClip: near ... far)).projectionMatrix(aspectRatio: aspectRatio))
     }
 
     /// The Display tab's tone mapping and environment. The studio stands in while another environment builds.

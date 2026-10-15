@@ -1,7 +1,7 @@
 import CoreGraphics
 import Foundation
-import GoldenImage
 import GeometryLite3D
+import GoldenImage
 import MetalSprockets
 @testable import MetalSprocketsGLTF
 @testable import MetalSprocketsPBR

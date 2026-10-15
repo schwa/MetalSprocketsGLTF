@@ -3233,6 +3233,9 @@ Goal: one internal module that parses a pointer once into a typed setter, used b
 
 Constraint: no public API break. Keep all existing public types, members and behavior; changes are internal, or additive with old API forwarding. GLTFAnimationClip.Target (public, string payloads) must stay as is.
 
+- `2026-10-15T21:58:17Z`: No API consumers: public API can change freely. The 'no public API break' constraint is lifted.
+- `2026-10-15T22:00:46Z`: Also: no old-API forwarding, typealiases or deprecations. Break the API and update callers.
+
 ---
 
 ## 163: Single descriptor per material extension
@@ -3252,6 +3255,9 @@ Adding a material extension touches ~5 places: the KHRMaterials*.swift Codable t
 Goal: an internal per-extension descriptor that supplies uniforms, texture slots and animatable paths, with the other lists derived from it. Table-driven boundary tests: material JSON -> uniforms, slots, animatable paths.
 
 Constraint: no public API break. Keep all existing public types, members and behavior; changes are internal, or additive with old API forwarding. The public KHRMaterials* structs, their Material accessors and builtInExtensions contents must stay.
+
+- `2026-10-15T21:58:17Z`: No API consumers: public API can change freely. The 'no public API break' constraint is lifted.
+- `2026-10-15T22:00:46Z`: Also: no old-API forwarding, typealiases or deprecations. Break the API and update callers.
 
 ---
 
@@ -3273,6 +3279,9 @@ Goal: one internal scene-graph type owning traversal, visibility and node->light
 
 Constraint: no public API break. Keep all existing public types, members and behavior; changes are internal, or additive with old API forwarding. GLTFAsset's public surface (including pass-through properties, scene(_:), variant(_:), cameras tuple type) must stay.
 
+- `2026-10-15T21:58:17Z`: No API consumers: public API can change freely. The 'no public API break' constraint is lifted.
+- `2026-10-15T22:00:46Z`: Also: no old-API forwarding, typealiases or deprecations. Break the API and update callers.
+
 ---
 
 ## 165: Simplify GLTFTextureCache load paths
@@ -3292,6 +3301,9 @@ GLTFTextureCache has two load paths: preload (parallel) and binding(for:sRGB:) (
 Goal: a typed cache key, one load path (preload results as the only source, or a lazy path that shares it), and warnings returned instead of mutated. Boundary tests: materials -> bindings + warnings.
 
 Constraint: no public API break. Keep all existing public types, members and behavior; changes are internal, or additive with old API forwarding. The GLTFTextureDecoder protocol and GLTFLoadOptions must stay source-compatible.
+
+- `2026-10-15T21:58:17Z`: No API consumers: public API can change freely. The 'no public API break' constraint is lifted.
+- `2026-10-15T22:00:46Z`: Also: no old-API forwarding, typealiases or deprecations. Break the API and update callers.
 
 ---
 
@@ -3385,10 +3397,12 @@ Blocked on SwiftGLTF #68 (an option to keep the declarations). Then replace GLTF
 ## 171: Use GeometryLite3D Transform3D for EXT_mesh_gpu_instancing matrices
 
 +++
-status: new
+status: open
 priority: medium
 kind: task
+labels: effort:xs, area:architecture
 created: 2026-10-15T17:18:40Z
+updated: 2026-10-15T22:05:29Z
 +++
 
 EXTMeshGPUInstancing.swift builds each instance's TRS matrix by hand. Transform3D(translation:rotation:scale:).matrix composes T*R*S the same way. Keep the simd_normalize on rotation.
@@ -3398,10 +3412,12 @@ EXTMeshGPUInstancing.swift builds each instance's TRS matrix by hand. Transform3
 ## 172: Back GLTFNodeHierarchy.Transform with GeometryLite3D Transform3D
 
 +++
-status: new
+status: open
 priority: medium
 kind: task
+labels: effort:s, area:animation, area:architecture
 created: 2026-10-15T17:18:40Z
+updated: 2026-10-15T22:05:29Z
 +++
 
 GLTFNodeHierarchy.Transform (GLTFAnimation.swift) repeats Transform3D's translation/rotation/scale fields and hand-writes localMatrix. Wrap a Transform3D and keep the optional raw glTF matrix. Watch the animation hot path for a perf change.
@@ -3411,10 +3427,12 @@ GLTFNodeHierarchy.Transform (GLTFAnimation.swift) repeats Transform3D's translat
 ## 173: Use simd_quatf.identity from GeometryLite3D
 
 +++
-status: new
+status: open
 priority: medium
 kind: task
+labels: effort:xs, area:architecture
 created: 2026-10-15T17:18:40Z
+updated: 2026-10-15T22:05:29Z
 +++
 
 simd_quatf(ix: 0, iy: 0, iz: 0, r: 1) is written out in GLTFAnimation.swift (x2), EXTMeshGPUInstancing.swift and EXTLightsImageBased.swift. GeometryLite3D has simd_quatf.identity.
@@ -3424,12 +3442,52 @@ simd_quatf(ix: 0, iy: 0, iz: 0, r: 1) is written out in GLTFAnimation.swift (x2)
 ## 174: GLTFViewer: drop local helpers that duplicate GeometryLite3D
 
 +++
-status: new
+status: open
 priority: medium
 kind: task
+labels: effort:xs, area:demo
 created: 2026-10-15T17:18:41Z
+updated: 2026-10-15T22:05:29Z
 +++
 
 GLTFView.swift defines its own SIMD4.xyz (GeometryLite3D has one). ShowcaseScene.addMesh and BasicShape compute position min/max with reduce; BoundingBox3D(points:) does this.
+
+---
+
+## 175: KHR_animation_pointer material properties are not usable outside MetalSprocketsGLTF
+
++++
+status: open
+priority: low
+kind: enhancement
+labels: effort:m, area:api, area:animation
+created: 2026-10-15T21:57:51Z
+updated: 2026-10-15T22:05:29Z
++++
+
+MetalSprocketsGLTF parses KHR_animation_pointer material targets (/materials/N/...) into GLTFAnimationPointer.MaterialProperty and applies them through PBRMaterial.AnimatedState. Both are internal. GLTFAnimationClip.Target.material(Int, String) is public, but it only exposes the raw pointer string.
+
+MetalSprocketsSceneGraph's glTF loader (#54 there) converts glTF animations into its own AnimationClip channels. It can map node, visibility, light and camera pointers, but it cannot apply material pointers without duplicating the pointer-to-uniform mapping.
+
+Want: a public way to apply a material pointer value (property string + [Float]) to a PBRMaterial's uniforms, including texture transform components.
+
+---
+
+## 176: Per-variant materials are not public
+
++++
+status: open
+priority: low
+kind: enhancement
+labels: effort:s, area:api, area:extensions
+created: 2026-10-15T22:00:46Z
+updated: 2026-10-15T22:05:29Z
++++
+
+KHR_materials_variants material mapping is only reachable through GLTFAsset.variant(_:), which builds a new asset. GLTFAsset.materialOverrides(variant:) is internal.
+
+MetalSprocketsSceneGraph's glTF loader builds a scene graph once. To switch variants on that scene graph it needs, for each variant, which material each primitive uses. Today it would have to reload the asset and rebuild the whole graph.
+
+Want: a public way to get the material for each primitive under a given variant.
 
 ---

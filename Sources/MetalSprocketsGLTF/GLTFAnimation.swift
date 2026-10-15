@@ -1,3 +1,4 @@
+import GeometryLite3D
 import MetalSprocketsPBR
 import MetalSprocketsPBRShaders
 import simd
@@ -185,7 +186,7 @@ struct GLTFNodeHierarchy: Sendable {
             let matrix = node.matrix.flatMap { $0 == matrix_identity_float4x4 ? nil : $0 }
             return Transform(
                 translation: node.translation ?? .zero,
-                rotation: node.rotation.map { simd_quatf(vector: $0) } ?? simd_quatf(ix: 0, iy: 0, iz: 0, r: 1),
+                rotation: node.rotation.map { simd_quatf(vector: $0) } ?? .identity,
                 scale: node.scale ?? [1, 1, 1],
                 matrix: matrix
             )
@@ -319,7 +320,7 @@ public extension GLTFAsset {
                 let restRotation = simd_quatf(vector: SIMD4(rest[0], rest[1], rest[2], rest[3]))
                 let sampled = simd_quatf(vector: SIMD4(sample[0], sample[1], sample[2], sample[3]))
                 let baseRotation = simd_quatf(vector: SIMD4(base[0], base[1], base[2], base[3]))
-                let delta = simd_slerp(simd_quatf(ix: 0, iy: 0, iz: 0, r: 1), restRotation.inverse * sampled, weight)
+                let delta = simd_slerp(simd_quatf.identity, restRotation.inverse * sampled, weight)
                 let result = simd_normalize(baseRotation * delta).vector
                 values[channel.target] = [result.x, result.y, result.z, result.w]
 

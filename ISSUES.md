@@ -3428,12 +3428,13 @@ GLTFNodeHierarchy.Transform (GLTFAnimation.swift) repeats Transform3D's translat
 ## 173: Use simd_quatf.identity from GeometryLite3D
 
 +++
-status: open
+status: closed
 priority: medium
 kind: task
 labels: effort:xs, area:architecture
 created: 2026-10-15T17:18:40Z
-updated: 2026-10-15T22:05:29Z
+updated: 2026-10-15T22:08:39Z
+closed: 2026-10-15T22:08:39Z
 +++
 
 simd_quatf(ix: 0, iy: 0, iz: 0, r: 1) is written out in GLTFAnimation.swift (x2), EXTMeshGPUInstancing.swift and EXTLightsImageBased.swift. GeometryLite3D has simd_quatf.identity.

@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import GeometryLite3D
 import ImageIO
 import Metal
 import MetalSprocketsPBR
@@ -73,7 +74,7 @@ extension GLTFImageBasedLight {
             throw GLTFError.invalidDocument("EXT_lights_image_based light \(index) has no six-face mip 0")
         }
         let cube = try faces.map { try Self.decodeFace(container: container, imageIndex: $0) }
-        let rotation = light.rotation.map { simd_quatf(vector: $0) } ?? simd_quatf(ix: 0, iy: 0, iz: 0, r: 1)
+        let rotation = light.rotation.map { simd_quatf(vector: $0) } ?? .identity
         let size = cube[0].size
         self.init(name: light.name, cube: cube, size: size, rotation: rotation, intensity: light.intensity ?? 1)
     }

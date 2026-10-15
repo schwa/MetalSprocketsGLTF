@@ -52,7 +52,7 @@ extension Container {
         }
         return (0 ..< count).map { index in
             let translation = translations.map { SIMD3($0[index * 3], $0[index * 3 + 1], $0[index * 3 + 2]) } ?? .zero
-            let rotation = rotations.map { simd_quatf(ix: $0[index * 4], iy: $0[index * 4 + 1], iz: $0[index * 4 + 2], r: $0[index * 4 + 3]) } ?? simd_quatf(ix: 0, iy: 0, iz: 0, r: 1)
+            let rotation = rotations.map { simd_quatf(ix: $0[index * 4], iy: $0[index * 4 + 1], iz: $0[index * 4 + 2], r: $0[index * 4 + 3]) } ?? .identity
             let scale = scales.map { SIMD3($0[index * 3], $0[index * 3 + 1], $0[index * 3 + 2]) } ?? SIMD3<Float>(repeating: 1)
             return Transform3D(translation: translation, rotation: simd_normalize(rotation), scale: scale).matrix
         }

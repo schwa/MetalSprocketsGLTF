@@ -230,6 +230,15 @@ public extension GLTFAsset {
         model.restMorphWeights(node: node)
     }
 
+    /// The material `primitive` (from ``meshes``) uses in KHR_materials_variants variant `index` (an index into
+    /// ``variantNames``, or nil for the default materials). Throws for an out-of-range index.
+    public func material(for primitive: Primitive, variant index: Int?) throws -> PBRMaterial {
+        if let index, !variantNames.indices.contains(index) {
+            throw GLTFError.invalidDocument("Variant \(index) is out of range (\(variantNames.count) variants)")
+        }
+        return resources.material(for: primitive, variant: index)
+    }
+
     /// Material overrides that draw this asset's model with KHR_materials_variants variant `index` (nil for the
     /// default materials) without rebuilding it: set them on ``PBRScene/materialOverrides``. Nil when the variant
     /// changes a primitive's alpha mode or transmission, which needs ``variant(_:)`` instead. Throws for an

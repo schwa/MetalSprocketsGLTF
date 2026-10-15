@@ -3480,12 +3480,13 @@ Want: a public way to apply a material pointer value (property string + [Float])
 ## 176: Per-variant materials are not public
 
 +++
-status: open
+status: closed
 priority: low
 kind: enhancement
 labels: effort:s, area:api, area:extensions
 created: 2026-10-15T22:00:46Z
-updated: 2026-10-15T22:05:29Z
+updated: 2026-10-15T22:13:56Z
+closed: 2026-10-15T22:13:56Z
 +++
 
 KHR_materials_variants material mapping is only reachable through GLTFAsset.variant(_:), which builds a new asset. GLTFAsset.materialOverrides(variant:) is internal.

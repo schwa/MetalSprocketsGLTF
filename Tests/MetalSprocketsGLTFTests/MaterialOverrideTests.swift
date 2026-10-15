@@ -35,6 +35,17 @@ struct MaterialOverrideTests {
         #expect(try render(asset, overrides: blue) != render(asset))
     }
 
+    @Test func materialForPrimitiveByVariant() throws {
+        let asset = try GLTFAsset(url: makeVariantsTriangleFile())
+        let primitive = try #require(asset.meshes.first?.first)
+        let blue = try asset.material(for: primitive, variant: 0)
+        #expect(try asset.material(for: primitive, variant: nil) === asset.materials.first)
+        #expect(blue === asset.materials[1])
+        #expect(try asset.material(for: primitive, variant: 1) === asset.materials.first)
+        #expect(try blue === asset.variant(0).material(for: primitive, variant: 0))
+        #expect(throws: (any Error).self) { try asset.material(for: primitive, variant: 2) }
+    }
+
     // Merged geometry applies overrides per record, the same as per-batch drawing.
     @Test func mergedGeometryAppliesOverrides() throws {
         let asset = try GLTFAsset(url: makeTwoMaterialAnimatedFile())

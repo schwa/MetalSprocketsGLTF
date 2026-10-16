@@ -1,6 +1,5 @@
 import CoreGraphics
 import GeometryLite3D
-import MetalSprockets
 import MetalSprocketsPBR
 import simd
 
@@ -50,7 +49,7 @@ public extension PBRRenderer {
     }
 }
 
-public extension PBRTransmissionPass where AdditionalContent == EmptyElement {
+public extension PBRBasicTransmissionPass {
     init(asset: GLTFAsset, viewMatrix: simd_float4x4, projectionMatrix: simd_float4x4, modelMatrix: simd_float4x4 = matrix_identity_float4x4, lighting: PBRLighting? = nil, pose: PBRPose? = nil, target: PBRTransmissionTarget, showsBackground: Bool = false) {
         self.init(model: asset.model, viewMatrix: viewMatrix, projectionMatrix: projectionMatrix, modelMatrix: modelMatrix, lighting: lighting ?? PBRLighting(asset: asset, pose: pose), pose: pose, target: target, showsBackground: showsBackground)
     }

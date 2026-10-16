@@ -358,18 +358,20 @@ Every instance is drawn every frame regardless of visibility, even though world 
 ## 20: No shadows
 
 +++
-status: open
+status: closed
 priority: low
 kind: feature
 labels: effort:l, area:rendering, deferred
 created: 2026-10-05T16:00:03Z
-updated: 2026-10-13T19:37:48Z
+updated: 2026-10-16T02:27:47Z
+closed: 2026-10-16T02:27:47Z
 +++
 
 GLTFRenderer does not cast or receive shadows from punctual lights.
 
 - `2026-10-05T22:50:11Z`: Looked at it during the auto-fix run. Punting: shadows need design decisions the code can't settle, and glTF doesn't specify them. (1) Which lights cast (directional/spot: one shadow map each; point: cube maps)? (2) API: opt-in per renderer or per light, plus resolution, filtering (PCF?) and bias settings. (3) Most of our lighting is image-based and unshadowed, so punctual-only shadows may change little. (4) The three.js reference renders without shadows, so default-on shadows would lower reference PSNR for lit scenes unless the reference enables them too. Unblocker: pick the scope, e.g. 'opt-in shadow maps for directional and spot lights, PCF, off by default, reference unchanged'.
 - `2026-10-07T15:23:55Z`: Skipped again in this auto-fix run: the scope question from the earlier comment is still open. Proposed default if you agree: opt-in shadow maps for directional and spot lights, 3x3 PCF, off by default, three.js reference unchanged.
+- `2026-10-16T02:27:47Z`: Not a glTF issue: shadows belong in the renderer (MetalSprocketsPBR), not this package.
 
 ---
 

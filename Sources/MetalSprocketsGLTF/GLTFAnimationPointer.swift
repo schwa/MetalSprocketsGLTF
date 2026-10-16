@@ -113,6 +113,7 @@ public enum GLTFAnimationPointer {
             public var get: @Sendable (PBRMaterialUniforms) -> [Float]
             public var set: @Sendable (inout PBRMaterialUniforms, [Float]) -> Void
 
+            @preconcurrency
             public init(get: @escaping @Sendable (PBRMaterialUniforms) -> [Float], set: @escaping @Sendable (inout PBRMaterialUniforms, [Float]) -> Void) {
                 self.get = get
                 self.set = set

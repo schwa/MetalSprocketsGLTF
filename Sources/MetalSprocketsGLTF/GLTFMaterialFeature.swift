@@ -9,7 +9,7 @@ import SwiftGLTF
 /// ``GLTFAsset/builtInExtensions`` come from it, so adding an extension means adding one entry here.
 // Immutable; @unchecked only because the texture slots hold key paths, which are not Sendable.
 struct GLTFMaterialFeature: @unchecked Sendable {
-    typealias FactorSetter = @Sendable (inout PBRMaterialUniforms, [Float]) -> Void
+    typealias Factor = GLTFAnimationPointer.MaterialProperty.Factor
 
     /// Nil for core glTF.
     var extensionName: String?
@@ -17,10 +17,10 @@ struct GLTFMaterialFeature: @unchecked Sendable {
     var uniforms: @Sendable (Material?, inout PBRMaterialUniforms) -> Void
     var textureSlots: [GLTFMaterialTextureSlot] = []
     /// By path below `/materials/N/`.
-    var animatableFactors: [String: FactorSetter] = [:]
+    var animatableFactors: [String: Factor] = [:]
 
     /// `factors` keyed by their name below `/materials/N/extensions/<extensionName>/`.
-    init(extensionName: String?, uniforms: @escaping @Sendable (Material?, inout PBRMaterialUniforms) -> Void, textureSlots: [GLTFMaterialTextureSlot] = [], factors: [String: FactorSetter] = [:]) {
+    init(extensionName: String?, uniforms: @escaping @Sendable (Material?, inout PBRMaterialUniforms) -> Void, textureSlots: [GLTFMaterialTextureSlot] = [], factors: [String: Factor] = [:]) {
         self.extensionName = extensionName
         self.uniforms = uniforms
         self.textureSlots = textureSlots
@@ -37,16 +37,20 @@ struct GLTFMaterialFeature: @unchecked Sendable {
         return uniforms
     }
 
-    static let animatableFactors: [String: FactorSetter] = all.reduce(into: [:]) { $0.merge($1.animatableFactors) { first, _ in first } }
+    static let animatableFactors: [String: Factor] = all.reduce(into: [:]) { $0.merge($1.animatableFactors) { first, _ in first } }
 
     static let extensionNames: Set<String> = Set(all.compactMap(\.extensionName))
 
-    static func scalar(_ keyPath: WritableKeyPath<PBRMaterialUniforms, Float> & Sendable) -> FactorSetter {
-        { if let value = $1.first { $0[keyPath: keyPath] = value } }
+    static func scalar(_ keyPath: WritableKeyPath<PBRMaterialUniforms, Float> & Sendable) -> Factor {
+        Factor(get: { [$0[keyPath: keyPath]] }, set: { if let value = $1.first { $0[keyPath: keyPath] = value } })
     }
 
-    static func vector3(_ keyPath: WritableKeyPath<PBRMaterialUniforms, SIMD3<Float>> & Sendable) -> FactorSetter {
-        { if $1.count == 3 { $0[keyPath: keyPath] = SIMD3($1[0], $1[1], $1[2]) } }
+    static func vector3(_ keyPath: WritableKeyPath<PBRMaterialUniforms, SIMD3<Float>> & Sendable) -> Factor {
+        Factor(get: { let value = $0[keyPath: keyPath]; return [value.x, value.y, value.z] }, set: { if $1.count == 3 { $0[keyPath: keyPath] = SIMD3($1[0], $1[1], $1[2]) } })
+    }
+
+    static func vector4(_ keyPath: WritableKeyPath<PBRMaterialUniforms, SIMD4<Float>> & Sendable) -> Factor {
+        Factor(get: { let value = $0[keyPath: keyPath]; return [value.x, value.y, value.z, value.w] }, set: { if $1.count == 4 { $0[keyPath: keyPath] = SIMD4($1[0], $1[1], $1[2], $1[3]) } })
     }
 
     /// In application order: specular-glossiness comes last because it overrides the metallic-roughness and specular
@@ -81,7 +85,7 @@ struct GLTFMaterialFeature: @unchecked Sendable {
             .single(kPBRTextureOcclusion, \.occlusion, sRGB: false, path: "occlusionTexture") { $0.occlusionTexture },
             .single(kPBRTextureEmissive, \.emissive, sRGB: true, path: "emissiveTexture") { $0.emissiveTexture }
         ], factors: [
-            "pbrMetallicRoughness/baseColorFactor": { if $1.count == 4 { $0.baseColorFactor = SIMD4($1[0], $1[1], $1[2], $1[3]) } },
+            "pbrMetallicRoughness/baseColorFactor": vector4(\.baseColorFactor),
             "pbrMetallicRoughness/metallicFactor": scalar(\.metallicFactor),
             "pbrMetallicRoughness/roughnessFactor": scalar(\.roughnessFactor),
             "emissiveFactor": vector3(\.emissiveFactor),

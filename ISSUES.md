@@ -3501,10 +3501,12 @@ Want: a public way to get the material for each primitive under a given variant.
 ## 177: Material animation properties cannot be read back
 
 +++
-status: new
+status: closed
 priority: low
 kind: enhancement
 created: 2026-10-16T02:01:05Z
+updated: 2026-10-16T02:14:34Z
+closed: 2026-10-16T02:14:34Z
 +++
 
 GLTFAnimationPointer.MaterialProperty.factor holds only a setter: (inout PBRMaterialUniforms, [Float]) -> Void. The texture transform case also has no way to read its current value. Callers cannot read an animated material value.

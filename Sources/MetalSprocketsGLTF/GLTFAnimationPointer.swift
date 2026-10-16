@@ -104,9 +104,20 @@ public enum GLTFAnimationPointer {
 
     /// A property below `/materials/N/`: a factor in the uniforms, or a KHR_texture_transform component of a texture.
     public enum MaterialProperty: Sendable {
-        case factor(@Sendable (inout PBRMaterialUniforms, [Float]) -> Void)
+        case factor(Factor)
         /// `texturePath` is the texture's path below `/materials/N/`, as in ``GLTFMaterialTextureSlot/pointerPaths``.
         case textureTransform(texturePath: String, component: TextureTransformComponent)
+
+        /// Reads and writes one factor in the uniforms as a flat `[Float]`.
+        public struct Factor: Sendable {
+            public var get: @Sendable (PBRMaterialUniforms) -> [Float]
+            public var set: @Sendable (inout PBRMaterialUniforms, [Float]) -> Void
+
+            public init(get: @escaping @Sendable (PBRMaterialUniforms) -> [Float], set: @escaping @Sendable (inout PBRMaterialUniforms, [Float]) -> Void) {
+                self.get = get
+                self.set = set
+            }
+        }
 
         public enum TextureTransformComponent: String, CaseIterable, Sendable {
             case offset
@@ -116,8 +127,8 @@ public enum GLTFAnimationPointer {
 
         /// `property` is the pointer below `/materials/N/`, as in ``GLTFAnimationClip/Target/material(_:_:)``.
         public init?(_ property: String) {
-            if let setter = GLTFMaterialFeature.animatableFactors[property] {
-                self = .factor(setter)
+            if let factor = GLTFMaterialFeature.animatableFactors[property] {
+                self = .factor(factor)
                 return
             }
             for component in TextureTransformComponent.allCases {

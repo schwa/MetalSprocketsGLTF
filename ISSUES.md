@@ -87,9 +87,9 @@ Primitives with mode POINTS, LINES, LINE_LOOP or LINE_STRIP are skipped with a w
 status: open
 priority: low
 kind: bug
-labels: effort:m, area:rendering, deferred
+labels: effort:m, area:rendering
 created: 2026-10-05T16:00:03Z
-updated: 2026-10-06T21:30:34Z
+updated: 2026-10-16T02:28:15Z
 +++
 
 Blended primitives are sorted back to front by the centre of each primitive's world bounds. Large or intersecting transparent primitives can draw in the wrong order.
@@ -1956,9 +1956,9 @@ There is no .buildkite/pipeline.yml, so the full test suite (GPU, sample assets,
 status: open
 priority: low
 kind: enhancement
-labels: area:rendering, effort:m, deferred
+labels: area:rendering, effort:m
 created: 2026-10-06T17:40:21Z
-updated: 2026-10-07T03:55:13Z
+updated: 2026-10-16T02:28:15Z
 +++
 
 A transmissive surface shows the transmission pre-pass image, which holds only opaque primitives (plus back faces of double-sided transmissive ones). Other transmissive objects behind it are missing, so in CompareIOR the far glass ball cannot be seen through the near one. three.js and the Khronos sample viewer behave the same way, so this is beyond reference parity. Optional improvement: also draw transmissive primitives into the pre-pass (refracting only the environment, a one-bounce approximation), at the cost of an extra pass and a difference from three.js; correct multi-layer refraction would need repeated transmission passes or ray tracing.
@@ -2233,9 +2233,9 @@ Wanted: a debug view mode in our own shaders (a frame uniform, e.g. GLTFFrameUni
 status: open
 priority: low
 kind: task
-labels: area:performance, area:testing, effort:s, deferred
+labels: area:performance, area:testing, effort:s
 created: 2026-10-06T19:18:26Z
-updated: 2026-10-07T03:55:13Z
+updated: 2026-10-16T02:28:15Z
 +++
 
 The bench suite (ms-gltf-render bench, GLTFBenchCommand.scenes) has 11 scenes picked by hand. Paths with no scene, so their regressions go unnoticed:

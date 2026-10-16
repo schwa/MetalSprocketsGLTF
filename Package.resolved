@@ -1,5 +1,5 @@
 {
-  "originHash" : "4f5b626e3a84a647eee3e5fe8721d8bce6c22bd21c3e9d0713107f33f55ea68a",
+  "originHash" : "96377fd6a0548fb0e8f98c2c779d25dc4c62fb8afe70688bd2f7c20946ecaec4",
   "pins" : [
     {
       "identity" : "basisuniversalmetal",
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/GeometryLite3D",
       "state" : {
-        "revision" : "0eddc584482eec5a991c8caff2ec1c864299e377",
-        "version" : "0.2.2"
+        "revision" : "4a1c76400e564b76140a14d14a7e6d6279908faf",
+        "version" : "0.2.3"
       }
     },
     {
@@ -61,7 +61,7 @@
       "location" : "https://github.com/schwa/MetalSprocketsPBR",
       "state" : {
         "branch" : "main",
-        "revision" : "9b5495b6d51fe274a5be471fc577a9b3f9f88986"
+        "revision" : "06ce6afbaa03dad9fe5036f4141f5d37cd58d785"
       }
     },
     {

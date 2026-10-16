@@ -3497,3 +3497,24 @@ MetalSprocketsSceneGraph's glTF loader builds a scene graph once. To switch vari
 Want: a public way to get the material for each primitive under a given variant.
 
 ---
+
+## 177: Material animation properties cannot be read back
+
++++
+status: new
+priority: low
+kind: enhancement
+created: 2026-10-16T02:01:05Z
++++
+
+GLTFAnimationPointer.MaterialProperty.factor holds only a setter: (inout PBRMaterialUniforms, [Float]) -> Void. The texture transform case also has no way to read its current value. Callers cannot read an animated material value.
+
+MetalSprocketsSceneGraph's AnimationMixer reads the current value as the rest value for blending. Without a getter, glTF material channels cannot be weighted, cross-faded or added.
+
+Expected: each MaterialProperty can read its current value from the animated material state, as [Float].
+
+Suggested: make FactorSetter a get/set pair. The scalar(\.x) and vector3(\.x) helpers already use key paths and can build both. Add a matching read for texture transform components.
+
+Needed by MetalSprocketsSceneGraph #122.
+
+---

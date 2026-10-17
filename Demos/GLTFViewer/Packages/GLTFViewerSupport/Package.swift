@@ -18,9 +18,9 @@ let package = Package(
         .package(path: "../WebReference"),
         .package(url: "https://github.com/schwa/MetalSprockets", branch: "main"),
         .package(url: "https://github.com/schwa/SwiftGLTF", branch: "main"),
-        .package(url: "https://github.com/schwa/Interaction3D", from: "0.1.13"),
+        .package(url: "https://github.com/schwa/Interaction3D", .upToNextMinor(from: "0.1.15")),
         .package(url: "https://github.com/schwa/SwiftMesh", branch: "main"),
-        .package(url: "https://github.com/schwa/GeometryLite3D", from: "0.2.2")
+        .package(url: "https://github.com/schwa/GeometryLite3D", .upToNextMinor(from: "0.2.4"))
     ],
     targets: [
         .target(

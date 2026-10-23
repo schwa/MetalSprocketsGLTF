@@ -1322,9 +1322,9 @@ KHR_materials_unlit primitives return their base color directly, without exposur
 status: closed
 priority: low
 kind: enhancement
-labels: area:rendering, effort:m, parked
+labels: area:rendering, effort:m, deferred
 created: 2026-10-05T21:27:45Z
-updated: 2026-10-06T06:18:51Z
+updated: 2026-10-23T14:31:27Z
 closed: 2026-10-06T06:18:51Z
 +++
 

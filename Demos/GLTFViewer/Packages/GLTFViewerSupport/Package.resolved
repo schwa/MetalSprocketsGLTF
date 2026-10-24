@@ -1,5 +1,5 @@
 {
-  "originHash" : "52e911bee46b5e688761a934e5229316800d507891ecc2f5e7b95452a2f4579b",
+  "originHash" : "10df1b5810a264759aeb1339939dcdb926b941b6551c371b4b051fb67cb9839c",
   "pins" : [
     {
       "identity" : "basisuniversalmetal",
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/GeometryLite3D",
       "state" : {
-        "revision" : "4a1c76400e564b76140a14d14a7e6d6279908faf",
-        "version" : "0.2.3"
+        "revision" : "aabafead21eb8691c0162578452f93fef939665e",
+        "version" : "0.2.7"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/Interaction3D",
       "state" : {
-        "revision" : "9bc6c85de11da1156e0b72edd28015945fdedc4d",
-        "version" : "0.1.14"
+        "revision" : "829f6b57780ac2ae07c73039abcb5a6f5e5c46f7",
+        "version" : "0.1.15"
       }
     },
     {

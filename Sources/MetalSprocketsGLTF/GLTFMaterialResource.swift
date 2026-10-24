@@ -74,7 +74,7 @@ final class GLTFTextureCache {
     let decoders: [any GLTFTextureDecoder]
     /// Every image loaded so far, or the error that stopped it.
     private var images: [ImageKey: Result<MTLTexture, Error>] = [:]
-    private var samplers: [Int: MTLSamplerState] = [:]
+    private var samplers: [Int: MTLSamplerDescriptor] = [:]
     /// Textures a material asked for that have no loadable source, with the reason, by texture index.
     private var skippedTextures: [Int: String] = [:]
     /// Images a material asked for that failed to load, with the first error, by image index.
@@ -85,7 +85,7 @@ final class GLTFTextureCache {
         skippedTextures.sorted { $0.key < $1.key }.map { "Texture \($0.key) skipped: \($0.value)" }
             + failedImages.sorted { $0.key < $1.key }.map { "Image \($0.key) failed to load: \($0.value)" }
     }
-    lazy var defaultBinding: PBRMaterial.Binding = .init(texture: makeWhiteTexture(), sampler: makeSampler(nil))
+    lazy var defaultBinding: PBRMaterial.Binding = makeBinding(texture: makeWhiteTexture(), samplerDescriptor: makeSamplerDescriptor(nil))
 
     init(container: Container, device: MTLDevice, decoders: [any GLTFTextureDecoder] = []) {
         self.container = container
@@ -125,12 +125,12 @@ final class GLTFTextureCache {
             return nil
         }
         let samplerIndex = texture.sampler?.index ?? -1
-        let sampler = samplers[samplerIndex] ?? {
-            let sampler = makeSampler(texture.sampler.flatMap { try? $0.resolve(in: document) })
-            samplers[samplerIndex] = sampler
-            return sampler
+        let samplerDescriptor = samplers[samplerIndex] ?? {
+            let samplerDescriptor = makeSamplerDescriptor(texture.sampler.flatMap { try? $0.resolve(in: document) })
+            samplers[samplerIndex] = samplerDescriptor
+            return samplerDescriptor
         }()
-        return .init(texture: metalTexture, sampler: sampler)
+        return makeBinding(texture: metalTexture, samplerDescriptor: samplerDescriptor)
     }
 
     /// The image for `key`, loaded on first use.
@@ -272,9 +272,13 @@ final class GLTFTextureCache {
         return texture
     }
 
-    func makeSampler(_ sampler: Sampler?) -> MTLSamplerState {
+    func makeBinding(texture: MTLTexture, samplerDescriptor: MTLSamplerDescriptor) -> PBRMaterial.Binding {
+        // swiftlint:disable:next force_try
+        try! PBRMaterial.Binding(texture: texture, samplerDescriptor: samplerDescriptor, device: device)
+    }
+
+    func makeSamplerDescriptor(_ sampler: Sampler?) -> MTLSamplerDescriptor {
         let descriptor = MTLSamplerDescriptor()
-        descriptor.supportArgumentBuffers = true
         descriptor.magFilter = sampler?.magFilter == .NEAREST ? .nearest : .linear
         switch sampler?.minFilter {
         case .NEAREST:
@@ -311,7 +315,7 @@ final class GLTFTextureCache {
         }
         descriptor.sAddressMode = address(sampler?.wrapS)
         descriptor.tAddressMode = address(sampler?.wrapT)
-        return device.makeSamplerState(descriptor: descriptor)!
+        return descriptor
     }
 
     func makeWhiteTexture() -> MTLTexture {

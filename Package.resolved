@@ -1,5 +1,5 @@
 {
-  "originHash" : "96377fd6a0548fb0e8f98c2c779d25dc4c62fb8afe70688bd2f7c20946ecaec4",
+  "originHash" : "115ecd3798c0ea5a4e4bcefb9e28bddd69dfbc8c6fe701648c6e3c039b3da7bf",
   "pins" : [
     {
       "identity" : "basisuniversalmetal",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/GeometryLite2D",
       "state" : {
-        "revision" : "938d2bf1276508f51b1e028153c7cc3c25648e40",
-        "version" : "0.0.3"
+        "revision" : "542e05566f76d4248f95a43d13c1ff771acb32fd",
+        "version" : "0.0.4"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/GeometryLite3D",
       "state" : {
-        "revision" : "4a1c76400e564b76140a14d14a7e6d6279908faf",
-        "version" : "0.2.3"
+        "revision" : "aabafead21eb8691c0162578452f93fef939665e",
+        "version" : "0.2.7"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/GoldenImage",
       "state" : {
-        "revision" : "3701668a0d306bcb618fa5a39e66d252babcc723",
-        "version" : "0.1.5"
+        "revision" : "03b4d1557869ebb2161551edf97f7a27630dc7a7",
+        "version" : "0.1.6"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/MetalSprockets",
       "state" : {
-        "revision" : "7eb6be9b56afc841584a0f266b6d08b6a7ba9d6e",
-        "version" : "0.2.2"
+        "revision" : "7038521ecde3278818a9dc26cd25d371341b155b",
+        "version" : "0.2.8"
       }
     },
     {
@@ -61,7 +61,7 @@
       "location" : "https://github.com/schwa/MetalSprocketsPBR",
       "state" : {
         "branch" : "main",
-        "revision" : "a096b1e055fdf75523e9bc0158100f9c4ecb4a9b"
+        "revision" : "385b1895ed7863f6de60618bbf1ad578ee233632"
       }
     },
     {
@@ -105,8 +105,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
-        "revision" : "4799286537280063c85a32f09884cfbca301b1a1",
-        "version" : "602.0.0"
+        "revision" : "050f1a346fbbac0ca2cfb15a95274f7bd1cf0ccf",
+        "version" : "604.0.0"
       }
     },
     {
@@ -123,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/SwiftMesh",
       "state" : {
-        "revision" : "cdb410e46388fb95edf7fbebdd0e988af9163db4",
-        "version" : "0.0.8"
+        "revision" : "4270c075af06d438609f61548f7d6c632d15e4da",
+        "version" : "0.0.11"
       }
     }
   ],

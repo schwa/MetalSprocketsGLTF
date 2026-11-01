@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/MetalSprockets",
       "state" : {
-        "revision" : "7038521ecde3278818a9dc26cd25d371341b155b",
-        "version" : "0.2.8"
+        "revision" : "4062c651c768055ebd2b914562bb5ad851f8a196",
+        "version" : "0.2.9"
       }
     },
     {
@@ -61,7 +61,7 @@
       "location" : "https://github.com/schwa/MetalSprocketsPBR",
       "state" : {
         "branch" : "main",
-        "revision" : "385b1895ed7863f6de60618bbf1ad578ee233632"
+        "revision" : "693714e4108c58731949991241b4edf4f6567db1"
       }
     },
     {
@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections.git",
       "state" : {
-        "revision" : "35a1edcb8ebd2bfe251d587f0b69e62af28f508c",
-        "version" : "1.7.3"
+        "revision" : "f96b909e1a9e469620bc5037c1e24e00153f376f",
+        "version" : "1.7.5"
       }
     },
     {
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/SwiftGLTF",
       "state" : {
-        "revision" : "4fc88ff6665f0bd3f24a45e379426942ec593584",
-        "version" : "1.0.4"
+        "revision" : "108c177488f227bfdcfcb558535295bcb6dddfec",
+        "version" : "1.0.5"
       }
     },
     {

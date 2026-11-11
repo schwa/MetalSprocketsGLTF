@@ -127,7 +127,9 @@ extension GLTFNodeHierarchy {
         let transform = rest[node].trs
         switch path {
         case .translation: return [transform.translation.x, transform.translation.y, transform.translation.z]
-        case .rotation: return [transform.rotation.vector.x, transform.rotation.vector.y, transform.rotation.vector.z, transform.rotation.vector.w]
+        case .rotation:
+            let vector = transform.rotation.quaternion.vector
+            return [vector.x, vector.y, vector.z, vector.w]
         case .scale: return [transform.scale.x, transform.scale.y, transform.scale.z]
         case .weights: return restMorphWeights.indices.contains(node) ? restMorphWeights[node] : nil
         }
@@ -367,7 +369,7 @@ public extension GLTFAsset {
                     transforms[node].trs.translation = SIMD3(value[0], value[1], value[2])
 
                 case .rotation where value.count == 4:
-                    transforms[node].trs.rotation = simd_quatf(vector: SIMD4(value[0], value[1], value[2], value[3]))
+                    transforms[node].trs.rotation = .quaternion(simd_quatf(vector: SIMD4(value[0], value[1], value[2], value[3])))
 
                 case .scale where value.count == 3:
                     transforms[node].trs.scale = SIMD3(value[0], value[1], value[2])

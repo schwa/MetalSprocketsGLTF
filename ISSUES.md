@@ -3522,3 +3522,48 @@ Suggested: make FactorSetter a get/set pair. The scalar(\.x) and vector3(\.x) he
 Needed by MetalSprocketsSceneGraph #122.
 
 ---
+
+## 178: GLTFNodeHierarchy.Transform duplicates Transform3D
+
++++
+status: new
+priority: low
+kind: task
+created: 2026-11-11T21:12:23Z
++++
+
+GLTFNodeHierarchy.Transform (Sources/MetalSprocketsGLTF/GLTFAnimation.swift) stores a Transform3D for TRS plus an optional simd_float4x4 override for nodes that use `matrix`. GeometryLite3D Transform3D already represents both forms via its `.components` / `.matrix` storage, so the wrapper type is redundant.
+
+---
+
+## 179: Animation channels targeting matrix nodes are silently ignored
+
++++
+status: new
+priority: low
+kind: bug
+created: 2026-11-11T21:12:23Z
++++
+
+glTF forbids animating nodes that use `matrix`. Today GLTFAnimation writes translation/rotation/scale channel values into GLTFNodeHierarchy.Transform.trs even for matrix nodes; localMatrix then ignores them, so the channel has no effect and no warning is reported.
+
+If node transforms move to Transform3D with `.matrix` storage, the same writes would mutate the matrix instead, and setting rotation or scale on a matrix with skew or perspective trips a precondition in Transform3D.setComponents (crash on invalid input files).
+
+---
+
+## 180: Malformed glTF input can crash the loader
+
++++
+status: new
+priority: medium
+kind: task
+created: 2026-11-11T21:14:09Z
++++
+
+Loading or animating a malformed or hostile glTF/GLB should produce an error or a warning, never a crash (precondition, fatalError, out-of-range index, force unwrap, integer overflow, unbounded allocation).
+
+There is no fuzz coverage of the load and pose paths today, so crashes on bad input are found only by accident (for example the Transform3D precondition described in #179).
+
+Areas to cover: JSON structure, accessor/bufferView offsets, counts and strides, sparse accessors, node hierarchy indices, skins, animation samplers and pointers, extensions (meshopt, Basis, instancing, lights, image-based lights), and texture data.
+
+---

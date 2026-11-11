@@ -56,8 +56,20 @@ extension GLTFAsset.Resources {
         let skins = try document.skins.map { skin in
             PBRModel.Skin(joints: skin.joints.map(\.index), inverseBindMatrices: try container.inverseBindMatrices(for: skin))
         }
-        let animations = try document.animations.enumerated().map { index, animation in
+        var animations = try document.animations.enumerated().map { index, animation in
             try GLTFAnimationClip(animation, index: index, container: container)
+        }
+        // glTF forbids animating translation, rotation or scale of a node that uses `matrix`.
+        for index in animations.indices {
+            let name = animations[index].name
+            animations[index].channels.removeAll { channel in
+                guard case let .node(node, property) = channel.target, property != .weights,
+                      document.nodes.indices.contains(node), document.nodes[node].usesMatrix else {
+                    return false
+                }
+                warnings.append("Skipped \(name) channel: node \(node) uses matrix, so its \(property.rawValue) cannot be animated")
+                return true
+            }
         }
         let unsupportedPointers = Set(animations.flatMap(\.unsupportedPointers)).sorted().map { "Animation pointer not supported: \($0)" }
         var nodeInstanceMatrices: [Int: [simd_float4x4]] = [:]

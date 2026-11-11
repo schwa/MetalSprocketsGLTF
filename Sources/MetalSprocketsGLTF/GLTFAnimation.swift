@@ -114,6 +114,13 @@ extension Animation.Channel.Target {
     }
 }
 
+extension Node {
+    /// An identity `matrix` counts as absent, so such nodes keep their translation, rotation and scale.
+    var usesMatrix: Bool {
+        matrix.map { $0 != matrix_identity_float4x4 } ?? false
+    }
+}
+
 extension GLTFAnimationClip.Target {
     var isRotation: Bool {
         if case .node(_, .rotation) = self { true } else { false }
@@ -123,14 +130,20 @@ extension GLTFAnimationClip.Target {
 extension GLTFNodeHierarchy {
     /// A node's rest value for `path`, as an animation sampler would give it; nil for nodes that use `matrix`.
     func restValue(node: Int, path: GLTFAnimationClip.NodeProperty) -> [Float]? {
-        guard rest.indices.contains(node), rest[node].matrix == nil else { return nil }
-        let transform = rest[node].trs
+        guard rest.indices.contains(node) else { return nil }
+        let transform = rest[node]
+        if path != .weights, case .matrix = transform.storage { return nil }
         switch path {
-        case .translation: return [transform.translation.x, transform.translation.y, transform.translation.z]
+        case .translation:
+            return [transform.translation.x, transform.translation.y, transform.translation.z]
+
         case .rotation:
             let vector = transform.rotation.quaternion.vector
             return [vector.x, vector.y, vector.z, vector.w]
-        case .scale: return [transform.scale.x, transform.scale.y, transform.scale.z]
+
+        case .scale:
+            return [transform.scale.x, transform.scale.y, transform.scale.z]
+
         case .weights: return restMorphWeights.indices.contains(node) ? restMorphWeights[node] : nil
         }
     }
@@ -138,17 +151,8 @@ extension GLTFNodeHierarchy {
 
 /// Rest transforms and parent links for the nodes of a scene. The rest build and every pose use the same walk of the node tree.
 struct GLTFNodeHierarchy: Sendable {
-    struct Transform: Sendable {
-        var trs: Transform3D
-        /// Set when the node uses `matrix`, which glTF does not allow to be animated.
-        var matrix: simd_float4x4?
-
-        var localMatrix: simd_float4x4 {
-            matrix ?? trs.matrix
-        }
-    }
-
-    var rest: [Transform]
+    /// Nodes that use `matrix` have `.matrix` storage; glTF does not allow those to be animated.
+    var rest: [Transform3D]
     var restMorphWeights: [[Float]]
     /// Each node's own KHR_node_visibility `visible` at rest (not inherited).
     var restVisible: [Bool]
@@ -175,13 +179,14 @@ struct GLTFNodeHierarchy: Sendable {
             try validate(root)
         }
         rest = document.nodes.map { node in
-            let matrix = node.matrix.flatMap { $0 == matrix_identity_float4x4 ? nil : $0 }
-            let trs = Transform3D(
+            if node.usesMatrix, let matrix = node.matrix {
+                return Transform3D(storing: matrix)
+            }
+            return Transform3D(
                 translation: node.translation ?? .zero,
                 rotation: node.rotation.map { simd_quatf(vector: $0) } ?? .identity,
                 scale: node.scale ?? [1, 1, 1]
             )
-            return Transform(trs: trs, matrix: matrix)
         }
         restMorphWeights = document.nodes.map { (try? $0.morphWeights(in: document)) ?? [] }
         restVisible = document.nodes.map(\.isVisible)
@@ -192,10 +197,10 @@ struct GLTFNodeHierarchy: Sendable {
     /// Visits every node reachable from the roots, depth first and parents before children, with its world matrix
     /// for `transforms` and its visibility (each node's own `visible`, inherited down the hierarchy). A node reached
     /// through two parents is visited twice.
-    func walk(_ transforms: [Transform], visible: [Bool]? = nil, _ body: (_ node: Int, _ world: simd_float4x4, _ visible: Bool) throws -> Void) rethrows {
+    func walk(_ transforms: [Transform3D], visible: [Bool]? = nil, _ body: (_ node: Int, _ world: simd_float4x4, _ visible: Bool) throws -> Void) rethrows {
         let ownVisible = visible ?? restVisible
         func visit(_ node: Int, parent: simd_float4x4, parentVisible: Bool) throws {
-            let world = parent * transforms[node].localMatrix
+            let world = parent * transforms[node].matrix
             let visible = parentVisible && (ownVisible.indices.contains(node) ? ownVisible[node] : true)
             try body(node, world, visible)
             for child in children[node] {
@@ -208,7 +213,7 @@ struct GLTFNodeHierarchy: Sendable {
     }
 
     /// World matrices and visibility for `transforms`; see ``walk(_:visible:_:)``.
-    func pose(_ transforms: [Transform], morphWeights: [[Float]], visible: [Bool]? = nil) -> PBRPose {
+    func pose(_ transforms: [Transform3D], morphWeights: [[Float]], visible: [Bool]? = nil) -> PBRPose {
         var world = [simd_float4x4](repeating: matrix_identity_float4x4, count: transforms.count)
         var effective = [Bool](repeating: true, count: transforms.count)
         walk(transforms, visible: visible) { node, nodeWorld, nodeVisible in
@@ -364,15 +369,17 @@ public extension GLTFAsset {
         for (target, value) in values {
             switch target {
             case let .node(node, path) where transforms.indices.contains(node):
+                // Loading drops channels that animate a matrix node; this guards clips built some other way.
+                let isMatrix = if case .matrix = transforms[node].storage { true } else { false }
                 switch path {
-                case .translation where value.count == 3:
-                    transforms[node].trs.translation = SIMD3(value[0], value[1], value[2])
+                case .translation where value.count == 3 && !isMatrix:
+                    transforms[node].translation = SIMD3(value[0], value[1], value[2])
 
-                case .rotation where value.count == 4:
-                    transforms[node].trs.rotation = .quaternion(simd_quatf(vector: SIMD4(value[0], value[1], value[2], value[3])))
+                case .rotation where value.count == 4 && !isMatrix:
+                    transforms[node].rotation = .quaternion(simd_quatf(vector: SIMD4(value[0], value[1], value[2], value[3])))
 
-                case .scale where value.count == 3:
-                    transforms[node].trs.scale = SIMD3(value[0], value[1], value[2])
+                case .scale where value.count == 3 && !isMatrix:
+                    transforms[node].scale = SIMD3(value[0], value[1], value[2])
 
                 case .weights:
                     morphWeights[node] = value

@@ -343,4 +343,17 @@ struct AnimationTests {
         #expect(red(atWorld: [-2, 0.7, 0]) < 30)
         #expect(red(atWorld: [5, 0.7, 0]) < 30)
     }
+
+    // glTF forbids animating a matrix node. A skewed matrix cannot take a new scale, so writing one would crash.
+    @Test func skipsChannelsOnMatrixNodes() throws {
+        let url = try makeMirroringTriangleFile()
+        let json = try String(contentsOf: url, encoding: .utf8)
+        let skew = "\"nodes\": [{\"mesh\": 0, \"matrix\": [1, 0, 0, 0, 0.5, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]}]"
+        try Data(json.replacingOccurrences(of: "\"nodes\": [{\"mesh\": 0}]", with: skew).utf8).write(to: url)
+        let asset = try GLTFAsset(url: url)
+        #expect(asset.animations[0].channels.isEmpty)
+        #expect(asset.warnings.contains { $0.contains("node 0 uses matrix") })
+        let world = asset.pose(animation: 0, time: 1).worldMatrices[0]
+        #expect(world.columns.1 == [0.5, 1, 0, 0])
+    }
 }

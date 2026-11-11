@@ -3526,10 +3526,12 @@ Needed by MetalSprocketsSceneGraph #122.
 ## 178: GLTFNodeHierarchy.Transform duplicates Transform3D
 
 +++
-status: new
+status: closed
 priority: low
 kind: task
 created: 2026-11-11T21:12:23Z
+updated: 2026-11-11T21:17:14Z
+closed: 2026-11-11T21:17:14Z
 +++
 
 GLTFNodeHierarchy.Transform (Sources/MetalSprocketsGLTF/GLTFAnimation.swift) stores a Transform3D for TRS plus an optional simd_float4x4 override for nodes that use `matrix`. GeometryLite3D Transform3D already represents both forms via its `.components` / `.matrix` storage, so the wrapper type is redundant.
@@ -3539,10 +3541,12 @@ GLTFNodeHierarchy.Transform (Sources/MetalSprocketsGLTF/GLTFAnimation.swift) sto
 ## 179: Animation channels targeting matrix nodes are silently ignored
 
 +++
-status: new
+status: closed
 priority: low
 kind: bug
 created: 2026-11-11T21:12:23Z
+updated: 2026-11-11T21:17:14Z
+closed: 2026-11-11T21:17:14Z
 +++
 
 glTF forbids animating nodes that use `matrix`. Today GLTFAnimation writes translation/rotation/scale channel values into GLTFNodeHierarchy.Transform.trs even for matrix nodes; localMatrix then ignores them, so the channel has no effect and no warning is reported.

@@ -157,7 +157,7 @@ public final class GLTFAsset: @unchecked Sendable {
         if !options.disabledExtensions.isEmpty {
             // Declarations stay, so the file still reports what it uses and a disabled required extension fails the
             // required-extension check.
-            container = try container.withDocument(container.document.removingExtensions(options.disabledExtensions, keepingDeclarations: true))
+            container = container.withDocument(container.document.removingExtensions(options.disabledExtensions, keepingDeclarations: true))
         }
         let resources = try Resources.load(container: container, device: device ?? _MTLCreateSystemDefaultDevice(), options: options)
         try self.init(container: container, resources: resources, sceneIndex: sceneIndex ?? container.document.scene?.index ?? 0, variant: variant)
@@ -232,7 +232,7 @@ public extension GLTFAsset {
 
     /// The material `primitive` (from ``meshes``) uses in KHR_materials_variants variant `index` (an index into
     /// ``variantNames``, or nil for the default materials). Throws for an out-of-range index.
-    public func material(for primitive: Primitive, variant index: Int?) throws -> PBRMaterial {
+    func material(for primitive: Primitive, variant index: Int?) throws -> PBRMaterial {
         if let index, !variantNames.indices.contains(index) {
             throw GLTFError.invalidDocument("Variant \(index) is out of range (\(variantNames.count) variants)")
         }

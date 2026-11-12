@@ -62,7 +62,7 @@ struct StereoTests {
 
         let stereo = PBRStereoViews(viewMatrices: views, projectionMatrices: [projection, projection], viewports: Array(repeating: MTLViewport(originX: 0, originY: 0, width: Double(size), height: Double(size), znear: 0, zfar: 1), count: 2))
         let color = try texture(.bgra8Unorm_srgb, slices: 2, device: device)
-        var offscreen = try OffscreenRenderer(size: CGSize(width: size, height: size), colorTexture: color, depthTexture: texture(.depth32Float, slices: 2, device: device), clearDepth: 0)
+        let offscreen = try OffscreenRenderer(size: CGSize(width: size, height: size), colorTexture: color, depthTexture: texture(.depth32Float, slices: 2, device: device), clearDepth: 0)
         offscreen.renderPassDescriptor.renderTargetArrayLength = 2
         var stereoRenderer = pbrRenderer(view: views[0])
         stereoRenderer.stereo = stereo
@@ -101,7 +101,7 @@ struct StereoTests {
             let stereo = PBRStereoViews(viewMatrices: views, projectionMatrices: Array(repeating: projection, count: count), viewports: Array(repeating: viewport, count: count))
             let target = try PBRTransmissionTarget(width: size, height: size, viewCount: count)
             let color = try texture(.bgra8Unorm_srgb, slices: count, device: device)
-            var offscreen = try OffscreenRenderer(size: CGSize(width: size, height: size), colorTexture: color, depthTexture: texture(.depth32Float, slices: count, device: device), clearDepth: 0)
+            let offscreen = try OffscreenRenderer(size: CGSize(width: size, height: size), colorTexture: color, depthTexture: texture(.depth32Float, slices: count, device: device), clearDepth: 0)
             offscreen.renderPassDescriptor.renderTargetArrayLength = count
             var prePass = PBRTransmissionPass(model: asset.model, viewMatrix: views[0], projectionMatrix: projection, lighting: lighting, target: target)
             prePass.renderer.stereo = stereo

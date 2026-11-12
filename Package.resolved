@@ -1,5 +1,5 @@
 {
-  "originHash" : "02ca7493dd830fc8136528414954d3e6431b2284840e2f099068fda9a057c633",
+  "originHash" : "1ece74e682678ada2394706b654f12c03838e5912142c7044ff7708bef304024",
   "pins" : [
     {
       "identity" : "basisuniversalmetal",
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/GeometryLite3D",
       "state" : {
-        "revision" : "eac505c27ed43064556a9962efee6c5ff81cbaba",
-        "version" : "0.3.0"
+        "revision" : "e678c093e8b3845c2721714c28a2767a7f37f7c5",
+        "version" : "0.3.1"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/MetalSprockets",
       "state" : {
-        "revision" : "4062c651c768055ebd2b914562bb5ad851f8a196",
-        "version" : "0.2.9"
+        "revision" : "bf8ce022914262a9070320007b1c23fa851b3f76",
+        "version" : "0.2.11"
       }
     },
     {
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/SwiftGLTF",
       "state" : {
-        "revision" : "978ddbbecd1d842c1b35233d8ea9db4176c18127",
-        "version" : "1.0.6"
+        "revision" : "6d75539d60456554aa6395ec94bf114a977af178",
+        "version" : "1.0.7"
       }
     },
     {

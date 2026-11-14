@@ -39,7 +39,7 @@ struct TransmissionCoverageTests {
         let lighting = PBRLighting(environment: try PBREnvironment(source: .uniform([0, 0, 1]), specularSize: 16, irradianceSize: 4))
         var renderer = PBRRenderer(model: model, viewMatrix: view, projectionMatrix: projection, lighting: lighting)
         if stereo {
-            renderer.stereo = PBRStereoViews(viewMatrices: [view], projectionMatrices: [projection], viewports: [MTLViewport(originX: 0, originY: 0, width: Double(size), height: Double(size), znear: 0, zfar: 1)])
+            renderer.stereo = StereoViews(viewMatrices: [view], projectionMatrices: [projection], viewports: [MTLViewport(originX: 0, originY: 0, width: Double(size), height: Double(size), znear: 0, zfar: 1)])
         }
         let offscreen = try OffscreenRenderer(size: CGSize(width: size, height: size), clearDepth: 0)
         offscreen.renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)

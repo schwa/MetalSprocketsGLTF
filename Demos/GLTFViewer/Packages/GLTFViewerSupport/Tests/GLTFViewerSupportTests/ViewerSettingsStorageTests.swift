@@ -12,8 +12,6 @@ import Testing
     settings.toneMapping = .agx
     settings.environment = .hdri(.sunset)
     settings.environmentRotation = 45
-    settings.mode = .split
-    settings.split = 0.3
     settings.framebufferOnly = false
     settings.extendedDynamicRange = true
     settings.renderScale = 0.5
@@ -33,14 +31,13 @@ import Testing
 
 // A value that no longer exists resets only itself; the rest is kept.
 @Test func staleStoredValuesFallBackIndividually() {
-    let json = #"{"showsInspector": true, "inspectorTab": "Removed Tab", "debugView": 999, "environment": "hdri:gone", "toneMapping": 3, "split": 7}"#
+    let json = #"{"showsInspector": true, "inspectorTab": "Removed Tab", "debugView": 999, "environment": "hdri:gone", "toneMapping": 3}"#
     let restored = ViewerSettings(storedData: Data(json.utf8))
     #expect(restored.showsInspector)
     #expect(restored.inspectorTab == ViewerSettings().inspectorTab)
     #expect(restored.debugView == .lit)
     #expect(restored.environment == ViewerSettings().environment)
     #expect(restored.toneMapping == .agx)
-    #expect(restored.split == 1)
 }
 
 // A picked HDR file is not restored (its sandbox access would be gone); unreadable data gives the defaults.

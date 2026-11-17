@@ -6,7 +6,7 @@ import simd
 import UniformTypeIdentifiers
 
 /// Built-in scenes that show what the renderer can do, made from the basic shapes. Written as .glb files on first use
-/// (in Caches), so they load like any other file, including the three.js comparison.
+/// (in Caches), so they load like any other file.
 public enum ShowcaseScene: String, CaseIterable, Identifiable, Sendable {
     /// Spheres stepping metallic (rows) and roughness (columns).
     case materialGrid

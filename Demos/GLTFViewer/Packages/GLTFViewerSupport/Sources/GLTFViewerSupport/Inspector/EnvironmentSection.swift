@@ -2,7 +2,6 @@ import Metal
 import MetalSprocketsGLTF
 import simd
 import SwiftUI
-import WebReference
 
 /// The image-based lighting: which environment, how bright, and its rotation.
 struct EnvironmentSection: View {

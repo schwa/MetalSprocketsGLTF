@@ -2,7 +2,6 @@ import Metal
 import MetalSprocketsGLTF
 import simd
 import SwiftUI
-import WebReference
 
 /// The orbit camera's state. Comparing it against a snapshot tells whether the user has moved since picking a camera.
 struct OrbitState: Equatable {

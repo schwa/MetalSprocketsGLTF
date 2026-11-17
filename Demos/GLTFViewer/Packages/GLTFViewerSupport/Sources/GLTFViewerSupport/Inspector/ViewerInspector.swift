@@ -5,7 +5,6 @@ enum InspectorTab: String, CaseIterable, Identifiable {
     case model = "Model"
     case document = "Document"
     case display = "Display"
-    case web = "three.js"
 
     var id: Self { self }
 }
@@ -41,9 +40,6 @@ struct ViewerInspector: View {
 
                 case .display:
                     DisplayInspector(hasFileEnvironment: loaded.asset.imageBasedLight != nil)
-
-                case .web:
-                    WebInspector()
                 }
             }
         } else {

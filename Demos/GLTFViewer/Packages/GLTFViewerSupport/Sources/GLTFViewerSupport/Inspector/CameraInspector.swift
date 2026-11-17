@@ -2,7 +2,6 @@ import Metal
 import MetalSprocketsGLTF
 import simd
 import SwiftUI
-import WebReference
 
 struct CameraInspector: View {
     var asset: GLTFAsset

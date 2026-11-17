@@ -1,14 +1,13 @@
 import Foundation
 import MetalSprocketsGLTF
 import MetalSprocketsPBR
-import WebReference
 
 // ViewerSettings persist across launches as JSON in UserDefaults (SamplesView's @AppStorage). Each field decodes on
 // its own and falls back to its default, so a value that no longer exists (a removed tab, debug view or HDRI, a sample
 // count this GPU lacks) resets only itself.
 extension ViewerSettings: Codable {
     enum CodingKeys: String, CodingKey {
-        case mode, webLighting, split, showsBackground, showsInspector, inspectorTab, debugView, showsWireframe
+        case showsBackground, showsInspector, inspectorTab, debugView, showsWireframe
         case framebufferOnly, toneMapping, exposure, environment, environmentIntensity, environmentRotation, sampleCount
         case renderScale, extendedDynamicRange
     }
@@ -19,9 +18,6 @@ extension ViewerSettings: Codable {
         func value<T: Decodable>(_ key: CodingKeys) -> T? {
             try? container.decodeIfPresent(T.self, forKey: key)
         }
-        mode = value(.mode).flatMap(ComparisonMode.init(rawValue:)) ?? mode
-        webLighting = value(.webLighting).flatMap(GLTFWebReference.LightingMode.init(rawValue:)) ?? webLighting
-        split = value(.split).map { min(max($0, 0), 1) } ?? split
         showsBackground = value(.showsBackground) ?? showsBackground
         showsInspector = value(.showsInspector) ?? showsInspector
         inspectorTab = value(.inspectorTab).flatMap(InspectorTab.init(rawValue:)) ?? inspectorTab
@@ -44,9 +40,6 @@ extension ViewerSettings: Codable {
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(mode.rawValue, forKey: .mode)
-        try container.encode(webLighting.rawValue, forKey: .webLighting)
-        try container.encode(split, forKey: .split)
         try container.encode(showsBackground, forKey: .showsBackground)
         try container.encode(showsInspector, forKey: .showsInspector)
         try container.encode(inspectorTab.rawValue, forKey: .inspectorTab)

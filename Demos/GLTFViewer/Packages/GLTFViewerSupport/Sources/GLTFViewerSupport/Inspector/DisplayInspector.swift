@@ -3,7 +3,6 @@ import MetalSprocketsGLTF
 import MetalSprocketsPBR
 import simd
 import SwiftUI
-import WebReference
 
 struct DisplayInspector: View {
     nonisolated static let renderScales: [Float] = [1, 0.75, 0.5]

@@ -19,7 +19,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				GLTFViewerSupport,
-				WebReference,
 			);
 			target = 451594462F64A8DC005F944D /* GLTFViewer */;
 		};

@@ -253,7 +253,7 @@ final class ViewerModel {
     }
 
     /// The selected clip at the current time, or nil when the asset has no animations. Even stopped at time 0 this is
-    /// the clip's first frame, not the rest pose, matching what three.js shows.
+    /// the clip's first frame, not the rest pose.
     var currentPose: PBRPose? {
         guard let asset = loaded?.asset, !asset.animations.isEmpty else { return nil }
         let current = GLTFAnimationLayer(animation: animationIndex, time: animationTime)

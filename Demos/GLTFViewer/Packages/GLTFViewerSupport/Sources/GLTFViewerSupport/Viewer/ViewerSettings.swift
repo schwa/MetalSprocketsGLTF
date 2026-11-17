@@ -8,23 +8,9 @@ import MetalSprocketsPBR
 import MetalSprocketsUI
 import simd
 import SwiftUI
-import WebReference
-
-/// How the Metal render is shown next to the three.js reference.
-enum ComparisonMode: String, CaseIterable, Identifiable {
-    case metal = "Metal"
-    case web = "three.js"
-    case sideBySide = "Side by Side"
-    case split = "Split"
-
-    var id: Self { self }
-}
 
 /// Viewing choices that persist while browsing different models.
 public struct ViewerSettings: Equatable {
-    var mode: ComparisonMode = .metal
-    var webLighting: GLTFWebReference.LightingMode = .matched
-    var split: CGFloat = 0.5
     var showsBackground = false
     var showsInspector = false
     var debugView: PBRDebugView = .lit
@@ -39,9 +25,8 @@ public struct ViewerSettings: Equatable {
     var environmentIntensity: Float = 1
     /// Degrees about +Y.
     var environmentRotation: Float = 0
-    /// MSAA samples per pixel for the Metal view (1 is off). Above 1, the three.js side antialiases too, to match.
+    /// MSAA samples per pixel (1 is off).
     var sampleCount = 4
-    var antialiasing: Bool { sampleCount > 1 }
     /// Fraction of the view's width and height drawn before MetalFX upscales to full size; 1 draws at full size.
     var renderScale: Float = 1
     /// Extended dynamic range on macOS: a float drawable in extended linear sRGB, so values above 1 (tone mapping

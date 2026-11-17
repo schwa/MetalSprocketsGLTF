@@ -2,7 +2,6 @@ import Metal
 import MetalSprocketsGLTF
 import simd
 import SwiftUI
-import WebReference
 
 struct ModelInspector: View {
     var loaded: ViewerModel.LoadedAsset
@@ -28,8 +27,6 @@ struct ModelInspector: View {
                     }
                 } header: {
                     Text("Materials")
-                } footer: {
-                    Text("three.js always shows the default materials.")
                 }
             }
             ExtensionsSection(statistics: asset.statistics)

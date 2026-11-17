@@ -7,24 +7,15 @@ import MetalSprocketsPBR
 import MetalSprocketsUI
 import simd
 import SwiftUI
-import WebReference
 
 /// Renders a loaded model with Interaction3D camera controls (drag to orbit, scroll or pinch to zoom, Command-drag to
-/// pan), optionally next to the same view rendered by three.js. Reads ``ViewerModel`` and ``ViewerPreferences``
-/// from the environment.
+/// pan). Reads ``ViewerModel`` and ``ViewerPreferences`` from the environment.
 struct GLTFView: View {
     var model: ViewerModel.LoadedAsset
 
     @Environment(ViewerModel.self) private var viewer
     @Environment(ViewerPreferences.self) private var preferences
 
-    @State private var reference: GLTFWebReference?
-    @State private var isWebLoaded = false
-    /// True once the web view has drawn a frame with this view's camera and lighting.
-    @State private var hasWebFrame = false
-    @State private var webError: String?
-    /// Metal vs three.js for the settled view; nil while it changes, while animating, or when not comparable.
-    @State private var comparisonPSNR: Double?
     /// Written every frame; only ``FrameRateBadge`` reads it, so this view is not redrawn each frame.
     @State private var frameTiming = FrameTimingModel()
 
@@ -42,67 +33,27 @@ struct GLTFView: View {
 
     private var asset: GLTFAsset { model.asset }
     private var settings: ViewerSettings { preferences.settings }
-    private var comparison: ComparisonMode { settings.mode }
 
     var body: some View {
         @Bindable var viewer = viewer
         @Bindable var preferences = preferences
-        GeometryReader { proxy in
-            content(size: proxy.size)
-                .contentShape(Rectangle())
-                .interactiveCamera(
-                    rotation: $viewer.orbit.rotation,
-                    distance: $viewer.orbit.distance,
-                    target: $viewer.orbit.target,
-                    zoom: .multiplicative(),
-                    distanceRange: max(asset.bounds.radius, 1e-3) * 0.01 ... max(asset.bounds.radius, 1e-3) * 100
-                )
-                // Outside the camera-controlled view: Interaction3D's drag is simultaneous, so it would also see
-                // drags on the handle.
-                .overlay {
-                    if comparison == .split {
-                        splitHandle(size: proxy.size)
-                    }
-                }
-                // Keep the web side's animation in step while playing.
-                .task(id: AnimationUpdate(index: viewer.animationIndex, isPlaying: viewer.isPlaying, heldTime: viewer.heldTime, isLoaded: isWebLoaded, comparison: comparison)) {
-                    guard comparison != .metal, isWebLoaded, let reference, !asset.animations.isEmpty else { return }
-                    repeat {
-                        try? await reference.setAnimation(viewer.animationIndex, time: viewer.animationTime)
-                        try? await Task.sleep(for: .milliseconds(33))
-                    } while viewer.isPlaying && !Task.isCancelled
-                }
-                // Build the chosen environment if nothing has yet (e.g. picked before this model was shown).
-                .task(id: settings.environment) {
-                    EnvironmentLibrary.shared.request(settings.environment)
-                }
-                .task(id: WebLoad(isComparing: comparison != .metal, antialiasing: settings.antialiasing)) {
-                    await loadWeb()
-                }
-                .task(id: webUpdate(size: viewSize(proxy.size))) {
-                    await updateWeb(size: viewSize(proxy.size))
-                }
-                // Once the comparison has settled, measure how close the two renders are.
-                .task(id: PSNRUpdate(web: webUpdate(size: viewSize(proxy.size)), hasWebFrame: hasWebFrame, isPlaying: viewer.isPlaying, animationTime: viewer.heldTime, debugView: settings.debugView, showsWireframe: settings.showsWireframe, sampleCount: settings.sampleCount, variant: viewer.materialVariant)) {
-                    await measurePSNR()
-                }
-        }
-        .overlay(alignment: .bottomTrailing) {
-            if comparison != .metal, let comparisonPSNR {
-                Text(comparisonPSNR.isFinite ? "PSNR \(comparisonPSNR, format: .number.precision(.fractionLength(1))) dB" : "Identical")
-                    .font(.caption.monospacedDigit())
-                    .padding(6)
-                    .background(.thinMaterial, in: .rect(cornerRadius: 6))
-                    .padding()
-                    .help("How close the Metal and three.js renders are (peak signal-to-noise ratio of the whole frame; higher is closer)")
-            }
+        metalView
+        .contentShape(Rectangle())
+        .interactiveCamera(
+            rotation: $viewer.orbit.rotation,
+            distance: $viewer.orbit.distance,
+            target: $viewer.orbit.target,
+            zoom: .multiplicative(),
+            distanceRange: max(asset.bounds.radius, 1e-3) * 0.01 ... max(asset.bounds.radius, 1e-3) * 100
+        )
+        // Build the chosen environment if nothing has yet (e.g. picked before this model was shown).
+        .task(id: settings.environment) {
+            EnvironmentLibrary.shared.request(settings.environment)
         }
         .overlay(alignment: .bottomLeading) {
             VStack(alignment: .leading, spacing: 8) {
-                if comparison != .web {
-                    FrameRateBadge(model: frameTiming)
-                }
-                Text(webError ?? "\(asset.opaqueInstances.count + asset.blendedInstances.count) primitives · \(asset.materials.count) materials")
+                FrameRateBadge(model: frameTiming)
+                Text("\(asset.opaqueInstances.count + asset.blendedInstances.count) primitives · \(asset.materials.count) materials")
                     .font(.caption)
                     .padding(6)
                     .background(.thinMaterial, in: .rect(cornerRadius: 6))
@@ -132,13 +83,6 @@ struct GLTFView: View {
                         viewer.togglePlayback()
                     }
                 }
-            }
-            ToolbarItem(placement: Self.toolbarPlacement) {
-                Picker("Compare", selection: $preferences.settings.mode) {
-                    ForEach(ComparisonMode.allCases) { Text($0.rawValue).tag($0) }
-                }
-                .pickerStyle(.menu)
-                .fixedSize()
             }
             #if os(visionOS)
             // Elsewhere the inspector toggle sits in the inspector's own toolbar.
@@ -191,51 +135,6 @@ struct GLTFView: View {
     }
 
     @ViewBuilder
-    private func content(size: CGSize) -> some View {
-        switch comparison {
-        case .metal:
-            metalView
-
-        case .web:
-            webView
-
-        case .sideBySide:
-            HStack(spacing: 1) {
-                metalView
-                    .overlay(alignment: .top) { rendererLabel("Metal") }
-                webView
-                    .overlay(alignment: .top) { rendererLabel(webLabel) }
-            }
-            .background(.separator)
-
-        case .split:
-            ZStack {
-                metalView
-                webView
-                    .mask(alignment: .trailing) {
-                        Rectangle().frame(width: size.width * (1 - settings.split))
-                    }
-            }
-            .overlay(alignment: .topLeading) { rendererLabel("Metal") }
-            .overlay(alignment: .topTrailing) { rendererLabel(webLabel) }
-        }
-    }
-
-    private var webLabel: String {
-        "three.js · \(settings.webLighting == .matched ? "Matched Lights" : "Environment")"
-    }
-
-    private func rendererLabel(_ text: String) -> some View {
-        Text(text)
-            .font(.caption.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(.thinMaterial, in: .capsule)
-            .padding(8)
-            .allowsHitTesting(false)
-    }
-
-    @ViewBuilder
     private var metalView: some View {
         #if os(visionOS)
         // While the immersive space shows the model, the window stops rendering it (no GPU work nobody looks at).
@@ -271,52 +170,6 @@ struct GLTFView: View {
             frameTiming.statistics = statistics
         }
         .metalClearColor(MTLClearColor(red: Double(Self.background.x), green: Double(Self.background.y), blue: Double(Self.background.z), alpha: 1))
-    }
-
-    @ViewBuilder
-    private var webView: some View {
-        ZStack {
-            if let reference {
-                // Gestures belong to the container so both renderers follow the same camera.
-                GLTFWebReferenceView(reference: reference)
-                    .allowsHitTesting(false)
-            }
-            // Cover the web view until it has a correct frame, so loading states never show.
-            if !hasWebFrame {
-                Color(.sRGBLinear, red: Double(Self.background.x), green: Double(Self.background.y), blue: Double(Self.background.z))
-                    .overlay { ProgressView().controlSize(.small) }
-                    .allowsHitTesting(false)
-            }
-        }
-    }
-
-    private func splitHandle(size: CGSize) -> some View {
-        Rectangle()
-            .fill(.white)
-            .frame(width: 2)
-            .overlay {
-                Circle()
-                    .fill(.white)
-                    .frame(width: 24, height: 24)
-                    .overlay(Image(systemName: "arrow.left.and.right").font(.caption).foregroundStyle(.black))
-            }
-            .contentShape(Rectangle().inset(by: -12))
-            .position(x: size.width * settings.split, y: size.height / 2)
-            .frame(height: size.height)
-            .highPriorityGesture(
-                DragGesture(coordinateSpace: .named("split"))
-                    .onChanged { value in
-                        preferences.settings.split = min(max(value.location.x / max(size.width, 1), 0), 1)
-                    }
-            )
-            .coordinateSpace(name: "split")
-            .accessibilityLabel("Split position")
-            .accessibilityValue(Text(settings.split, format: .percent.precision(.fractionLength(0))))
-    }
-
-    /// Size of each renderer: side by side halves the width.
-    private func viewSize(_ size: CGSize) -> CGSize {
-        comparison == .sideBySide ? CGSize(width: (size.width - 1) / 2, height: size.height) : size
     }
 
     private func camera(size: CGSize) -> PBRCamera {
@@ -363,72 +216,6 @@ struct GLTFView: View {
         return scene
     }
 
-    /// Creates the web view the first time a comparison mode is chosen, and again when antialiasing changes (WebGL
-    /// fixes it when the context is created).
-    private func loadWeb() async {
-        let antialiasing = settings.antialiasing
-        if let reference, reference.antialias != antialiasing {
-            self.reference = nil
-            isWebLoaded = false
-            hasWebFrame = false
-        }
-        guard comparison != .metal, reference == nil else { return }
-        let reference = GLTFWebReference(antialias: antialiasing)
-        self.reference = reference
-        do {
-            try await reference.setBackground(Self.background)
-            try await reference.load(model.url)
-            isWebLoaded = true
-        } catch {
-            webError = "three.js: \(error.localizedDescription)"
-        }
-    }
-
-    /// Everything the three.js side shows; it is updated whenever this changes.
-    private func webUpdate(size: CGSize) -> WebUpdate {
-        WebUpdate(size: size, orbit: viewer.orbit, camera: viewer.activeCamera, comparison: comparison, lighting: settings.webLighting, toneMapping: settings.toneMapping, exposure: settings.exposure, environment: settings.environment, environmentReady: EnvironmentLibrary.shared.environment(settings.environment) != nil, environmentIntensity: settings.environmentIntensity, environmentRotation: settings.environmentRotation, showsBackground: settings.showsBackground, isLoaded: isWebLoaded)
-    }
-
-    /// After the view has been still for a moment, renders the Metal side offscreen at the three.js snapshot's size,
-    /// with the same camera, lighting, pose and antialiasing, and compares the two. Skipped while animating and for
-    /// debug views and wireframe, which three.js does not draw.
-    private func measurePSNR() async {
-        comparisonPSNR = nil
-        guard comparison != .metal, hasWebFrame, let reference, !viewer.isPlaying, settings.debugView == .lit, !settings.showsWireframe else { return }
-        try? await Task.sleep(for: .milliseconds(500))
-        guard !Task.isCancelled, let web = try? await reference.snapshot(), !Task.isCancelled else { return }
-        let size = CGSize(width: web.width, height: web.height)
-        do {
-            let renderer = try OffscreenRenderer(size: size, clearDepth: 0)
-            renderer.renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: Double(Self.background.x), green: Double(Self.background.y), blue: Double(Self.background.z), alpha: 1)
-            var scene = scene(size: size)
-            scene.sampleCount = settings.sampleCount
-            // The offscreen target is 8-bit sRGB even when the view is EDR.
-            scene.upscaling = settings.upscaling.map { PBRUpscaling(scale: $0.scale) }
-            let metal = try renderer.render(scene).cgImage
-            let psnr = await PSNR.between(metal, web)
-            guard !Task.isCancelled else { return }
-            comparisonPSNR = psnr
-        } catch {
-            comparisonPSNR = nil
-        }
-    }
-
-    private func updateWeb(size: CGSize) async {
-        guard comparison != .metal, isWebLoaded, let reference else { return }
-        do {
-            let camera = camera(size: size)
-            // The asset's lighting at rest; the Metal side poses lights itself (GLTFScene).
-            var lighting = PBRLighting(asset: asset)
-            applyDisplaySettings(to: &lighting)
-            try await reference.setLighting(lighting, mode: settings.webLighting, showsBackground: settings.showsBackground)
-            try await reference.setView(viewMatrix: camera.viewMatrix, projectionMatrix: camera.projectionMatrix)
-            webError = nil
-            hasWebFrame = true
-        } catch {
-            webError = "three.js: \(error.localizedDescription)"
-        }
-    }
 }
 
 /// A slider over the selected clip. Dragging it pauses playback at the chosen time.
@@ -450,45 +237,4 @@ private struct AnimationScrubber: View {
             .padding()
         }
     }
-}
-
-private struct AnimationUpdate: Equatable {
-    var index: Int
-    var isPlaying: Bool
-    var heldTime: Float
-    var isLoaded: Bool
-    var comparison: ComparisonMode
-}
-
-/// Everything the web reference needs to redraw.
-private struct WebLoad: Equatable {
-    var isComparing: Bool
-    var antialiasing: Bool
-}
-
-private struct PSNRUpdate: Equatable {
-    var web: WebUpdate
-    var hasWebFrame: Bool
-    var isPlaying: Bool
-    var animationTime: Float
-    var debugView: PBRDebugView
-    var showsWireframe: Bool
-    var sampleCount: Int
-    var variant: Int?
-}
-
-private struct WebUpdate: Equatable {
-    var size: CGSize
-    var orbit: OrbitState
-    var camera: Int?
-    var comparison: ComparisonMode
-    var lighting: GLTFWebReference.LightingMode
-    var toneMapping: PBRToneMapping
-    var exposure: Float
-    var environment: ViewerEnvironment
-    var environmentReady: Bool
-    var environmentIntensity: Float
-    var environmentRotation: Float
-    var showsBackground: Bool
-    var isLoaded: Bool
 }

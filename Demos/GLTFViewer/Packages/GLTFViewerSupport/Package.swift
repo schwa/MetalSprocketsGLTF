@@ -15,7 +15,6 @@ let package = Package(
     dependencies: [
         .package(path: "../../../.."),
         .package(url: "https://github.com/schwa/MetalSprocketsPBR", branch: "main"),
-        .package(path: "../WebReference"),
         .package(url: "https://github.com/schwa/MetalSprockets", branch: "main"),
         .package(url: "https://github.com/schwa/SwiftGLTF", branch: "main"),
         .package(url: "https://github.com/schwa/Interaction3D", .upToNextMinor(from: "0.1.15")),
@@ -28,7 +27,6 @@ let package = Package(
             dependencies: [
                 .product(name: "MetalSprocketsPBR", package: "MetalSprocketsPBR"),
                 .product(name: "MetalSprocketsGLTF", package: "MetalSprocketsGLTF"),
-                .product(name: "WebReference", package: "WebReference"),
                 .product(name: "MetalSprocketsGLTFBasisU", package: "MetalSprocketsGLTF"),
                 .product(name: "MetalSprocketsGLTFMeshopt", package: "MetalSprocketsGLTF"),
                 .product(name: "MetalSprockets", package: "MetalSprockets"),

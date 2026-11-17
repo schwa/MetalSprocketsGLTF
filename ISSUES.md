@@ -3584,13 +3584,14 @@ Areas to cover: JSON structure, accessor/bufferView offsets, counts and strides,
 ## 181: GLTFWebReference can report ready while the page is reloading
 
 +++
-status: open
+status: closed
 priority: high
 kind: bug
 labels: effort:s, area:testing
 milestone: M1
 created: 2026-11-17T18:14:32Z
-updated: 2026-11-17T18:32:14Z
+updated: 2026-11-17T18:47:53Z
+closed: 2026-11-17T18:47:53Z
 +++
 
 In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.swift, markReady() starts a Task that awaits two callAsyncJavaScript calls before it sets isReady = true and resumes the waiters. If the web content process dies during those awaits, contentProcessDidTerminate() sets isReady = false and reloads the page. Then the old task sets isReady = true anyway, so callers run against a page that is still loading. Two ready messages close together can also run two of these tasks at once.
@@ -3598,18 +3599,21 @@ In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.
 Expected: isReady is true only for the page that is loaded now.
 Actual: a stale task can mark a reloading page as ready.
 
+- `2026-11-17T18:47:53Z`: Obsolete: the web reference was removed in #189.
+
 ---
 
 ## 182: GLTFWebReference fails every call after a timeout, a recovery, and then a process crash
 
 +++
-status: open
+status: closed
 priority: high
 kind: bug
 labels: effort:s, area:testing
 milestone: M1
 created: 2026-11-17T18:14:33Z
-updated: 2026-11-17T18:32:14Z
+updated: 2026-11-17T18:47:53Z
+closed: 2026-11-17T18:47:53Z
 +++
 
 In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.swift, failIfNotReady() sets loadFailure, and nothing ever clears it. waitUntilReady() throws loadFailure whenever isReady is false.
@@ -3623,55 +3627,66 @@ Repro:
 Expected: the call waits for the reloaded page.
 Actual: the call throws the old 'three.js did not load' error right away, and every later call does the same.
 
+- `2026-11-17T18:47:53Z`: Obsolete: the web reference was removed in #189.
+
 ---
 
 ## 183: GLTFWebReference.isAvailable blocks the calling thread for up to 5 s
 
 +++
-status: open
+status: closed
 priority: medium
 kind: bug
 labels: effort:s, area:testing
 milestone: M1
 created: 2026-11-17T18:14:33Z
-updated: 2026-11-17T18:32:14Z
+updated: 2026-11-17T18:47:53Z
+closed: 2026-11-17T18:47:53Z
 +++
 
 In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.swift, isAvailable waits on a DispatchSemaphore until a URLSession HEAD request finishes, with a 5 s timeout. It is a sync property, so a caller on the main actor (UI or a @MainActor test) blocks the main thread. The result is passed through a nonisolated(unsafe) var, which is safe only because of the semaphore.
+
+- `2026-11-17T18:47:53Z`: Obsolete: the web reference was removed in #189.
 
 ---
 
 ## 184: GLTFWebReference cdnBaseURL and cacheDirectory are unprotected shared mutable statics
 
 +++
-status: open
+status: closed
 priority: medium
 kind: bug
 labels: effort:s, area:testing
 milestone: M1
 created: 2026-11-17T18:14:33Z
-updated: 2026-11-17T18:32:14Z
+updated: 2026-11-17T18:47:53Z
+closed: 2026-11-17T18:47:53Z
 +++
 
 In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.swift, cdnBaseURL and cacheDirectory are 'nonisolated(unsafe) public static var'. SchemeHandler reads them on the main actor and isAvailable reads them from any thread. A write from code that is not on the main actor (for example a test) is a data race.
+
+- `2026-11-17T18:47:53Z`: Obsolete: the web reference was removed in #189.
 
 ---
 
 ## 185: GLTFWebReference waiting for the page ignores cancellation; stoppedTasks grows
 
 +++
-status: open
+status: closed
 priority: low
 kind: enhancement
 labels: effort:s, area:testing
 milestone: M1
 created: 2026-11-17T18:14:33Z
-updated: 2026-11-17T18:32:14Z
+updated: 2026-11-17T18:47:53Z
+closed: 2026-11-17T18:47:53Z
 +++
 
 In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.swift:
 - waitUntilReady() suspends on a checked continuation and ignores task cancellation. A cancelled caller stays suspended until the page becomes ready or the 30 s timeout fires.
 - SchemeHandler.stoppedTasks adds an ObjectIdentifier each time WebKit stops a task. An entry is removed only when a new request starts, so the set keeps growing.
+
+- `2026-11-17T18:47:53Z`: Obsolete: the web reference was removed in #189.
 
 ---
 
@@ -3750,16 +3765,20 @@ Warnings are plain [String], so DisabledExtensionsTests, InstancingTests, ImageB
 ## 189: Remove the three.js web reference from the viewer and tests
 
 +++
-status: new
+status: closed
 priority: medium
 kind: task
 labels: area:demo
 created: 2026-11-17T18:42:47Z
+updated: 2026-11-17T18:47:53Z
+closed: 2026-11-17T18:47:53Z
 +++
 
 The WebReference package (Demos/GLTFViewer/Packages/WebReference) renders models with three.js in a WKWebView, for side-by-side comparison and PSNR in GLTFViewer and for reference-comparison tests. It does not build at the moment (its MetalSprockets version range conflicts with MetalSprocketsGLTF's), and it has open concurrency bugs (#181–#185).
 
 Per the user: remove the web reference completely. This includes the WebReference package and its tests, the GLTFViewerSupport dependency on it, the viewer's compare modes, web inspector, PSNR overlay and web lighting setting, and the Xcode project references.
+
+- `2026-11-17T18:47:53Z`: Removed the WebReference package, its tests, and the viewer's three.js compare modes, web inspector, PSNR overlay and settings.
 
 ---
 

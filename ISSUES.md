@@ -3808,13 +3808,14 @@ Per the user: remove the web reference completely. This includes the WebReferenc
 ## 190: GLTFViewer app target does not build
 
 +++
-status: open
+status: closed
 priority: medium
 kind: bug
 labels: area:demo, effort:s
 milestone: M1
 created: 2026-11-17T19:06:33Z
-updated: 2026-11-17T19:15:03Z
+updated: 2026-11-17T19:19:47Z
+closed: 2026-11-17T19:19:47Z
 +++
 
 Building the GLTFViewer scheme in Demos/GLTFViewer/GLTFViewer.xcodeproj fails:
@@ -3826,6 +3827,7 @@ The root package builds with the current MetalSprocketsPBR. The Xcode project's 
 
 - `2026-11-17T19:06:33Z`: Question 1 (decision): Update the Xcode project's resolved packages (this changes its Package.resolved)? Recommended: Yes
 - `2026-11-17T19:13:57Z`: Answer 1: Yes
+- `2026-11-17T19:19:47Z`: Fixed by re-resolving packages. The app's Package.resolved (not tracked in the repo) pinned an old MetalSprocketsPBR main (a096b1e); clearing it and resolving picked up main 264cfaf, which matches the library's API. The macro prompt did not come back. GLTFViewerSupport's tracked Package.resolved was updated as well. The remaining warning (empty NSWorldSensingUsageDescription) is unrelated.
 
 ---
 

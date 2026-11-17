@@ -1,5 +1,5 @@
 {
-  "originHash" : "080c5135ca03597e3ae2059988e0387b7c73c6587814f4ce5d70c518c3f3e2d3",
+  "originHash" : "be4e3d0ffb856c9e12d2d9a103c5ba76d9a8bb4e6c296a97eecb55400b3af08e",
   "pins" : [
     {
       "identity" : "basisuniversalmetal",
@@ -52,7 +52,7 @@
       "location" : "https://github.com/schwa/MetalSprockets",
       "state" : {
         "branch" : "main",
-        "revision" : "4062c651c768055ebd2b914562bb5ad851f8a196"
+        "revision" : "8a5839d7874fa3d7bc4b3a50fdb45835de516873"
       }
     },
     {
@@ -61,7 +61,7 @@
       "location" : "https://github.com/schwa/MetalSprocketsPBR",
       "state" : {
         "branch" : "main",
-        "revision" : "47240d3796422d43a12ee9762088ce0bdef8085e"
+        "revision" : "264cfaf6fcf5607f58d89994417acdbf91df1391"
       }
     },
     {
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/schwa/SpaceMouse",
       "state" : {
-        "revision" : "b5182a7d024b4e8206b4ff21842867d4cabc5fe3",
-        "version" : "0.0.1"
+        "revision" : "6a75314f205b5b60481829fb0400c58e1dc6376c",
+        "version" : "0.0.2"
       }
     },
     {
@@ -160,7 +160,7 @@
       "location" : "https://github.com/schwa/SwiftMesh",
       "state" : {
         "branch" : "main",
-        "revision" : "6ee613b1e93e0432954cc271a542f3961310cc3a"
+        "revision" : "67fe6df254ea0e4ac47f9c72a2dd42c237ce036c"
       }
     }
   ],

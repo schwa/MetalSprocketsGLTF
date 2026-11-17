@@ -84,13 +84,14 @@ Primitives with mode POINTS, LINES, LINE_LOOP or LINE_STRIP are skipped with a w
 ## 5: Transparent primitives can sort incorrectly
 
 +++
-status: open
+status: closed
 priority: low
 kind: bug
-labels: effort:m, area:rendering
+labels: effort:m, area:rendering, wontfix
 milestone: M1
 created: 2026-10-05T16:00:03Z
-updated: 2026-11-17T18:18:57Z
+updated: 2026-11-17T19:14:32Z
+closed: 2026-11-17T19:14:32Z
 +++
 
 Blended primitives are sorted back to front by the centre of each primitive's world bounds. Large or intersecting transparent primitives can draw in the wrong order.
@@ -98,6 +99,8 @@ Blended primitives are sorted back to front by the centre of each primitive's wo
 - `2026-10-05T22:34:01Z`: Looked at it during the auto-fix run. Punting: per-object sorting (ours by world-bounds centre distance, three.js by object depth) cannot order large or intersecting transparent primitives correctly; fixing it needs a design choice between per-triangle sorting (per-frame CPU/GPU cost) and order-independent transparency (e.g. weighted blended OIT: extra render targets, a composite pass, and a different look). three.js has the same limitation, so reference parity doesn't require either. Unblocker: decide whether to pursue OIT, per-triangle sorting, or accept the limitation (wontfix).
 - `2026-10-06T21:30:34Z`: Deferred (user decision 2026-10-06), kept open. Options weighed: accept the limitation (matches three.js and the Khronos viewer), per-triangle sorting of blended primitives, weighted blended OIT as an opt-in, exact OIT (depth peeling / per-pixel lists). Leaning: accept for now; weighted blended OIT opt-in if a real model needs it. Cheap check still worth doing: whether instances of one blended mesh drawn in one instanced call are sorted among themselves.
 - `2026-11-17T18:54:14Z`: Auto-fix run (M1): did the cheap check from the last comment. Blended instances are not merged into instanced batches (PBRModelBuilder.makeBatches(blended, merging: false)), so each instance is its own batch and is sorted on its own; that part is fine. Punting again: what remains needs the same design decision as before (accept the limitation, per-triangle sorting, or opt-in weighted blended OIT), and the sorting lives in MetalSprocketsPBR, not this repo. Unblocker: choose an option, or close as wontfix to match three.js and the Khronos viewer.
+- `2026-11-17T19:06:33Z`: Question 1 (decision): Close as wontfix and accept per-object sorting of blended primitives (same as three.js and the Khronos viewer)? Recommended: Yes
+- `2026-11-17T19:13:04Z`: Answer 1: Yes
 
 ---
 
@@ -1957,19 +1960,22 @@ There is no .buildkite/pipeline.yml, so the full test suite (GPU, sample assets,
 ## 101: Glass is not visible through other glass
 
 +++
-status: open
+status: closed
 priority: low
 kind: enhancement
-labels: area:rendering, effort:m
+labels: area:rendering, effort:m, wontfix
 milestone: M1
 created: 2026-10-06T17:40:21Z
-updated: 2026-11-17T18:18:57Z
+updated: 2026-11-17T19:14:32Z
+closed: 2026-11-17T19:14:32Z
 +++
 
 A transmissive surface shows the transmission pre-pass image, which holds only opaque primitives (plus back faces of double-sided transmissive ones). Other transmissive objects behind it are missing, so in CompareIOR the far glass ball cannot be seen through the near one. three.js and the Khronos sample viewer behave the same way, so this is beyond reference parity. Optional improvement: also draw transmissive primitives into the pre-pass (refracting only the environment, a one-bounce approximation), at the cost of an extra pass and a difference from three.js; correct multi-layer refraction would need repeated transmission passes or ray tracing.
 
 - `2026-10-07T03:55:14Z`: Related: #145 (refraction in visionOS immersive mode).
 - `2026-11-17T18:54:22Z`: Auto-fix run (M1): punting. The issue itself says this goes beyond reference parity (three.js and the Khronos viewer behave the same). The proposed one-bounce approach adds a pass and makes the output differ from three.js, so it needs a design decision. The transmission pre-pass also lives in MetalSprocketsPBR (PBRTransmissionPass), not this repo. Unblocker: decide whether one-bounce glass-behind-glass is wanted (and whether opt-in), or close as wontfix.
+- `2026-11-17T19:06:33Z`: Question 1 (decision): Close as wontfix and keep the three.js behavior (other glass is not visible through glass)? Recommended: Yes
+- `2026-11-17T19:13:12Z`: Answer 1: Yes
 
 ---
 
@@ -3569,10 +3575,11 @@ If node transforms move to Transform3D with `.matrix` storage, the same writes w
 status: open
 priority: medium
 kind: task
-labels: effort:xl, area:testing
+labels: effort:xl, area:testing, has-subtasks
 milestone: M1
+depends: 191, 192, 193, 194, 195
 created: 2026-11-11T21:14:09Z
-updated: 2026-11-17T18:32:14Z
+updated: 2026-11-17T19:15:03Z
 +++
 
 Loading or animating a malformed or hostile glTF/GLB should produce an error or a warning, never a crash (precondition, fatalError, out-of-range index, force unwrap, integer overflow, unbounded allocation).
@@ -3580,6 +3587,10 @@ Loading or animating a malformed or hostile glTF/GLB should produce an error or 
 There is no fuzz coverage of the load and pose paths today, so crashes on bad input are found only by accident (for example the Transform3D precondition described in #179).
 
 Areas to cover: JSON structure, accessor/bufferView offsets, counts and strides, sparse accessors, node hierarchy indices, skins, animation samplers and pointers, extensions (meshopt, Basis, instancing, lights, image-based lights), and texture data.
+
+- `2026-11-17T19:06:33Z`: Question 1 (decision): Split #180 into subtasks by area (JSON and indices, accessors, animation, extensions, textures)? Recommended: Yes
+- `2026-11-17T19:13:25Z`: Answer 1: Yes
+- `2026-11-17T19:14:32Z`: Split into subtasks (per answer to Q1): #191, #192, #193, #194, #195.
 
 ---
 
@@ -3766,6 +3777,12 @@ Material extensions have one feature table (GLTFMaterialFeature.all). Non-materi
 
 Warnings are plain [String], so DisabledExtensionsTests, InstancingTests, ImageBasedLightTests and AssetLoadingTests check them by matching substrings. No loading step can be tested on its own.
 
+- `2026-11-17T18:57:40Z`: Auto-fix run (M1): partly addressed by #186/#187. Clip loading and matrix-channel filtering moved to GLTFAnimationClip.load, material-property parsing moved into the typed animation targets, and scene roots moved to GLTFNodeHierarchy(document:sceneIndex:). Resources.load is now about 60 lines. Punting the rest: splitting what's left into helper functions alone would be cosmetic. The two real problems need design decisions: (1) a registry for non-material extensions like GLTFMaterialFeature.all (what each entry owns: load-time data, scene-time placement, the builtInExtensions name); (2) typed warnings, which change the public GLTFAsset.warnings: [String]. Unblocker: decide whether you want either or both, and whether changing the warnings API is OK.
+- `2026-11-17T19:06:33Z`: Question 1 (design): Add a feature table for non-material extensions (instancing, image-based lights, node visibility, variants), like GLTFMaterialFeature.all?
+- `2026-11-17T19:06:33Z`: Question 2 (decision): Change the public GLTFAsset.warnings from [String] to typed warnings?
+- `2026-11-17T19:13:38Z`: Answer 1: Yes
+- `2026-11-17T19:13:41Z`: Answer 2: Yes
+
 ---
 
 ## 189: Remove the three.js web reference from the viewer and tests
@@ -3785,6 +3802,110 @@ The WebReference package (Demos/GLTFViewer/Packages/WebReference) renders models
 Per the user: remove the web reference completely. This includes the WebReference package and its tests, the GLTFViewerSupport dependency on it, the viewer's compare modes, web inspector, PSNR overlay and web lighting setting, and the Xcode project references.
 
 - `2026-11-17T18:47:53Z`: Removed the WebReference package, its tests, and the viewer's three.js compare modes, web inspector, PSNR overlay and settings.
+
+---
+
+## 190: GLTFViewer app target does not build
+
++++
+status: open
+priority: medium
+kind: bug
+labels: area:demo, effort:s
+milestone: M1
+created: 2026-11-17T19:06:33Z
+updated: 2026-11-17T19:15:03Z
++++
+
+Building the GLTFViewer scheme in Demos/GLTFViewer/GLTFViewer.xcodeproj fails:
+
+Sources/MetalSprocketsGLTF/GLTFMaterialResource.swift:277: missing argument for parameter 'sampler' in call
+Sources/MetalSprocketsGLTF/GLTFMaterialResource.swift:277: extra arguments at positions #2, #3 in call
+
+The root package builds with the current MetalSprocketsPBR. The Xcode project's resolved packages appear to pin an older MetalSprocketsPBR. Building also stops at a macro-approval prompt for MetalSprocketsMacros unless -skipMacroValidation is passed.
+
+- `2026-11-17T19:06:33Z`: Question 1 (decision): Update the Xcode project's resolved packages (this changes its Package.resolved)? Recommended: Yes
+- `2026-11-17T19:13:57Z`: Answer 1: Yes
+
+---
+
+## 191: Malformed JSON structure and indices can crash the loader
+
++++
+status: open
+priority: medium
+kind: task
+labels: effort:m, area:testing, subtask
+milestone: M1
+created: 2026-11-17T19:14:47Z
+updated: 2026-11-17T19:15:03Z
++++
+
+Part of #180. Loading or posing malformed input in this area must produce an error or warning, never a crash (precondition, fatalError, out-of-range index, force unwrap, integer overflow, unbounded allocation). Acceptance: a fuzz or malformed-input test covers the area and finds no crash. Area: JSON structure, node hierarchy indices, skins and other cross-object indices.
+
+---
+
+## 192: Malformed accessors and buffer views can crash the loader
+
++++
+status: open
+priority: medium
+kind: task
+labels: effort:m, area:testing, subtask
+milestone: M1
+created: 2026-11-17T19:14:47Z
+updated: 2026-11-17T19:15:03Z
++++
+
+Part of #180. Loading or posing malformed input in this area must produce an error or warning, never a crash (precondition, fatalError, out-of-range index, force unwrap, integer overflow, unbounded allocation). Acceptance: a fuzz or malformed-input test covers the area and finds no crash. Area: accessor and bufferView offsets, counts, strides, sparse accessors.
+
+---
+
+## 193: Malformed animations can crash loading or posing
+
++++
+status: open
+priority: medium
+kind: task
+labels: effort:m, area:testing, subtask
+milestone: M1
+created: 2026-11-17T19:14:47Z
+updated: 2026-11-17T19:15:03Z
++++
+
+Part of #180. Loading or posing malformed input in this area must produce an error or warning, never a crash (precondition, fatalError, out-of-range index, force unwrap, integer overflow, unbounded allocation). Acceptance: a fuzz or malformed-input test covers the area and finds no crash. Area: animation samplers, channels and KHR_animation_pointer targets, through both loading and GLTFPoser.
+
+---
+
+## 194: Malformed extension data can crash the loader
+
++++
+status: open
+priority: medium
+kind: task
+labels: effort:m, area:testing, subtask
+milestone: M1
+created: 2026-11-17T19:14:47Z
+updated: 2026-11-17T19:15:03Z
++++
+
+Part of #180. Loading or posing malformed input in this area must produce an error or warning, never a crash (precondition, fatalError, out-of-range index, force unwrap, integer overflow, unbounded allocation). Acceptance: a fuzz or malformed-input test covers the area and finds no crash. Area: extensions (meshopt, Basis, EXT_mesh_gpu_instancing, KHR_lights_punctual, EXT_lights_image_based).
+
+---
+
+## 195: Malformed texture data can crash the loader
+
++++
+status: open
+priority: medium
+kind: task
+labels: effort:s, area:testing, subtask
+milestone: M1
+created: 2026-11-17T19:14:47Z
+updated: 2026-11-17T19:15:03Z
++++
+
+Part of #180. Loading or posing malformed input in this area must produce an error or warning, never a crash (precondition, fatalError, out-of-range index, force unwrap, integer overflow, unbounded allocation). Acceptance: a fuzz or malformed-input test covers the area and finds no crash. Area: image data, texture and sampler references.
 
 ---
 

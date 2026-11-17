@@ -27,17 +27,14 @@ public struct GLTFAnimationClip: Sendable {
     public enum Target: Sendable, Hashable {
         /// A node's translation, rotation, scale or morph weights.
         case node(Int, NodeProperty)
-        /// A material property, named by its JSON pointer below `/materials/N/` (KHR_animation_pointer).
-        case material(Int, String)
+        /// A material property below `/materials/N/` (KHR_animation_pointer).
+        case material(Int, GLTFAnimationPointer.MaterialPointer)
         /// A node's KHR_node_visibility `visible` (KHR_animation_pointer).
         case visibility(Int)
-        /// A KHR_lights_punctual light property below `/extensions/KHR_lights_punctual/lights/N/` (`color`,
-        /// `intensity`, `range`, `spot/innerConeAngle`, `spot/outerConeAngle`).
-        case light(Int, String)
-        /// A camera property below `/cameras/N/` (`perspective/yfov`, `perspective/znear`, `perspective/zfar`,
-        /// `perspective/aspectRatio`, `orthographic/xmag`, `orthographic/ymag`, `orthographic/znear`,
-        /// `orthographic/zfar`).
-        case camera(Int, String)
+        /// A KHR_lights_punctual light property (KHR_animation_pointer).
+        case light(Int, GLTFAnimationPointer.LightProperty)
+        /// A camera projection property (KHR_animation_pointer).
+        case camera(Int, GLTFAnimationPointer.CameraProperty)
     }
 
     /// One animated property and its keyframes.

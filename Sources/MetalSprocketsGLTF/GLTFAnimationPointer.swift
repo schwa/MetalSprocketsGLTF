@@ -5,7 +5,7 @@ import simd
 import SwiftGLTF
 
 // KHR_animation_pointer: which JSON pointers this renderer can animate, and how each animated value is applied.
-// Every supported property is listed once here, so parsing a pointer and applying its value cannot disagree.
+// A pointer is parsed once, into a typed target that knows how to apply its value.
 
 public enum GLTFAnimationPointer {
     typealias Target = GLTFAnimationClip.Target
@@ -14,8 +14,7 @@ public enum GLTFAnimationPointer {
     static func target(_ pointer: String) -> Target? {
         let parts = pointer.split(separator: "/", omittingEmptySubsequences: true).map(String.init)
         if parts.count >= 5, parts[0] == "extensions", parts[1] == "KHR_lights_punctual", parts[2] == "lights", let index = Int(parts[3]) {
-            let property = parts.dropFirst(4).joined(separator: "/")
-            return lightSetters[property] != nil ? .light(index, property) : nil
+            return LightProperty(rawValue: parts.dropFirst(4).joined(separator: "/")).map { .light(index, $0) }
         }
         guard parts.count >= 3, let index = Int(parts[1]) else {
             return nil
@@ -29,10 +28,10 @@ public enum GLTFAnimationPointer {
             return GLTFAnimationClip.NodeProperty(rawValue: parts[2]).map { .node(index, $0) }
 
         case "materials":
-            return MaterialProperty(property) != nil ? .material(index, property) : nil
+            return MaterialPointer(property).map { .material(index, $0) }
 
         case "cameras":
-            return cameraProperties.contains(property) ? .camera(index, property) : nil
+            return CameraProperty(rawValue: property).map { .camera(index, $0) }
 
         default:
             return nil
@@ -41,31 +40,48 @@ public enum GLTFAnimationPointer {
 
     // MARK: Lights
 
-    /// Properties below `/extensions/KHR_lights_punctual/lights/N/`.
-    static let lightSetters: [String: @Sendable (inout PBRLight, [Float]) -> Void] = [
-        "color": { if $1.count == 3 { $0.color = SIMD3($1[0], $1[1], $1[2]) } },
-        "intensity": { if let value = $1.first { $0.intensity = value } },
-        "range": { if let value = $1.first { $0.range = value } },
-        "spot/innerConeAngle": { if let value = $1.first { $0.innerConeCos = cos(value) } },
-        "spot/outerConeAngle": { if let value = $1.first { $0.outerConeCos = cos(value) } }
-    ]
+    /// A KHR_lights_punctual light property; the raw value is its path below `/extensions/KHR_lights_punctual/lights/N/`.
+    public enum LightProperty: String, CaseIterable, Sendable, Hashable {
+        case color
+        case intensity
+        case range
+        case innerConeAngle = "spot/innerConeAngle"
+        case outerConeAngle = "spot/outerConeAngle"
 
-    static func apply(_ properties: [String: [Float]], to light: inout PBRLight) {
+        func apply(_ value: [Float], to light: inout PBRLight) {
+            switch self {
+            case .color: if value.count == 3 { light.color = SIMD3(value[0], value[1], value[2]) }
+            case .intensity: if let value = value.first { light.intensity = value }
+            case .range: if let value = value.first { light.range = value }
+            case .innerConeAngle: if let value = value.first { light.innerConeCos = cos(value) }
+            case .outerConeAngle: if let value = value.first { light.outerConeCos = cos(value) }
+            }
+        }
+    }
+
+    static func apply(_ properties: [LightProperty: [Float]], to light: inout PBRLight) {
         for (property, value) in properties {
-            lightSetters[property]?(&light, value)
+            property.apply(value, to: &light)
         }
     }
 
     // MARK: Cameras
 
-    /// Properties below `/cameras/N/`, each `group/name` in the camera's JSON.
-    static let cameraProperties: Set<String> = [
-        "perspective/yfov", "perspective/znear", "perspective/zfar", "perspective/aspectRatio",
-        "orthographic/xmag", "orthographic/ymag", "orthographic/znear", "orthographic/zfar"
-    ]
+    /// A camera property; the raw value is its path below `/cameras/N/`, which is also its key in
+    /// ``PBRPose/cameraParameters``.
+    public enum CameraProperty: String, CaseIterable, Sendable, Hashable {
+        case perspectiveYfov = "perspective/yfov"
+        case perspectiveZnear = "perspective/znear"
+        case perspectiveZfar = "perspective/zfar"
+        case perspectiveAspectRatio = "perspective/aspectRatio"
+        case orthographicXmag = "orthographic/xmag"
+        case orthographicYmag = "orthographic/ymag"
+        case orthographicZnear = "orthographic/znear"
+        case orthographicZfar = "orthographic/zfar"
+    }
 
     /// `camera` with animated properties applied. Properties of a projection the camera lacks are ignored.
-    static func apply(_ parameters: [String: Float], to camera: SwiftGLTF.Camera) -> SwiftGLTF.Camera {
+    static func apply(_ parameters: [CameraProperty: Float], to camera: SwiftGLTF.Camera) -> SwiftGLTF.Camera {
         guard !parameters.isEmpty else {
             return camera
         }
@@ -74,10 +90,10 @@ public enum GLTFAnimationPointer {
             var (aspectRatio, yfov, zfar, znear) = (old.aspectRatio, old.yfov, old.zfar, old.znear)
             for (property, value) in parameters {
                 switch property {
-                case "perspective/aspectRatio": aspectRatio = value
-                case "perspective/yfov": yfov = value
-                case "perspective/zfar": zfar = value
-                case "perspective/znear": znear = value
+                case .perspectiveAspectRatio: aspectRatio = value
+                case .perspectiveYfov: yfov = value
+                case .perspectiveZfar: zfar = value
+                case .perspectiveZnear: znear = value
                 default: break
                 }
             }
@@ -88,10 +104,10 @@ public enum GLTFAnimationPointer {
             var (xmag, ymag, zfar, znear) = (old.xmag, old.ymag, old.zfar, old.znear)
             for (property, value) in parameters {
                 switch property {
-                case "orthographic/xmag": xmag = value
-                case "orthographic/ymag": ymag = value
-                case "orthographic/zfar": zfar = value
-                case "orthographic/znear": znear = value
+                case .orthographicXmag: xmag = value
+                case .orthographicYmag: ymag = value
+                case .orthographicZfar: zfar = value
+                case .orthographicZnear: znear = value
                 default: break
                 }
             }
@@ -100,7 +116,31 @@ public enum GLTFAnimationPointer {
         return SwiftGLTF.Camera(type: camera.type, perspective: perspective, orthographic: orthographic, name: camera.name, extensions: camera.extensions, extras: camera.extras)
     }
 
+    /// `camera` with ``PBRPose/cameraParameters`` applied (keyed by ``CameraProperty`` raw values).
+    static func apply(_ parameters: [String: Float], to camera: SwiftGLTF.Camera) -> SwiftGLTF.Camera {
+        apply(Dictionary(uniqueKeysWithValues: parameters.compactMap { key, value in CameraProperty(rawValue: key).map { ($0, value) } }), to: camera)
+    }
+
     // MARK: Materials
+
+    /// A material property target: its path below `/materials/N/` (its identity) and the parsed property that applies
+    /// its value.
+    public struct MaterialPointer: Sendable, Hashable, CustomStringConvertible {
+        public let path: String
+        public let property: MaterialProperty
+
+        public init?(_ path: String) {
+            guard let property = MaterialProperty(path) else { return nil }
+            self.path = path
+            self.property = property
+        }
+
+        public var description: String { path }
+
+        public static func == (lhs: Self, rhs: Self) -> Bool { lhs.path == rhs.path }
+
+        public func hash(into hasher: inout Hasher) { hasher.combine(path) }
+    }
 
     /// A property below `/materials/N/`: a factor in the uniforms, or a KHR_texture_transform component of a texture.
     public enum MaterialProperty: Sendable {
@@ -126,7 +166,7 @@ public enum GLTFAnimationPointer {
             case scale
         }
 
-        /// `property` is the pointer below `/materials/N/`, as in ``GLTFAnimationClip/Target/material(_:_:)``.
+        /// `property` is the pointer below `/materials/N/`.
         public init?(_ property: String) {
             if let factor = GLTFMaterialFeature.animatableFactors[property] {
                 self = .factor(factor)

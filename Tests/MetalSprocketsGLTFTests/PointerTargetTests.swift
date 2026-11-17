@@ -76,13 +76,20 @@ private func makePointerTargetFile(animated: Bool = true, lightHidden: Bool = fa
     return url
 }
 
+extension GLTFAnimationClip.Target {
+    /// The path of a material target of material 0; nil for any other target.
+    var materialPath: String? {
+        if case let .material(0, pointer) = self { pointer.path } else { nil }
+    }
+}
+
 @Suite(.requiresMetal4)
 struct PointerTargetTests {
     // Visibility, light and camera pointers are parsed, not reported as unsupported.
     @Test func parsesTheNewTargets() {
         #expect(GLTFAnimationPointer.target("/nodes/3/extensions/KHR_node_visibility/visible") == .visibility(3))
-        #expect(GLTFAnimationPointer.target("/extensions/KHR_lights_punctual/lights/2/spot/outerConeAngle") == .light(2, "spot/outerConeAngle"))
-        #expect(GLTFAnimationPointer.target("/cameras/1/orthographic/xmag") == .camera(1, "orthographic/xmag"))
+        #expect(GLTFAnimationPointer.target("/extensions/KHR_lights_punctual/lights/2/spot/outerConeAngle") == .light(2, .outerConeAngle))
+        #expect(GLTFAnimationPointer.target("/cameras/1/orthographic/xmag") == .camera(1, .orthographicXmag))
         #expect(GLTFAnimationPointer.target("/extensions/KHR_lights_punctual/lights/0/name") == nil)
         #expect(GLTFAnimationPointer.target("/cameras/0/type") == nil)
     }
@@ -91,39 +98,42 @@ struct PointerTargetTests {
     @Test func appliesEveryLightProperty() {
         var light = PBRLight()
         GLTFAnimationPointer.apply([
-            "color": [0, 1, 0], "intensity": [5], "range": [7],
-            "spot/innerConeAngle": [0.1], "spot/outerConeAngle": [0.2]
+            .color: [0, 1, 0], .intensity: [5], .range: [7],
+            .innerConeAngle: [0.1], .outerConeAngle: [0.2]
         ], to: &light)
         #expect(light.color == [0, 1, 0])
         #expect(light.intensity == 5)
         #expect(light.range == 7)
         #expect(abs(light.innerConeCos - cos(0.1)) < 1e-6)
         #expect(abs(light.outerConeCos - cos(0.2)) < 1e-6)
-        for property in GLTFAnimationPointer.lightSetters.keys {
-            #expect(GLTFAnimationPointer.target("/extensions/KHR_lights_punctual/lights/0/\(property)") == .light(0, property))
+        for property in GLTFAnimationPointer.LightProperty.allCases {
+            #expect(GLTFAnimationPointer.target("/extensions/KHR_lights_punctual/lights/0/\(property.rawValue)") == .light(0, property))
         }
     }
 
     // Every camera property a pointer can target is applied.
     @Test func appliesEveryCameraProperty() throws {
         let perspective = try JSONDecoder().decode(SwiftGLTF.Camera.self, from: Data(#"{"type": "perspective", "perspective": {"yfov": 0.5, "znear": 0.1}}"#.utf8))
-        let changed = GLTFAnimationPointer.apply(["perspective/yfov": 1, "perspective/znear": 0.2, "perspective/zfar": 50, "perspective/aspectRatio": 2], to: perspective)
+        let changed = GLTFAnimationPointer.apply([.perspectiveYfov: 1, .perspectiveZnear: 0.2, .perspectiveZfar: 50, .perspectiveAspectRatio: 2], to: perspective)
         #expect(changed.perspective?.yfov == 1)
         #expect(changed.perspective?.znear == 0.2)
         #expect(changed.perspective?.zfar == 50)
         #expect(changed.perspective?.aspectRatio == 2)
         let orthographic = try JSONDecoder().decode(SwiftGLTF.Camera.self, from: Data(#"{"type": "orthographic", "orthographic": {"xmag": 1, "ymag": 1, "znear": 0.1, "zfar": 10}}"#.utf8))
-        let changedOrthographic = GLTFAnimationPointer.apply(["orthographic/xmag": 2, "orthographic/ymag": 3, "orthographic/znear": 0.5, "orthographic/zfar": 20], to: orthographic)
+        let changedOrthographic = GLTFAnimationPointer.apply([.orthographicXmag: 2, .orthographicYmag: 3, .orthographicZnear: 0.5, .orthographicZfar: 20], to: orthographic)
         #expect(changedOrthographic.orthographic?.xmag == 2)
         #expect(changedOrthographic.orthographic?.ymag == 3)
         #expect(changedOrthographic.orthographic?.znear == 0.5)
         #expect(changedOrthographic.orthographic?.zfar == 20)
+        for property in GLTFAnimationPointer.CameraProperty.allCases {
+            #expect(GLTFAnimationPointer.target("/cameras/0/\(property.rawValue)") == .camera(0, property))
+        }
     }
 
     // Material factors and texture transform components parse into the property that applies them.
     @Test func parsesMaterialProperties() {
         for property in GLTFMaterialFeature.animatableFactors.keys {
-            #expect(GLTFAnimationPointer.target("/materials/0/\(property)") == .material(0, property))
+            #expect(GLTFAnimationPointer.target("/materials/0/\(property)")?.materialPath == property)
         }
         guard case let .textureTransform(path, component)? = GLTFAnimationPointer.MaterialProperty("normalTexture/extensions/KHR_texture_transform/rotation") else {
             Issue.record("texture transform not parsed")

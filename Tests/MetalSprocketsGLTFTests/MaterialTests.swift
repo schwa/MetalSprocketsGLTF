@@ -380,7 +380,7 @@ struct MaterialTests {
         let factorCount = GLTFMaterialFeature.all.reduce(0) { $0 + $1.animatableFactors.count }
         #expect(GLTFMaterialFeature.animatableFactors.count == factorCount)
         for path in GLTFMaterialFeature.animatableFactors.keys {
-            #expect(GLTFAnimationPointer.target("/materials/0/\(path)") == .material(0, path))
+            #expect(GLTFAnimationPointer.target("/materials/0/\(path)")?.materialPath == path)
         }
         // The default material: core glTF defaults and every extension absent.
         let uniforms = GLTFMaterialFeature.uniforms(for: nil)

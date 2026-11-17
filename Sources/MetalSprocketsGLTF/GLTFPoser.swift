@@ -39,8 +39,6 @@ struct GLTFPoser: @unchecked Sendable {
     let lightSources: [LightSource]
     let cameraSources: [CameraSource]
     let restPose: PBRPose
-    /// Every material property the animations target, parsed once, so posing does not parse pointer strings.
-    private let materialProperties: [String: GLTFAnimationPointer.MaterialProperty]
 
     /// `materials` are indexed like the document's materials; channels for materials not listed are ignored.
     init(document: Document, hierarchy: GLTFNodeHierarchy, animations: [GLTFAnimationClip], materials: [Material] = []) throws {
@@ -59,18 +57,11 @@ struct GLTFPoser: @unchecked Sendable {
                 lightSources.append(LightSource(light: light, index: lightIndex, node: nodeIndex))
             }
         }
-        var materialProperties: [String: GLTFAnimationPointer.MaterialProperty] = [:]
-        for channel in animations.flatMap(\.channels) {
-            if case let .material(_, property) = channel.target, materialProperties[property] == nil {
-                materialProperties[property] = GLTFAnimationPointer.MaterialProperty(property)
-            }
-        }
         self.hierarchy = hierarchy
         self.animations = animations
         self.materials = materials
         self.lightSources = lightSources
         self.cameraSources = cameraSources
-        self.materialProperties = materialProperties
         self.restPose = hierarchy.pose(hierarchy.rest, morphWeights: hierarchy.restMorphWeights)
     }
 
@@ -116,9 +107,9 @@ struct GLTFPoser: @unchecked Sendable {
         return value.count == 3 ? SIMD3(value[0], value[1], value[2]) : .zero
     }
 
-    /// Lights placed by `pose`, skipping hidden ones, with `properties` (KHR_animation_pointer values by light index,
-    /// then property below `/extensions/KHR_lights_punctual/lights/N/`) applied.
-    func lights(pose: PBRPose, properties: [Int: [String: [Float]]] = [:]) -> [PBRLight] {
+    /// Lights placed by `pose`, skipping hidden ones, with `properties` (KHR_animation_pointer values by light index)
+    /// applied.
+    func lights(pose: PBRPose, properties: [Int: [GLTFAnimationPointer.LightProperty: [Float]]] = [:]) -> [PBRLight] {
         lightSources.compactMap { source in
             guard pose.isVisible(source.node) else { return nil }
             let world = pose.worldMatrices.indices.contains(source.node) ? pose.worldMatrices[source.node] : restPose.worldMatrices.indices.contains(source.node) ? restPose.worldMatrices[source.node] : matrix_identity_float4x4
@@ -225,7 +216,7 @@ struct GLTFPoser: @unchecked Sendable {
         var morphWeights = hierarchy.restMorphWeights
         var visible = hierarchy.restVisible
         var animatedMaterials: [Int: PBRMaterial.AnimatedState] = [:]
-        var lightProperties: [Int: [String: [Float]]] = [:]
+        var lightProperties: [Int: [GLTFAnimationPointer.LightProperty: [Float]]] = [:]
         var cameraParameters: [Int: [String: Float]] = [:]
         for (target, value) in values {
             switch target {
@@ -249,10 +240,9 @@ struct GLTFPoser: @unchecked Sendable {
                     break
                 }
 
-            case let .material(index, property) where materials.indices.contains(index):
-                guard let parsed = materialProperties[property] else { break }
+            case let .material(index, pointer) where materials.indices.contains(index):
                 var state = animatedMaterials[index] ?? materials[index].rest
-                state.apply(parsed, value: value)
+                state.apply(pointer.property, value: value)
                 animatedMaterials[index] = state
 
             case let .visibility(node) where visible.indices.contains(node):
@@ -264,7 +254,8 @@ struct GLTFPoser: @unchecked Sendable {
 
             case let .camera(index, property):
                 if let value = value.first {
-                    cameraParameters[index, default: [:]][property] = value
+                    // PBRPose keys camera parameters by path.
+                    cameraParameters[index, default: [:]][property.rawValue] = value
                 }
 
             default:

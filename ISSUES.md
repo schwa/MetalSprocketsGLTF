@@ -3719,13 +3719,14 @@ Results:
 ## 187: Animation pointer targets are stored as strings and parsed more than once
 
 +++
-status: open
+status: closed
 priority: low
 kind: task
 labels: effort:m, area:architecture
 milestone: M1
 created: 2026-11-17T18:15:48Z
-updated: 2026-11-17T18:32:14Z
+updated: 2026-11-17T18:57:21Z
+closed: 2026-11-17T18:57:21Z
 +++
 
 GLTFAnimationClip.Target stores material, light and camera properties as strings (.material(Int, String), .light(Int, String), .camera(Int, String)).

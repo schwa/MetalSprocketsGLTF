@@ -88,8 +88,9 @@ status: open
 priority: low
 kind: bug
 labels: effort:m, area:rendering
+milestone: M1
 created: 2026-10-05T16:00:03Z
-updated: 2026-10-16T02:28:15Z
+updated: 2026-11-17T18:18:57Z
 +++
 
 Blended primitives are sorted back to front by the centre of each primitive's world bounds. Large or intersecting transparent primitives can draw in the wrong order.
@@ -1457,8 +1458,9 @@ status: open
 priority: low
 kind: bug
 labels: area:performance, effort:m, deferred
+milestone: M2
 created: 2026-10-06T06:46:07Z
-updated: 2026-10-14T17:08:17Z
+updated: 2026-11-17T18:19:04Z
 +++
 
 In GLTFViewer (Release, 120 Hz display) AnimationPointerUVs runs at ~90 fps with its animation playing. Headless (ms-gltf-render --benchmark 60 --orbit --animation 0, Release, M5 Max): ~4.8 ms CPU, <1 ms GPU per frame. The scene has 132 primitives, 82 materials (9 transmissive, 3 blended) and animates material texture transforms through KHR_animation_pointer, so each frame also pays for the transmission pre-passes, per-batch drawing of the 3 blended primitives, and per-frame material uniform arrays for the merged sets. Not yet profiled.
@@ -1475,8 +1477,9 @@ status: open
 priority: low
 kind: bug
 labels: area:performance, effort:s, deferred
+milestone: M2
 created: 2026-10-06T06:46:07Z
-updated: 2026-10-06T22:04:17Z
+updated: 2026-11-17T18:19:04Z
 +++
 
 In GLTFViewer (Release, 120 Hz display) CarConcept runs at ~110 fps. Headless (ms-gltf-render --benchmark 60 --orbit, Release, M5 Max): ~3.8 ms CPU, <1 ms GPU per frame. 109 primitives, of which one has a transmissive material; that single material turns on the transmission pre-passes (opaque scene, back faces, mipmaps) for the whole scene. Likely the fixed cost of those passes; not yet profiled.
@@ -1957,8 +1960,9 @@ status: open
 priority: low
 kind: enhancement
 labels: area:rendering, effort:m
+milestone: M1
 created: 2026-10-06T17:40:21Z
-updated: 2026-10-16T02:28:15Z
+updated: 2026-11-17T18:18:57Z
 +++
 
 A transmissive surface shows the transmission pre-pass image, which holds only opaque primitives (plus back faces of double-sided transmissive ones). Other transmissive objects behind it are missing, so in CompareIOR the far glass ball cannot be seen through the near one. three.js and the Khronos sample viewer behave the same way, so this is beyond reference parity. Optional improvement: also draw transmissive primitives into the pre-pass (refracting only the environment, a one-bounce approximation), at the cost of an extra pass and a difference from three.js; correct multi-layer refraction would need repeated transmission passes or ray tracing.
@@ -2234,8 +2238,9 @@ status: open
 priority: low
 kind: task
 labels: area:performance, area:testing, effort:s
+milestone: M2
 created: 2026-10-06T19:18:26Z
-updated: 2026-10-16T02:28:15Z
+updated: 2026-11-17T18:19:04Z
 +++
 
 The bench suite (ms-gltf-render bench, GLTFBenchCommand.scenes) has 11 scenes picked by hand. Paths with no scene, so their regressions go unnoticed:
@@ -3029,8 +3034,9 @@ status: open
 priority: medium
 kind: task
 labels: area:rendering, effort:xs, deferred
+milestone: M1
 created: 2026-10-07T18:29:00Z
-updated: 2026-10-14T17:08:17Z
+updated: 2026-11-17T18:18:57Z
 +++
 
 On Vision Pro, opening the model after the Showcase in the immersive space aborted with Metal validation: 'Only triangles may be drawn when using a rasterization rate map' (drawIndexedPrimitives). Fixed in e6f4bb6d: PBRImmersiveScene sets PBRRenderer.drawsTrianglesOnly, so point and line primitives are skipped in immersive (still drawn in windows); TrianglesOnlyTests covers it on macOS. To verify on device: open that model (and a points/lines sample such as MeshPrimitiveModes) in immersive with foveation on; no abort, triangles visible, lines and points absent.
@@ -3558,10 +3564,13 @@ If node transforms move to Transform3D with `.matrix` storage, the same writes w
 ## 180: Malformed glTF input can crash the loader
 
 +++
-status: new
+status: open
 priority: medium
 kind: task
+labels: effort:xl, area:testing
+milestone: M1
 created: 2026-11-11T21:14:09Z
+updated: 2026-11-17T18:32:14Z
 +++
 
 Loading or animating a malformed or hostile glTF/GLB should produce an error or a warning, never a crash (precondition, fatalError, out-of-range index, force unwrap, integer overflow, unbounded allocation).
@@ -3569,5 +3578,209 @@ Loading or animating a malformed or hostile glTF/GLB should produce an error or 
 There is no fuzz coverage of the load and pose paths today, so crashes on bad input are found only by accident (for example the Transform3D precondition described in #179).
 
 Areas to cover: JSON structure, accessor/bufferView offsets, counts and strides, sparse accessors, node hierarchy indices, skins, animation samplers and pointers, extensions (meshopt, Basis, instancing, lights, image-based lights), and texture data.
+
+---
+
+## 181: GLTFWebReference can report ready while the page is reloading
+
++++
+status: open
+priority: high
+kind: bug
+labels: effort:s, area:testing
+milestone: M1
+created: 2026-11-17T18:14:32Z
+updated: 2026-11-17T18:32:14Z
++++
+
+In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.swift, markReady() starts a Task that awaits two callAsyncJavaScript calls before it sets isReady = true and resumes the waiters. If the web content process dies during those awaits, contentProcessDidTerminate() sets isReady = false and reloads the page. Then the old task sets isReady = true anyway, so callers run against a page that is still loading. Two ready messages close together can also run two of these tasks at once.
+
+Expected: isReady is true only for the page that is loaded now.
+Actual: a stale task can mark a reloading page as ready.
+
+---
+
+## 182: GLTFWebReference fails every call after a timeout, a recovery, and then a process crash
+
++++
+status: open
+priority: high
+kind: bug
+labels: effort:s, area:testing
+milestone: M1
+created: 2026-11-17T18:14:33Z
+updated: 2026-11-17T18:32:14Z
++++
+
+In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.swift, failIfNotReady() sets loadFailure, and nothing ever clears it. waitUntilReady() throws loadFailure whenever isReady is false.
+
+Repro:
+1. The first page load takes longer than 30 s, so loadFailure is set.
+2. The page later reports ready.
+3. The web content process terminates, so isReady becomes false and the page reloads.
+4. Call any API.
+
+Expected: the call waits for the reloaded page.
+Actual: the call throws the old 'three.js did not load' error right away, and every later call does the same.
+
+---
+
+## 183: GLTFWebReference.isAvailable blocks the calling thread for up to 5 s
+
++++
+status: open
+priority: medium
+kind: bug
+labels: effort:s, area:testing
+milestone: M1
+created: 2026-11-17T18:14:33Z
+updated: 2026-11-17T18:32:14Z
++++
+
+In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.swift, isAvailable waits on a DispatchSemaphore until a URLSession HEAD request finishes, with a 5 s timeout. It is a sync property, so a caller on the main actor (UI or a @MainActor test) blocks the main thread. The result is passed through a nonisolated(unsafe) var, which is safe only because of the semaphore.
+
+---
+
+## 184: GLTFWebReference cdnBaseURL and cacheDirectory are unprotected shared mutable statics
+
++++
+status: open
+priority: medium
+kind: bug
+labels: effort:s, area:testing
+milestone: M1
+created: 2026-11-17T18:14:33Z
+updated: 2026-11-17T18:32:14Z
++++
+
+In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.swift, cdnBaseURL and cacheDirectory are 'nonisolated(unsafe) public static var'. SchemeHandler reads them on the main actor and isAvailable reads them from any thread. A write from code that is not on the main actor (for example a test) is a data race.
+
+---
+
+## 185: GLTFWebReference waiting for the page ignores cancellation; stoppedTasks grows
+
++++
+status: open
+priority: low
+kind: enhancement
+labels: effort:s, area:testing
+milestone: M1
+created: 2026-11-17T18:14:33Z
+updated: 2026-11-17T18:32:14Z
++++
+
+In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.swift:
+- waitUntilReady() suspends on a checked continuation and ignores task cancellation. A cancelled caller stays suspended until the page becomes ready or the 30 s timeout fires.
+- SchemeHandler.stoppedTasks adds an ObjectIdentifier each time WebKit stops a task. An entry is removed only when a new request starts, so the set keeps growing.
+
+---
+
+## 186: Animation posing needs a fully loaded GLTFAsset and a Metal device to run or test
+
++++
+status: open
+priority: medium
+kind: task
+labels: effort:l, area:architecture
+milestone: M1
+created: 2026-11-17T18:15:48Z
+updated: 2026-11-17T18:32:14Z
++++
+
+Posing is pure math over the node hierarchy, clips and rest values. But pose(layers:), blendedValues, addDeltas, blend and pose(values:) live in a GLTFAsset extension (GLTFAnimation.swift). They read resources.materialProperties, materials and lightSources directly, and light posing lives in GLTFAsset.swift (lights(pose:properties:)).
+
+Results:
+- The blending, additive-layer and root-motion math cannot be run without loading a whole asset, and loading needs an MTLDevice.
+- AnimationTests, AnimationControllerTests, SkinningTests, MorphTargetTests and PointerTargetTests each build glTF JSON files and load them with a GPU only to check pose math.
+- To understand posing, you must read GLTFAnimation.swift, GLTFAsset.swift, GLTFMaterialAnimation.swift and GLTFAnimationPointer.swift.
+
+---
+
+## 187: Animation pointer targets are stored as strings and parsed more than once
+
++++
+status: open
+priority: low
+kind: task
+labels: effort:m, area:architecture
+milestone: M1
+created: 2026-11-17T18:15:48Z
+updated: 2026-11-17T18:32:14Z
++++
+
+GLTFAnimationClip.Target stores material, light and camera properties as strings (.material(Int, String), .light(Int, String), .camera(Int, String)).
+
+- GLTFAnimationPointer.target() builds a MaterialProperty only to check that it exists, then keeps only the string.
+- Resources.load (GLTFAssetLoading.swift) parses each material string again into Resources.materialProperties, keyed by string.
+- pose(values:) looks the string up again for each sample.
+- Light and camera properties go through the string-keyed lightSetters and cameraProperties, and through [String: [Float]] and [String: Float] dictionaries carried on the pose.
+
+So one concept is spread over GLTFAnimationPointer.swift, GLTFAssetLoading.swift, GLTFAnimation.swift and GLTFAsset.swift, joined only by strings. Parsing and applying cannot be tested together except through asset loading.
+
+---
+
+## 188: Resources.load does every loading step in one function; non-material extensions are spread across files
+
++++
+status: open
+priority: low
+kind: task
+labels: effort:l, area:architecture
+milestone: M1
+created: 2026-11-17T18:15:48Z
+updated: 2026-11-17T18:32:14Z
++++
+
+GLTFAsset.Resources.load (GLTFAssetLoading.swift, about 90 lines) does all of these in one function:
+- checks required extensions
+- loads textures and materials
+- builds geometry
+- builds skins and animations
+- filters out channels that animate matrix nodes
+- reads EXT_mesh_gpu_instancing matrices
+- decodes EXT_lights_image_based lights
+- parses material animation properties
+
+Material extensions have one feature table (GLTFMaterialFeature.all). Non-material extensions (instancing, image-based lights, node visibility, variants) do not. Their code is split between Resources.load, GLTFSceneContents, and the hand-written GLTFAsset.builtInExtensions list in GLTFLoadOptions.swift.
+
+Warnings are plain [String], so DisabledExtensionsTests, InstancingTests, ImageBasedLightTests and AssetLoadingTests check them by matching substrings. No loading step can be tested on its own.
+
+---
+
+## 189: Remove the three.js web reference from the viewer and tests
+
++++
+status: new
+priority: medium
+kind: task
+labels: area:demo
+created: 2026-11-17T18:42:47Z
++++
+
+The WebReference package (Demos/GLTFViewer/Packages/WebReference) renders models with three.js in a WKWebView, for side-by-side comparison and PSNR in GLTFViewer and for reference-comparison tests. It does not build at the moment (its MetalSprockets version range conflicts with MetalSprocketsGLTF's), and it has open concurrency bugs (#181–#185).
+
+Per the user: remove the web reference completely. This includes the WebReference package and its tests, the GLTFViewerSupport dependency on it, the viewer's compare modes, web inspector, PSNR overlay and web lighting setting, and the Xcode project references.
+
+---
+
+## Milestone: M1
+
++++
+status: open
+created: 2026-11-17T18:16:23Z
++++
+
+Correctness
+
+---
+
+## Milestone: M2
+
++++
+status: open
+created: 2026-11-17T18:19:04Z
++++
+
+Performance
 
 ---

@@ -97,6 +97,7 @@ Blended primitives are sorted back to front by the centre of each primitive's wo
 
 - `2026-10-05T22:34:01Z`: Looked at it during the auto-fix run. Punting: per-object sorting (ours by world-bounds centre distance, three.js by object depth) cannot order large or intersecting transparent primitives correctly; fixing it needs a design choice between per-triangle sorting (per-frame CPU/GPU cost) and order-independent transparency (e.g. weighted blended OIT: extra render targets, a composite pass, and a different look). three.js has the same limitation, so reference parity doesn't require either. Unblocker: decide whether to pursue OIT, per-triangle sorting, or accept the limitation (wontfix).
 - `2026-10-06T21:30:34Z`: Deferred (user decision 2026-10-06), kept open. Options weighed: accept the limitation (matches three.js and the Khronos viewer), per-triangle sorting of blended primitives, weighted blended OIT as an opt-in, exact OIT (depth peeling / per-pixel lists). Leaning: accept for now; weighted blended OIT opt-in if a real model needs it. Cheap check still worth doing: whether instances of one blended mesh drawn in one instanced call are sorted among themselves.
+- `2026-11-17T18:54:14Z`: Auto-fix run (M1): did the cheap check from the last comment. Blended instances are not merged into instanced batches (PBRModelBuilder.makeBatches(blended, merging: false)), so each instance is its own batch and is sorted on its own; that part is fine. Punting again: what remains needs the same design decision as before (accept the limitation, per-triangle sorting, or opt-in weighted blended OIT), and the sorting lives in MetalSprocketsPBR, not this repo. Unblocker: choose an option, or close as wontfix to match three.js and the Khronos viewer.
 
 ---
 
@@ -1968,6 +1969,7 @@ updated: 2026-11-17T18:18:57Z
 A transmissive surface shows the transmission pre-pass image, which holds only opaque primitives (plus back faces of double-sided transmissive ones). Other transmissive objects behind it are missing, so in CompareIOR the far glass ball cannot be seen through the near one. three.js and the Khronos sample viewer behave the same way, so this is beyond reference parity. Optional improvement: also draw transmissive primitives into the pre-pass (refracting only the environment, a one-bounce approximation), at the cost of an extra pass and a difference from three.js; correct multi-layer refraction would need repeated transmission passes or ray tracing.
 
 - `2026-10-07T03:55:14Z`: Related: #145 (refraction in visionOS immersive mode).
+- `2026-11-17T18:54:22Z`: Auto-fix run (M1): punting. The issue itself says this goes beyond reference parity (three.js and the Khronos viewer behave the same). The proposed one-bounce approach adds a pass and makes the output differ from three.js, so it needs a design decision. The transmission pre-pass also lives in MetalSprocketsPBR (PBRTransmissionPass), not this repo. Unblocker: decide whether one-bounce glass-behind-glass is wanted (and whether opt-in), or close as wontfix.
 
 ---
 

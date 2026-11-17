@@ -19,7 +19,7 @@ struct AssetLoadingTests {
     @Test func flattensRootNodesWithoutScenes() throws {
         let nodes = #"[{"mesh": 0, "children": [1]}, {"mesh": 0, "translation": [3, 0, 0]}, {"mesh": 0, "translation": [6, 0, 0]}]"#
         let flattened = try contents(makeTriangleFile(nodes: nodes, scenes: "[]"))
-        #expect(flattened.hierarchy.roots == [0, 2])
+        #expect(flattened.poser.hierarchy.roots == [0, 2])
         #expect(flattened.model.opaqueInstances.map(\.nodeIndex).sorted() == [0, 1, 2])
     }
 
@@ -27,9 +27,9 @@ struct AssetLoadingTests {
     @Test func flattensLightsAndCameras() throws {
         let flattened = try contents(makeAnimatedTriangleFile())
         #expect(flattened.model.opaqueInstances.count + flattened.model.blendedInstances.count == 1)
-        #expect(flattened.lightSources.map(\.node) == [2])
-        #expect(flattened.cameraSources.map(\.node) == [3])
-        #expect(flattened.cameraSources.map(\.index) == [0])
+        #expect(flattened.poser.lightSources.map(\.node) == [2])
+        #expect(flattened.poser.cameraSources.map(\.node) == [3])
+        #expect(flattened.poser.cameraSources.map(\.index) == [0])
         #expect(flattened.model.lights.count == 1)
     }
 

@@ -31,30 +31,10 @@ public final class GLTFAsset: @unchecked Sendable {
     public let variantNames: [String]
     /// Animation clips; sample one with ``pose(animation:time:)``.
     public let animations: [GLTFAnimationClip]
-    /// The scene's node hierarchy at rest, used to compute animated poses.
-    let hierarchy: GLTFNodeHierarchy
     /// The scene's cameras at rest.
     public let cameras: [(camera: SwiftGLTF.Camera, worldMatrix: simd_float4x4)]
-    /// A light of the scene: its definition, its index in the document's lights (for KHR_animation_pointer), and the
-    /// node placing it.
-    struct LightSource: Sendable {
-        var light: SwiftGLTF.Light
-        var index: Int
-        var node: Int
-    }
-
-    /// A camera of the scene: its definition, its index in the document's cameras (for KHR_animation_pointer), the
-    /// node placing it, and its world matrix at rest.
-    struct CameraSource: Sendable {
-        var camera: SwiftGLTF.Camera
-        var index: Int
-        var node: Int
-        var worldMatrix: simd_float4x4
-    }
-
-    /// Every light and camera of the scene, for posing. Includes lights hidden at rest that animation can show.
-    let lightSources: [LightSource]
-    let cameraSources: [CameraSource]
+    /// Computes this scene's animated poses.
+    let poser: GLTFPoser
     public let warnings: [String]
 
     public var opaqueInstances: [Instance] { model.opaqueInstances }
@@ -98,8 +78,6 @@ public final class GLTFAsset: @unchecked Sendable {
         var nodeInstanceMatrices: [Int: [simd_float4x4]] = [:]
         /// EXT_lights_image_based lights that scenes use, by light index.
         var imageBasedLights: [Int: GLTFImageBasedLight] = [:]
-        /// Every material property the animations target, parsed, so posing does not parse pointer strings.
-        var materialProperties: [String: GLTFAnimationPointer.MaterialProperty] = [:]
         /// Environments built from `imageBasedLights`, on first use.
         var environments = EnvironmentCache()
 
@@ -193,10 +171,8 @@ public final class GLTFAsset: @unchecked Sendable {
         self.animations = resources.animations
         self.warnings = resources.warnings
         self.variantNames = container.document.materialVariantNames
-        self.lightSources = contents.lightSources
-        self.cameraSources = contents.cameraSources
-        self.cameras = contents.cameraSources.map { ($0.camera, $0.worldMatrix) }
-        self.hierarchy = contents.hierarchy
+        self.poser = contents.poser
+        self.cameras = contents.poser.cameraSources.map { ($0.camera, $0.worldMatrix) }
     }
 }
 
@@ -204,15 +180,12 @@ public extension GLTFAsset {
     /// The lights at `pose`: placed by it (lights on animated nodes move), with animated properties, without lights on
     /// hidden nodes. A pose from ``pose(animation:time:)`` carries them already.
     func lights(pose: PBRPose) -> [PBRLight] {
-        pose.lights ?? lights(pose: pose, properties: [:])
+        pose.lights ?? poser.lights(pose: pose)
     }
 
     /// `cameras` placed by `pose` (cameras on animated nodes move), with animated projection properties applied.
     func cameras(pose: PBRPose) -> [(camera: SwiftGLTF.Camera, worldMatrix: simd_float4x4)] {
-        cameraSources.map { source in
-            let camera = pose.cameraParameters[source.index].map { GLTFAnimationPointer.apply($0, to: source.camera) } ?? source.camera
-            return (camera, pose.worldMatrices.indices.contains(source.node) ? pose.worldMatrices[source.node] : source.worldMatrix)
-        }
+        poser.cameras(pose: pose)
     }
 
     /// World bounds of everything drawn with `pose`.
@@ -263,21 +236,6 @@ extension GLTFAsset {
     var merged: PBRMergedGeometry? { model.merged }
     var mergedSkinned: PBRMergedGeometry? { model.mergedSkinned }
     var mergedTransmissive: PBRMergedGeometry? { model.mergedTransmissive }
-}
-
-extension GLTFAsset {
-    /// Lights placed by `pose`, skipping hidden ones, with `properties` (KHR_animation_pointer values by light index,
-    /// then property below `/extensions/KHR_lights_punctual/lights/N/`) applied.
-    func lights(pose: PBRPose, properties: [Int: [String: [Float]]]) -> [PBRLight] {
-        let rest = model.restPose
-        return lightSources.compactMap { source in
-            guard pose.isVisible(source.node) else { return nil }
-            let world = pose.worldMatrices.indices.contains(source.node) ? pose.worldMatrices[source.node] : rest.worldMatrices.indices.contains(source.node) ? rest.worldMatrices[source.node] : matrix_identity_float4x4
-            var light = PBRLight(source.light, worldMatrix: world)
-            GLTFAnimationPointer.apply(properties[source.index] ?? [:], to: &light)
-            return light
-        }
-    }
 }
 
 extension PBRLight {

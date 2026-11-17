@@ -3693,13 +3693,14 @@ In Demos/GLTFViewer/Packages/WebReference/Sources/WebReference/GLTFWebReference.
 ## 186: Animation posing needs a fully loaded GLTFAsset and a Metal device to run or test
 
 +++
-status: open
+status: closed
 priority: medium
 kind: task
 labels: effort:l, area:architecture
 milestone: M1
 created: 2026-11-17T18:15:48Z
-updated: 2026-11-17T18:32:14Z
+updated: 2026-11-17T18:53:56Z
+closed: 2026-11-17T18:53:56Z
 +++
 
 Posing is pure math over the node hierarchy, clips and rest values. But pose(layers:), blendedValues, addDeltas, blend and pose(values:) live in a GLTFAsset extension (GLTFAnimation.swift). They read resources.materialProperties, materials and lightSources directly, and light posing lives in GLTFAsset.swift (lights(pose:properties:)).
@@ -3708,6 +3709,8 @@ Results:
 - The blending, additive-layer and root-motion math cannot be run without loading a whole asset, and loading needs an MTLDevice.
 - AnimationTests, AnimationControllerTests, SkinningTests, MorphTargetTests and PointerTargetTests each build glTF JSON files and load them with a GPU only to check pose math.
 - To understand posing, you must read GLTFAnimation.swift, GLTFAsset.swift, GLTFMaterialAnimation.swift and GLTFAnimationPointer.swift.
+
+- `2026-11-17T18:53:56Z`: Extracted GLTFPoser (Sources/MetalSprocketsGLTF/GLTFPoser.swift): it owns the hierarchy, clips, light/camera sources and material rest states, and builds from a Container with no device (GLTFPoser(container:sceneIndex:)). GLTFAsset forwards its posing API to it. New PoserTests run without Metal. The existing GPU-based animation tests were kept; moving them to the poser is follow-up work.
 
 ---
 

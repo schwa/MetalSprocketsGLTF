@@ -56,22 +56,8 @@ extension GLTFAsset.Resources {
         let skins = try document.skins.map { skin in
             PBRModel.Skin(joints: skin.joints.map(\.index), inverseBindMatrices: try container.inverseBindMatrices(for: skin))
         }
-        var animations = try document.animations.enumerated().map { index, animation in
-            try GLTFAnimationClip(animation, index: index, container: container)
-        }
-        // glTF forbids animating translation, rotation or scale of a node that uses `matrix`.
-        for index in animations.indices {
-            let name = animations[index].name
-            animations[index].channels.removeAll { channel in
-                guard case let .node(node, property) = channel.target, property != .weights,
-                      document.nodes.indices.contains(node), document.nodes[node].usesMatrix else {
-                    return false
-                }
-                warnings.append("Skipped \(name) channel: node \(node) uses matrix, so its \(property.rawValue) cannot be animated")
-                return true
-            }
-        }
-        let unsupportedPointers = Set(animations.flatMap(\.unsupportedPointers)).sorted().map { "Animation pointer not supported: \($0)" }
+        let (animations, animationWarnings) = try GLTFAnimationClip.load(container: container)
+        warnings += animationWarnings
         var nodeInstanceMatrices: [Int: [simd_float4x4]] = [:]
         for (index, node) in document.nodes.enumerated() where node.mesh != nil {
             nodeInstanceMatrices[index] = try container.instanceMatrices(for: node)
@@ -85,24 +71,14 @@ extension GLTFAsset.Resources {
                 warnings.append("Image-based light \(index) skipped: \(error)")
             }
         }
-        var materialProperties: [String: GLTFAnimationPointer.MaterialProperty] = [:]
-        for channel in animations.flatMap(\.channels) {
-            if case let .material(_, property) = channel.target, materialProperties[property] == nil {
-                materialProperties[property] = GLTFAnimationPointer.MaterialProperty(property)
-            }
-        }
-        return Self(device: device, materials: materials, defaultMaterial: defaultMaterial, meshes: meshes, primitiveMaterials: primitiveMaterials, skins: skins, animations: animations, warnings: warnings + textures.warnings + unsupportedPointers, nodeInstanceMatrices: nodeInstanceMatrices, imageBasedLights: imageBasedLights, materialProperties: materialProperties)
+        return Self(device: device, materials: materials, defaultMaterial: defaultMaterial, meshes: meshes, primitiveMaterials: primitiveMaterials, skins: skins, animations: animations, warnings: warnings + textures.warnings, nodeInstanceMatrices: nodeInstanceMatrices, imageBasedLights: imageBasedLights)
     }
 }
 
-/// One scene of a document, flattened into a ``PBRModel``, with the glTF-only parts beside it: the sources of lights
-/// and cameras (for posing), and the node hierarchy (for animation).
+/// One scene of a document, flattened into a ``PBRModel``, with the poser that animates it.
 struct GLTFSceneContents {
     var model: PBRModel
-    /// Every light of the scene, with its index in the document's lights and its node (for posing and animating).
-    var lightSources: [GLTFAsset.LightSource] = []
-    var cameraSources: [GLTFAsset.CameraSource] = []
-    var hierarchy: GLTFNodeHierarchy
+    var poser: GLTFPoser
 
     /// Walks scene `sceneIndex` (or every root node when the document has no scenes). Hidden nodes
     /// (KHR_node_visibility) contribute no instances or lights, unless an animation can show them: then they are
@@ -112,25 +88,17 @@ struct GLTFSceneContents {
         let animatesVisibility = resources.animations.contains { clip in
             clip.channels.contains { if case .visibility = $0.target { true } else { false } }
         }
-        let roots: [Int]
-        if sceneIndex < document.scenes.count {
-            roots = document.scenes[sceneIndex].nodes.map(\.index)
-        } else {
-            let children = Set(document.nodes.flatMap { $0.children.map(\.index) })
-            roots = document.nodes.indices.filter { !children.contains($0) }
-        }
-        let hierarchy = try GLTFNodeHierarchy(document: document, roots: roots)
-        var builder = PBRModelBuilder(device: resources.device, restPose: hierarchy.pose(hierarchy.rest, morphWeights: hierarchy.restMorphWeights))
+        let hierarchy = try GLTFNodeHierarchy(document: document, sceneIndex: sceneIndex)
+        let materials = resources.materials.map { GLTFPoser.Material(id: ObjectIdentifier($0), rest: $0.animatedState()) }
+        let poser = try GLTFPoser(document: document, hierarchy: hierarchy, animations: resources.animations, materials: materials)
+        var builder = PBRModelBuilder(device: resources.device, restPose: poser.restPose)
         builder.skins = resources.skins
         // Everything loaded stays resident, so other scenes and variants of the same file reuse it.
         builder.residentMaterials = resources.materials + [resources.defaultMaterial]
         builder.residentPrimitives = resources.meshes.flatMap(\.self)
 
-        var lights: [PBRLight] = []
-        var lightSources: [GLTFAsset.LightSource] = []
-        var cameraSources: [GLTFAsset.CameraSource] = []
         // `visible` is false under a node hidden by KHR_node_visibility; its meshes and its descendants' are skipped.
-        try hierarchy.walk(hierarchy.rest) { nodeIndex, world, visible in
+        hierarchy.walk(hierarchy.rest) { nodeIndex, world, visible in
             let node = document.nodes[nodeIndex]
             if visible || animatesVisibility, let meshIndex = node.mesh?.index, meshIndex < resources.meshes.count {
                 for primitive in resources.meshes[meshIndex] {
@@ -144,23 +112,10 @@ struct GLTFSceneContents {
                     }
                 }
             }
-            if let camera = node.camera {
-                cameraSources.append(GLTFAsset.CameraSource(camera: try camera.resolve(in: document), index: camera.index, node: nodeIndex, worldMatrix: world))
-            }
-            if let light = node.punctualLight(in: document), let lightIndex = (try? node.extensionValue(KHRLightsPunctualNodeRef.self))?.light {
-                // Hidden lights do not shine at rest; with visibility animation they are kept, for poses to show.
-                if visible {
-                    lights.append(PBRLight(light, worldMatrix: world))
-                }
-                if visible || animatesVisibility {
-                    lightSources.append(GLTFAsset.LightSource(light: light, index: lightIndex, node: nodeIndex))
-                }
-            }
         }
-        builder.lights = lights
+        // Hidden lights do not shine at rest.
+        builder.lights = poser.lights(pose: poser.restPose)
         self.model = try builder.build()
-        self.lightSources = lightSources
-        self.cameraSources = cameraSources
-        self.hierarchy = hierarchy
+        self.poser = poser
     }
 }

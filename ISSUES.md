@@ -3898,13 +3898,14 @@ Part of #180. Loading or posing malformed input in this area must produce an err
 ## 195: Malformed texture data can crash the loader
 
 +++
-status: open
+status: closed
 priority: medium
 kind: task
 labels: effort:s, area:testing, subtask
 milestone: M1
 created: 2026-11-17T19:14:47Z
-updated: 2026-11-17T19:15:03Z
+updated: 2026-11-17T19:37:51Z
+closed: 2026-11-17T19:37:51Z
 +++
 
 Part of #180. Loading or posing malformed input in this area must produce an error or warning, never a crash (precondition, fatalError, out-of-range index, force unwrap, integer overflow, unbounded allocation). Acceptance: a fuzz or malformed-input test covers the area and finds no crash. Area: image data, texture and sampler references.

@@ -79,11 +79,14 @@ final class GLTFTextureCache {
     private var skippedTextures: [Int: String] = [:]
     /// Images a material asked for that failed to load, with the first error, by image index.
     private var failedImages: [Int: Error] = [:]
+    /// Textures whose sampler index is out of range (they use the default sampler), by texture index.
+    private var invalidSamplers: [Int: Int] = [:]
 
     /// What was skipped or failed, once per texture and image, whichever materials asked for it.
     var warnings: [String] {
         skippedTextures.sorted { $0.key < $1.key }.map { "Texture \($0.key) skipped: \($0.value)" }
             + failedImages.sorted { $0.key < $1.key }.map { "Image \($0.key) failed to load: \($0.value)" }
+            + invalidSamplers.sorted { $0.key < $1.key }.map { "Texture \($0.key) uses the default sampler: sampler \($0.value) is out of range" }
     }
     lazy var defaultBinding: PBRMaterial.Binding = makeBinding(texture: makeWhiteTexture(), samplerDescriptor: makeSamplerDescriptor(nil))
 
@@ -106,7 +109,10 @@ final class GLTFTextureCache {
 
     func binding(for index: Index<Texture>, sRGB: Bool) -> PBRMaterial.Binding? {
         let document = container.document
-        guard index.index < document.textures.count else { return nil }
+        guard document.textures.indices.contains(index.index) else {
+            skippedTextures[index.index] = "its index is out of range"
+            return nil
+        }
         let texture = document.textures[index.index]
         guard let (imageIndex, decoder) = source(of: texture) else {
             let reason = texture.extensions?["KHR_texture_basisu"] != nil ? "KTX2 (KHR_texture_basisu) is not supported" : "it has no source"
@@ -124,7 +130,11 @@ final class GLTFTextureCache {
             }
             return nil
         }
-        let samplerIndex = texture.sampler?.index ?? -1
+        var samplerIndex = texture.sampler?.index ?? -1
+        if let sampler = texture.sampler, !document.samplers.indices.contains(sampler.index) {
+            invalidSamplers[index.index] = sampler.index
+            samplerIndex = -1
+        }
         let samplerDescriptor = samplers[samplerIndex] ?? {
             let samplerDescriptor = makeSamplerDescriptor(texture.sampler.flatMap { try? $0.resolve(in: document) })
             samplers[samplerIndex] = samplerDescriptor
@@ -150,7 +160,7 @@ final class GLTFTextureCache {
         var seen = Set<ImageKey>()
         for material in materials {
             for slot in GLTFMaterialTextureSlot.all {
-                guard let info = slot.source(material)?.info, info.index.index < document.textures.count, let (imageIndex, decoder) = source(of: document.textures[info.index.index]) else { continue }
+                guard let info = slot.source(material)?.info, document.textures.indices.contains(info.index.index), let (imageIndex, decoder) = source(of: document.textures[info.index.index]) else { continue }
                 let key = ImageKey(imageIndex: imageIndex, sRGB: slot.sRGB)
                 if images[key] == nil, seen.insert(key).inserted {
                     requests.append((key, decoder))

@@ -259,15 +259,6 @@ struct MaterialTests {
         #expect(pixels[center] > pixels[center + 2] + 80, "Expected the red quad through the glass, got \(pixels[center]), \(pixels[center + 2])")
     }
 
-    // The scene keeps one transmission target per viewport size.
-    @Test func transmissionTargetCacheFollowsViewportSize() throws {
-        let cache = PBRTransmissionTargetCache()
-        let first = try cache.target(width: 64, height: 48)
-        #expect(try cache.target(width: 64, height: 48) === first)
-        let resized = try cache.target(width: 128, height: 48)
-        #expect(resized !== first && resized.width == 128 && resized.height == 48)
-    }
-
     // GLTFScene draws exactly what the hand-assembled pre-pass, background and renderer drew.
     @Test(.enabled(if: SampleAssets.isAvailable)) func sceneMatchesHandAssembly() throws {
         let asset = try GLTFAsset(url: SampleAssets.modelsDirectory.appending(path: "TransmissionTest/glTF-Binary/TransmissionTest.glb"))

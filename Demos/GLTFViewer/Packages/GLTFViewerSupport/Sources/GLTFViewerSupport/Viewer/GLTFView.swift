@@ -215,7 +215,6 @@ struct GLTFView: View {
         }
         return scene
     }
-
 }
 
 /// A slider over the selected clip. Dragging it pauses playback at the chosen time.

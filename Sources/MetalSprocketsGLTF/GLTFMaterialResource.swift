@@ -224,21 +224,9 @@ final class GLTFTextureCache {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil), let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
             throw GLTFError.unsupported("Undecodable image")
         }
-        // A 1×1 texture has a single mip level; asking MTKTextureLoader to generate mipmaps for it fails validation.
+        // Not MTKTextureLoader: its synchronous newTexture waits on GCD work and deadlocked when many loads ran at
+        // once (#196). A 1×1 texture has a single mip level.
         let hasMipmaps = max(cgImage.width, cgImage.height) > 1
-        let options: [MTKTextureLoader.Option: Any] = [
-            .SRGB: sRGB,
-            .generateMipmaps: hasMipmaps,
-            .allocateMipmaps: hasMipmaps,
-            .textureUsage: MTLTextureUsage.shaderRead.rawValue,
-            .textureStorageMode: MTLStorageMode.private.rawValue
-        ]
-        // MTKTextureLoader picks the format from the image: palette PNGs lose the sRGB format and grey + alpha PNGs
-        // become two-channel textures. Only keep its result when it is four-channel with the requested color space.
-        let expected: Set<MTLPixelFormat> = sRGB ? [.rgba8Unorm_srgb, .bgra8Unorm_srgb] : [.rgba8Unorm, .bgra8Unorm]
-        if let texture = try? loader.newTexture(cgImage: cgImage, options: options), expected.contains(texture.pixelFormat) {
-            return texture
-        }
         return try uploadRGBA8(cgImage, sRGB: sRGB, mipmapped: hasMipmaps, device: loader.device)
     }
 

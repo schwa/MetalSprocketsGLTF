@@ -3915,16 +3915,18 @@ Part of #180. Loading or posing malformed input in this area must produce an err
 ## 196: Unit test suite runs for 15 minutes, possible deadlock
 
 +++
-status: new
+status: closed
 priority: none
 kind: none
 milestone: M1
 created: 2026-11-17T19:45:07Z
+updated: 2026-11-18T02:20:34Z
+closed: 2026-11-18T02:20:34Z
 +++
 
 Unit tests hit 15 minutes - deadlock?
 
-- `2026-11-18T02:04:31Z`: Reproduced: full suite hangs only in parallel mode. Each suite passes alone; the full suite with --no-parallel passes (177 tests, 45s).
+\- `2026-11-18T02:04:31Z`: Reproduced: full suite hangs only in parallel mode. Each suite passes alone; the full suite with --no-parallel passes (177 tests, 45s).
 
 `sample` of the hung test process (0% CPU, 4+ min): several test threads are blocked in
 

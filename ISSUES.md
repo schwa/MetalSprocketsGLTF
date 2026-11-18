@@ -3912,6 +3912,21 @@ Part of #180. Loading or posing malformed input in this area must produce an err
 
 ---
 
+## 196: Unit test suite runs for 15 minutes, possible deadlock
+
++++
+status: new
+priority: none
+kind: none
+milestone: M1
+created: 2026-11-17T19:45:07Z
+updated: 2026-11-17T19:45:07Z
++++
+
+Unit tests hit 15 minutes - deadlock?
+
+---
+
 ## Milestone: M1
 
 +++

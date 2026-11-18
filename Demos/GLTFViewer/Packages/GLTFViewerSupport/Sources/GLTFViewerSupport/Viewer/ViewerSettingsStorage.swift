@@ -24,7 +24,7 @@ extension ViewerSettings: Codable {
         debugView = value(.debugView).flatMap(PBRDebugView.init(rawValue:)) ?? debugView
         showsWireframe = value(.showsWireframe) ?? showsWireframe
         framebufferOnly = value(.framebufferOnly) ?? framebufferOnly
-        toneMapping = value(.toneMapping).flatMap(PBRToneMapping.init(rawValue:)) ?? toneMapping
+        toneMapping = value(.toneMapping).flatMap(LightingToneMapping.init(rawValue:)) ?? toneMapping
         exposure = value(.exposure).map { min(max($0, -4), 4) } ?? exposure
         environment = value(.environment).flatMap(ViewerEnvironment.init(storedValue:)) ?? environment
         environmentIntensity = value(.environmentIntensity) ?? environmentIntensity

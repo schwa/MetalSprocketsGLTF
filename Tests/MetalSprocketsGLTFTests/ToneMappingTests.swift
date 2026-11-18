@@ -10,14 +10,14 @@ import Testing
 
 // The Swift list mirrors the shader's kPBRToneMapping* values; PBR Neutral is 0, the default of zeroed uniforms.
 @Test(.requiresMetal4, .requiresMetal4) func toneMappingsMatchTheShaderValues() {
-    #expect(Int32(PBRToneMapping.allCases.count) == PBRShaderToneMapping.toneMappingCount.rawValue)
-    #expect(PBRToneMapping.pbrNeutral.rawValue == 0)
-    #expect(PBRToneMapping.agx.shaderValue == .toneMappingAgX)
+    #expect(Int32(LightingToneMapping.allCases.count) == LightingShaderToneMapping.toneMappingCount.rawValue)
+    #expect(LightingToneMapping.pbrNeutral.rawValue == 0)
+    #expect(LightingToneMapping.agx.shaderValue == .toneMappingAgX)
 }
 
 /// The red channel (sRGB byte) of an unlit quad with linear base color 0.5, seen head-on with `toneMapping`.
 @MainActor
-private func unlitRed(_ toneMapping: PBRToneMapping) throws -> Int {
+private func unlitRed(_ toneMapping: LightingToneMapping) throws -> Int {
     let file = try makeExtensionMaterialFile(#"{"KHR_materials_unlit": {}}"#, extensionsUsed: ["KHR_materials_unlit"])
     // makeExtensionMaterialFile's material has no base color factor; patch one in.
     let json = try String(contentsOf: file, encoding: .utf8).replacingOccurrences(of: #"{"emissiveFactor""#, with: #"{"pbrMetallicRoughness": {"baseColorFactor": [0.5, 0.5, 0.5, 1]}, "emissiveFactor""#)

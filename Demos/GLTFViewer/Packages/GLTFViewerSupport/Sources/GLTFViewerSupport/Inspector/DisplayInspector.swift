@@ -49,7 +49,7 @@ struct DisplayInspector: View {
                     .help("Float output for EDR displays. With Tone Mapping set to None (HDR), highlights brighter than white use the display's headroom.")
                 #endif
                 Picker("Tone Mapping", selection: $preferences.settings.toneMapping) {
-                    ForEach(PBRToneMapping.allCases) { toneMapping in
+                    ForEach(LightingToneMapping.allCases) { toneMapping in
                         Text(toneMapping.name).tag(toneMapping)
                     }
                 }

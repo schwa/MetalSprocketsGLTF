@@ -17,7 +17,7 @@ extension GLTFLoadOptions {
     }
 }
 
-extension PBRToneMapping: @retroactive ExpressibleByArgument {
+extension LightingToneMapping: @retroactive ExpressibleByArgument {
     /// The case name in kebab case, e.g. aces-filmic.
     var argumentName: String {
         String(describing: self).replacing(/([a-z0-9])([A-Z])/) { "\($0.1)-\($0.2)" }.lowercased()
@@ -95,8 +95,8 @@ struct GLTFRenderCommand: ParsableCommand {
     @Flag(help: "Draw the environment behind the model.")
     var background = false
 
-    @Option(help: "Tone mapping: \(PBRToneMapping.allCases.map(\.argumentName).joined(separator: ", ")).")
-    var toneMapping: PBRToneMapping = .pbrNeutral
+    @Option(help: "Tone mapping: \(LightingToneMapping.allCases.map(\.argumentName).joined(separator: ", ")).")
+    var toneMapping: LightingToneMapping = .pbrNeutral
 
     @Option(name: .customLong("disable-extension"), help: "Load as if the file did not use this extension (repeatable), e.g. to compare with three.js where it lacks one.")
     var disabledExtensions: [String] = []

@@ -17,7 +17,7 @@ public struct ViewerSettings: Equatable {
     var showsWireframe = false
     /// MTKView.framebufferOnly. Turning it off works around a Metal 4 / MetalSprockets problem where views render pink.
     var framebufferOnly = true
-    var toneMapping: PBRToneMapping = .pbrNeutral
+    var toneMapping: LightingToneMapping = .pbrNeutral
     /// In stops: the scene is scaled by 2^exposure before tone mapping.
     var exposure: Float = 0
     /// `.model` lights models that define an image-based light (EXT_lights_image_based) with it, others with the studio.

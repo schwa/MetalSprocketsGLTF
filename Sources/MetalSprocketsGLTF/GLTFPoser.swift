@@ -109,11 +109,11 @@ struct GLTFPoser: @unchecked Sendable {
 
     /// Lights placed by `pose`, skipping hidden ones, with `properties` (KHR_animation_pointer values by light index)
     /// applied.
-    func lights(pose: PBRPose, properties: [Int: [GLTFAnimationPointer.LightProperty: [Float]]] = [:]) -> [PBRLight] {
+    func lights(pose: PBRPose, properties: [Int: [GLTFAnimationPointer.LightProperty: [Float]]] = [:]) -> [LightingLight] {
         lightSources.compactMap { source in
             guard pose.isVisible(source.node) else { return nil }
             let world = pose.worldMatrices.indices.contains(source.node) ? pose.worldMatrices[source.node] : restPose.worldMatrices.indices.contains(source.node) ? restPose.worldMatrices[source.node] : matrix_identity_float4x4
-            var light = PBRLight(source.light, worldMatrix: world)
+            var light = LightingLight(source.light, worldMatrix: world)
             GLTFAnimationPointer.apply(properties[source.index] ?? [:], to: &light)
             return light
         }

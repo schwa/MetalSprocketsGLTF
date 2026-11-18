@@ -10,8 +10,8 @@ public typealias GLTFPose = PBRPose
 public typealias GLTFMaterialResource = PBRMaterial
 public typealias GLTFGeometryBuffers = PBRGeometryBuffers
 public typealias GLTFLighting = PBRLighting
-public typealias GLTFEnvironment = PBREnvironment
-public typealias GLTFEnvironmentError = PBREnvironmentError
+public typealias GLTFEnvironment = LightingEnvironment
+public typealias GLTFEnvironmentError = LightingEnvironmentError
 public typealias GLTFEnvironmentBackground = PBREnvironmentBackground
 public typealias GLTFToneMapping = PBRToneMapping
 public typealias GLTFDebugView = PBRDebugView
@@ -31,8 +31,8 @@ public typealias GLTFMaterialUniforms = PBRMaterialUniforms
 public typealias GLTFTextureSlot = PBRTextureSlot
 public typealias GLTFMaterialTextureIndex = PBRMaterialTextureIndex
 public typealias GLTFAlphaMode = PBRAlphaMode
-public typealias GLTFLight = PBRLight
-public typealias GLTFLightType = PBRLightType
+public typealias GLTFLight = LightingLight
+public typealias GLTFLightType = LightingLightType
 public typealias GLTFInstance = PBRInstance
 
 // Drawing a GLTFAsset: its model, lit by default with its lights placed by the pose (lights on animated nodes move).

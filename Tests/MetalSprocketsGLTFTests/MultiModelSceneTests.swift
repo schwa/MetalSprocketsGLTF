@@ -16,7 +16,7 @@ struct MultiModelSceneTests {
 
     var lighting: PBRLighting {
         get throws {
-            PBRLighting(environment: try PBREnvironment(source: .uniform([1, 1, 1]), specularSize: 16, irradianceSize: 4))
+            PBRLighting(environment: try LightingEnvironment(source: .uniform([1, 1, 1]), specularSize: 16, irradianceSize: 4))
         }
     }
 

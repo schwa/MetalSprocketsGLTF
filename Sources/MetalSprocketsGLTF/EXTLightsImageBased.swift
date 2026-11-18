@@ -38,7 +38,7 @@ public struct EXTLightsImageBasedScene: GLTFExtension {
 }
 
 /// An EXT_lights_image_based light decoded to linear equirectangular radiance, with its rotation and intensity
-/// applied, ready to become a ``PBREnvironment``.
+/// applied, ready to become a ``LightingEnvironment``.
 ///
 /// Only the sharpest mip of the file's specular cube map is used: it is the unblurred radiance, which the renderer
 /// prefilters and convolves itself, so roughness maps to blur as for any other environment. The file's lower mips
@@ -47,11 +47,11 @@ public struct GLTFImageBasedLight: Sendable {
     public var name: String?
     public var width: Int
     public var height: Int
-    /// Linear RGBA half floats, row 0 is +Y (``PBREnvironment/Source/equirectangularPixels(width:height:rgba:)``).
+    /// Linear RGBA half floats, row 0 is +Y (``LightingEnvironment/Source/equirectangularPixels(width:height:rgba:)``).
     public var rgba: [Float16]
 
-    public func environment(device: MTLDevice? = nil) throws -> PBREnvironment {
-        try PBREnvironment(source: .equirectangularPixels(width: width, height: height, rgba: rgba), device: device)
+    public func environment(device: MTLDevice? = nil) throws -> LightingEnvironment {
+        try LightingEnvironment(source: .equirectangularPixels(width: width, height: height, rgba: rgba), device: device)
     }
 }
 

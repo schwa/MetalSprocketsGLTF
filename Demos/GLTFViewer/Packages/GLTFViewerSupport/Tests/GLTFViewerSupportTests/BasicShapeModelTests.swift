@@ -29,7 +29,7 @@ func shapeBuiltWithoutGLTFMatchesGLTF(_ shape: BasicShape) throws {
 
     let size = 64
     let camera = PBRCamera.framing(direct.bounds, aspectRatio: 1)
-    let lighting = PBRLighting(lights: [.directional(direction: [-1, -1, -1], intensity: 2)], environment: try PBREnvironment(source: .uniform([0.4, 0.4, 0.4]), specularSize: 16, irradianceSize: 4))
+    let lighting = PBRLighting(lights: [.directional(direction: [-1, -1, -1], intensity: 2)], environment: try LightingEnvironment(source: .uniform([0.4, 0.4, 0.4]), specularSize: 16, irradianceSize: 4))
     func scene(_ model: PBRModel) -> PBRScene {
         PBRScene(model: model, viewMatrix: camera.viewMatrix, projectionMatrix: camera.projectionMatrix, lighting: lighting, viewportSize: CGSize(width: size, height: size))
     }

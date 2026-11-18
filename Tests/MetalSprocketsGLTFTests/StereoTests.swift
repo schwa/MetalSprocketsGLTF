@@ -34,7 +34,7 @@ struct StereoTests {
     @Test func stereoSlicesMatchMonoRenders() throws {
         let device = try #require(MTLCreateSystemDefaultDevice())
         let asset = try GLTFAsset(url: makeTwoMaterialAnimatedFile())
-        let lighting = PBRLighting(lights: [.directional(direction: [-1, -1, -1], intensity: 2)], environment: try PBREnvironment(source: .uniform([0.3, 0.4, 0.5]), specularSize: 16, irradianceSize: 4))
+        let lighting = PBRLighting(lights: [.directional(direction: [-1, -1, -1], intensity: 2)], environment: try LightingEnvironment(source: .uniform([0.3, 0.4, 0.5]), specularSize: 16, irradianceSize: 4))
         let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 3), depthMode: .reversed(zClip: 0.1 ... 50)).projectionMatrix(aspectRatio: 1)
         let center = asset.bounds.center
         let views = [
@@ -85,7 +85,7 @@ struct StereoTests {
     @Test func stereoTransmissionMatchesSingleViewRenders() throws {
         let device = try #require(MTLCreateSystemDefaultDevice())
         let asset = try GLTFAsset(url: makeGlassInFrontOfRedFile())
-        let lighting = PBRLighting(lights: [], environment: try PBREnvironment(source: .uniform([0.05, 0.05, 0.05]), specularSize: 16, irradianceSize: 4))
+        let lighting = PBRLighting(lights: [], environment: try LightingEnvironment(source: .uniform([0.05, 0.05, 0.05]), specularSize: 16, irradianceSize: 4))
         let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 3), depthMode: .reversed(zClip: 0.1 ... 50)).projectionMatrix(aspectRatio: 1)
         // Far apart and close, so each eye sees the red quad's edge behind a different part of the glass: sampling
         // the other eye's slice would show the wrong side of it.

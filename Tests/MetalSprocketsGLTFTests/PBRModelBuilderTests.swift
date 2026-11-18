@@ -143,7 +143,7 @@ struct PBRModelBuilderTests {
         builder.addInstance(quad, material: try makeColorMaterial([1, 0, 0, 1], device: device), node: 0)
         let model = try builder.build()
 
-        let lighting = PBRLighting(environment: try PBREnvironment(source: .uniform([1, 1, 1]), specularSize: 16, irradianceSize: 4))
+        let lighting = PBRLighting(environment: try LightingEnvironment(source: .uniform([1, 1, 1]), specularSize: 16, irradianceSize: 4))
         let view = LookAt(position: [0, 0, 2], target: .zero, up: [0, 1, 0]).viewMatrix
         let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
         let image = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0).render(

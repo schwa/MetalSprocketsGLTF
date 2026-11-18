@@ -3940,11 +3940,13 @@ Threads seen stuck: MaterialTests.materialResourceBufferFollowsTheSlots, unsuppo
 ## 197: glTF lights are built as PBRLight, which MetalSprocketsPBR removed
 
 +++
-status: new
+status: closed
 priority: medium
 kind: enhancement
 labels: effort:s
 created: 2026-11-18T19:25:59Z
+updated: 2026-11-18T19:32:11Z
+closed: 2026-11-18T19:32:11Z
 +++
 
 GLTFAnimationPointer.swift, GLTFPoser.swift, GLTFAsset.swift and PBRCompatibility.swift (GLTFLight / GLTFLightType typealiases) use MetalSprocketsPBR's PBRLight and PBRLightType. MetalSprocketsPBR (next 0.3.0) replaced them with MetalSprocketsLighting's LightingLight and LightingLightType, so this package does not build against that version.

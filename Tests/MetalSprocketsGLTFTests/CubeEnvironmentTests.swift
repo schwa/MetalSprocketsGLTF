@@ -20,7 +20,7 @@ struct CubeEnvironmentTests {
     }
 
     /// The source texel an equirectangular direction maps to (as the shaders' equirectUV).
-    func sourceTexel(_ environment: PBREnvironment, _ direction: SIMD3<Float>) -> SIMD4<Float> {
+    func sourceTexel(_ environment: LightingEnvironment, _ direction: SIMD3<Float>) -> SIMD4<Float> {
         let source = environment.source
         let u = atan2(direction.z, direction.x) / (2 * .pi) + 0.5
         let v = 0.5 - asin(direction.y) / .pi
@@ -34,13 +34,13 @@ struct CubeEnvironmentTests {
     // Each face lands on its axis in the equirectangular source, scaled and color-converted.
     @Test func cubeFacesLandOnTheirAxes() throws {
         let device = try #require(MTLCreateSystemDefaultDevice())
-        let environment = try PBREnvironment(cube: cube(device: device), scale: 2, device: device, specularSize: 16, irradianceSize: 4)
+        let environment = try LightingEnvironment(cube: cube(device: device), scale: 2, device: device, specularSize: 16, irradianceSize: 4)
         #expect(environment.source.width == 16 && environment.source.height == 8)
         for (axis, value) in zip(axes, values) {
             #expect(abs(sourceTexel(environment, axis).x - 2 * value) < 0.01, "\(axis)")
         }
         // Display P3 gray stays gray in sRGB: the conversion's rows each sum to 1.
-        let converted = try PBREnvironment(cube: cube(device: device), colorMatrix: PBREnvironment.displayP3ToLinearSRGB, device: device, specularSize: 16, irradianceSize: 4)
+        let converted = try LightingEnvironment(cube: cube(device: device), colorMatrix: LightingEnvironment.displayP3ToLinearSRGB, device: device, specularSize: 16, irradianceSize: 4)
         let texel = sourceTexel(converted, [1, 0, 0])
         #expect(abs(texel.x - 0.1) < 0.005 && abs(texel.y - 0.1) < 0.005 && abs(texel.z - 0.1) < 0.005)
     }

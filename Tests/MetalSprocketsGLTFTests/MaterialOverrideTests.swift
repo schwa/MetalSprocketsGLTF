@@ -11,7 +11,7 @@ struct MaterialOverrideTests {
     func render(_ asset: GLTFAsset, overrides: PBRModel.MaterialOverrides = [:], merging: Bool = true) throws -> [UInt8] {
         let size = 96
         let camera = PBRCamera.framing(asset.bounds, aspectRatio: 1)
-        let lighting = PBRLighting(lights: [.directional(direction: [-1, -1, -1], intensity: 2)], environment: try PBREnvironment(source: .uniform([0.5, 0.5, 0.5]), specularSize: 16, irradianceSize: 4))
+        let lighting = PBRLighting(lights: [.directional(direction: [-1, -1, -1], intensity: 2)], environment: try LightingEnvironment(source: .uniform([0.5, 0.5, 0.5]), specularSize: 16, irradianceSize: 4))
         var renderer = PBRRenderer(model: asset.model, viewMatrix: camera.viewMatrix, projectionMatrix: camera.projectionMatrix, lighting: lighting)
         renderer.materialOverrides = overrides
         renderer.usesMergedGeometry = merging

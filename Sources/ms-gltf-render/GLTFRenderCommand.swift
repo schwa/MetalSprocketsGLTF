@@ -179,7 +179,7 @@ struct GLTFRenderCommand: ParsableCommand {
         lighting.environmentRotation = environmentRotation * .pi / 180
         lighting.environmentIntensity = environmentIntensity
         if let environment {
-            lighting.environment = try PBREnvironment(source: .equirectangular(URL(fileURLWithPath: environment)))
+            lighting.environment = try LightingEnvironment(source: .equirectangular(URL(fileURLWithPath: environment)))
         }
 
         let isHDR = outputURL.pathExtension.lowercased() == "exr"

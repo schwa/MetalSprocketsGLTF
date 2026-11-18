@@ -13,7 +13,7 @@ public final class ImmersiveModelBox: Sendable {
     public static let shared = ImmersiveModelBox()
 
     /// Lighting from the room, running while the immersive space is open.
-    let roomLighting = PBRRoomLighting()
+    let roomLighting = LightingRoomEnvironment()
 
     struct Shown: Sendable {
         var asset: GLTFAsset
@@ -21,7 +21,7 @@ public final class ImmersiveModelBox: Sendable {
         /// KHR_materials_variants variant. Material overrides are not Sendable, so the render loop makes them from
         /// this index.
         var materialVariant: Int?
-        /// Light with the room (``PBRRoomLighting``) once it has an environment, instead of `lighting`'s.
+        /// Light with the room (``LightingRoomEnvironment``) once it has an environment, instead of `lighting`'s.
         var usesRoomLighting: Bool
     }
 

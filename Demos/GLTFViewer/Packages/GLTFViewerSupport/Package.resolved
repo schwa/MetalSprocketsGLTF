@@ -52,7 +52,16 @@
       "location" : "https://github.com/schwa/MetalSprockets",
       "state" : {
         "branch" : "main",
-        "revision" : "8a5839d7874fa3d7bc4b3a50fdb45835de516873"
+        "revision" : "5851779c1a9534f59bb23524008766a294d6293e"
+      }
+    },
+    {
+      "identity" : "metalsprocketslighting",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/schwa/MetalSprocketsLighting",
+      "state" : {
+        "revision" : "d35c123f4316576d917657ca71abd59aac61860b",
+        "version" : "0.0.3"
       }
     },
     {
@@ -61,7 +70,7 @@
       "location" : "https://github.com/schwa/MetalSprocketsPBR",
       "state" : {
         "branch" : "main",
-        "revision" : "a2551ca22a6bbbb6eb0d7632ca97f38f1042c666"
+        "revision" : "06aac65659179389379cebd032f38fd41e155951"
       }
     },
     {

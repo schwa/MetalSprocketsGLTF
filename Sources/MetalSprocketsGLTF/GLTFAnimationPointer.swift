@@ -48,7 +48,7 @@ public enum GLTFAnimationPointer {
         case innerConeAngle = "spot/innerConeAngle"
         case outerConeAngle = "spot/outerConeAngle"
 
-        func apply(_ value: [Float], to light: inout PBRLight) {
+        func apply(_ value: [Float], to light: inout LightingLight) {
             switch self {
             case .color: if value.count == 3 { light.color = SIMD3(value[0], value[1], value[2]) }
             case .intensity: if let value = value.first { light.intensity = value }
@@ -59,7 +59,7 @@ public enum GLTFAnimationPointer {
         }
     }
 
-    static func apply(_ properties: [LightProperty: [Float]], to light: inout PBRLight) {
+    static func apply(_ properties: [LightProperty: [Float]], to light: inout LightingLight) {
         for (property, value) in properties {
             property.apply(value, to: &light)
         }

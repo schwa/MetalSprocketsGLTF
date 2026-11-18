@@ -25,8 +25,8 @@ extension GLTFAsset.Resources {
 
         let textures = GLTFTextureCache(container: container, device: device, decoders: options.textureDecoders)
         textures.preload(document.materials)
-        let defaultMaterial = try PBRMaterial(material: nil, textures: textures)
-        let materials = try document.materials.map { try PBRMaterial(material: $0, textures: textures) }
+        let defaultMaterial = PBRMaterial(material: nil, textures: textures)
+        let materials = document.materials.map { PBRMaterial(material: $0, textures: textures) }
 
         // Every primitive's geometry goes into one set of shared buffers.
         var geometry = PBRGeometryBuilder(device: device)

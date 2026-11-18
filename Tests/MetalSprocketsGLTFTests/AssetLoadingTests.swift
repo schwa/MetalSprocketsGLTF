@@ -57,7 +57,6 @@ struct AssetLoadingTests {
         let identifiers = allocations.map { ObjectIdentifier($0) }
         #expect(Set(identifiers).count == identifiers.count)
         for material in asset.materials + [asset.resources.defaultMaterial] {
-            #expect(identifiers.contains(ObjectIdentifier(material.resourceBuffer)))
             for binding in material.textureBindings {
                 #expect(identifiers.contains(ObjectIdentifier(binding.texture)))
             }

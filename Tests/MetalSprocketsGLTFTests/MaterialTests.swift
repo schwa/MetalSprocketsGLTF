@@ -204,7 +204,7 @@ struct MaterialTests {
     /// Center pixel (sRGB bytes) of a 32\u{00d7}32 head-on render, with or without a transmission pre-pass.
     func renderGlassCenter(withTransmissionPass: Bool, backIsTransmissiveBackFace: Bool = false, target givenTarget: GLTFTransmissionTarget? = nil) throws -> (red: Int, green: Int, blue: Int) {
         let asset = try GLTFAsset(url: makeGlassInFrontOfRedFile(backIsTransmissiveBackFace: backIsTransmissiveBackFace))
-        let lighting = PBRLighting(environment: try PBREnvironment(source: .uniform([0, 0, 1]), specularSize: 16, irradianceSize: 4))
+        let lighting = PBRLighting(environment: try LightingEnvironment(source: .uniform([0, 0, 1]), specularSize: 16, irradianceSize: 4))
         let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
         let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
         let target = withTransmissionPass ? try givenTarget ?? GLTFTransmissionTarget(size: 64) : nil
@@ -246,7 +246,7 @@ struct MaterialTests {
     // GLTFScene runs the transmission pre-pass itself: glass shows the red quad behind it.
     @Test func sceneShowsWhatIsBehindGlass() throws {
         let asset = try GLTFAsset(url: makeGlassInFrontOfRedFile())
-        let lighting = PBRLighting(environment: try PBREnvironment(source: .uniform([0, 0, 1]), specularSize: 16, irradianceSize: 4))
+        let lighting = PBRLighting(environment: try LightingEnvironment(source: .uniform([0, 0, 1]), specularSize: 16, irradianceSize: 4))
         let view = LookAt(position: [0, 0, 4], target: .zero, up: [0, 1, 0]).viewMatrix
         let projection = PerspectiveProjection(verticalAngleOfView: .radians(.pi / 4), depthMode: .reversed(zClip: 0.1 ... 20)).projectionMatrix(aspectRatio: 1)
         let image = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0).render(
@@ -382,16 +382,12 @@ struct MaterialTests {
         #expect(uniforms.specularGlossiness == 0)
     }
 
-    // The argument buffer holds each slot's texture and sampler handles in slot order.
-    @Test func materialResourceBufferFollowsTheSlots() throws {
+    // One texture binding per slot; the file's texture lands in its slot. The argument buffer's layout comes from
+    // shader reflection (MetalSprocketsPBR).
+    @Test func materialTextureBindingsFollowTheSlots() throws {
         let material = try #require(try GLTFAsset(url: makeMaterialTriangleFile(normalScale: 1, occlusionStrength: 1)).materials.first)
         #expect(material.uniforms.normal.enabled != 0 && material.uniforms.baseColor.enabled == 0)
-        let count = Int(kPBRMaterialTextureCount.rawValue)
-        let handles = material.resourceBuffer.contents().bindMemory(to: UInt64.self, capacity: count * 2)
-        for (index, binding) in material.textureBindings.enumerated() {
-            #expect(handles[index] == binding.texture.gpuResourceID._impl)
-            #expect(handles[count + index] == binding.sampler.gpuResourceID._impl)
-        }
+        #expect(material.textureBindings.count == Int(kPBRMaterialTextureCount.rawValue))
         #expect(material[texture: kPBRTextureNormal].texture !== material[texture: kPBRTextureBaseColor].texture, "The normal slot should hold the file's texture, not the placeholder")
     }
 
@@ -475,7 +471,7 @@ struct MaterialTests {
     // Light passing through the red-absorbing volume comes out red; an opaque white surface would render white.
     @Test func transmittedLightIsAttenuated() throws {
         let asset = try GLTFAsset(url: makeTransmissiveQuadFile())
-        let lighting = PBRLighting(environment: try PBREnvironment(source: .uniform([1, 1, 1]), specularSize: 16, irradianceSize: 4))
+        let lighting = PBRLighting(environment: try LightingEnvironment(source: .uniform([1, 1, 1]), specularSize: 16, irradianceSize: 4))
         let camera = PBRCamera.framing(asset.bounds, aspectRatio: 1, yaw: 0, pitch: 0)
         let renderer = try OffscreenRenderer(size: CGSize(width: 32, height: 32), clearDepth: 0)
         let image = try renderer.render(

@@ -96,7 +96,7 @@ struct PointerTargetTests {
 
     // Every light property a pointer can target is applied: parsing and applying share one table.
     @Test func appliesEveryLightProperty() {
-        var light = PBRLight()
+        var light = LightingLight()
         GLTFAnimationPointer.apply([
             .color: [0, 1, 0], .intensity: [5], .range: [7],
             .innerConeAngle: [0.1], .outerConeAngle: [0.2]

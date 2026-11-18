@@ -11,7 +11,7 @@ import SwiftGLTF
 /// A glTF material resolved into shader uniforms, textures and samplers. Texture transforms are keyed by the
 /// texture's path below `/materials/N/`, for KHR_animation_pointer.
 extension PBRMaterial {
-    convenience init(material: Material?, textures: GLTFTextureCache) throws {
+    convenience init(material: Material?, textures: GLTFTextureCache) {
         var uniforms = GLTFMaterialFeature.uniforms(for: material)
 
         func bind(_ info: TextureInfo?, sRGB: Bool, slot: inout PBRTextureSlot) -> Binding {
@@ -43,7 +43,7 @@ extension PBRMaterial {
             }
         }
 
-        try self.init(name: material?.name, uniforms: uniforms, doubleSided: material?.doubleSided ?? false, textureTransforms: textureTransforms, textureBindings: bindings, device: textures.device)
+        self.init(name: material?.name, uniforms: uniforms, doubleSided: material?.doubleSided ?? false, textureTransforms: textureTransforms, textureBindings: bindings, device: textures.device)
     }
 }
 

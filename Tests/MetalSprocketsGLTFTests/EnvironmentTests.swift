@@ -26,7 +26,7 @@ struct EnvironmentTests {
     // A uniform environment must prefilter back to the same radiance; this checks the normalization of both maps.
     @Test func uniformEnvironmentPrefiltersToItself() throws {
         let color = SIMD3<Float>(0.25, 0.5, 1.0)
-        let environment = try PBREnvironment(source: .uniform(color), specularSize: 32, irradianceSize: 8)
+        let environment = try LightingEnvironment(source: .uniform(color), specularSize: 32, irradianceSize: 8)
         for texel in cubeTexels(environment.irradiance, level: 0) {
             #expect(simd_distance(SIMD3(texel.x, texel.y, texel.z), color) < 0.01)
         }
@@ -38,7 +38,7 @@ struct EnvironmentTests {
     }
 
     @Test func brdfLookupMatchesKnownValues() throws {
-        let environment = try PBREnvironment(source: .uniform([1, 1, 1]), specularSize: 8, irradianceSize: 4)
+        let environment = try LightingEnvironment(source: .uniform([1, 1, 1]), specularSize: 8, irradianceSize: 4)
         let lookup = environment.brdfLookup
         func value(NdotV: Float, roughness: Float) -> SIMD2<Float> {
             let x = min(Int(NdotV * Float(lookup.width)), lookup.width - 1)
@@ -100,7 +100,7 @@ struct EnvironmentTests {
     // multiple-scattering compensation single-scattering GGX loses a large share of the energy.
     @Test func roughMetalConservesEnergy() throws {
         let asset = try GLTFAsset(url: makeQuadFile(baseColor: [1, 1, 1], metallic: 1, roughness: 1))
-        let lighting = PBRLighting(environment: try PBREnvironment(source: .uniform([0.5, 0.5, 0.5]), specularSize: 16, irradianceSize: 4))
+        let lighting = PBRLighting(environment: try LightingEnvironment(source: .uniform([0.5, 0.5, 0.5]), specularSize: 16, irradianceSize: 4))
         // Khronos PBR Neutral maps 0.5 to 0.46 (it subtracts a 0.04 offset).
         let value = try centerLinearRed(asset, lighting: lighting)
         #expect(value > 0.42, "Rough white metal reflected \(value), expected about 0.46")
@@ -110,7 +110,7 @@ struct EnvironmentTests {
     @Test func indexOfRefractionSetsReflectance() throws {
         let asset = try GLTFAsset(url: makeQuadFile(baseColor: [0, 0, 0], metallic: 0, roughness: 0, extensions: #"{"KHR_materials_ior": {"ior": 1.0}}"#))
         #expect(asset.materials.first?.uniforms.ior == 1)
-        let lighting = PBRLighting(environment: try PBREnvironment(source: .uniform([1, 1, 1]), specularSize: 16, irradianceSize: 4))
+        let lighting = PBRLighting(environment: try LightingEnvironment(source: .uniform([1, 1, 1]), specularSize: 16, irradianceSize: 4))
         let value = try centerLinearRed(asset, lighting: lighting)
         #expect(value < 0.005, "Black dielectric with IOR 1 reflected \(value)")
     }
@@ -121,13 +121,13 @@ struct EnvironmentTests {
         let uniforms = try #require(asset.materials.first).uniforms
         #expect(uniforms.specularFactor == 0)
         #expect(uniforms.specularColorFactor == [0.5, 1, 1])
-        let lighting = PBRLighting(environment: try PBREnvironment(source: .uniform([1, 1, 1]), specularSize: 16, irradianceSize: 4))
+        let lighting = PBRLighting(environment: try LightingEnvironment(source: .uniform([1, 1, 1]), specularSize: 16, irradianceSize: 4))
         let value = try centerLinearRed(asset, lighting: lighting)
         #expect(value < 0.005, "Black dielectric with specularFactor 0 reflected \(value)")
     }
 
     @Test func studioEnvironmentBuilds() {
-        let studio = PBREnvironment.studio
+        let studio = LightingEnvironment.studio
         #expect(studio.specular.textureType == .typeCube)
         #expect(studio.specular.mipmapLevelCount > 1)
         #expect(studio.source.width == 2_048)

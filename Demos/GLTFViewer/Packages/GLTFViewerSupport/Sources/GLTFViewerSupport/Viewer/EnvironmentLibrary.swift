@@ -60,7 +60,7 @@ public final class EnvironmentLibrary {
 
     public enum State {
         case loading
-        case ready(PBREnvironment)
+        case ready(LightingEnvironment)
         case failed(String)
     }
 
@@ -70,7 +70,7 @@ public final class EnvironmentLibrary {
 
     /// The built environment, or nil until ``load(_:)`` has built it or after it failed (callers fall back to the
     /// studio). Safe to call while views update: it changes nothing.
-    func environment(_ choice: ViewerEnvironment) -> PBREnvironment? {
+    func environment(_ choice: ViewerEnvironment) -> LightingEnvironment? {
         if choice == .studio || choice == .model {
             return .studio
         }
@@ -105,7 +105,7 @@ public final class EnvironmentLibrary {
         }
     }
 
-    private static func source(for choice: ViewerEnvironment) async throws -> PBREnvironment.Source {
+    private static func source(for choice: ViewerEnvironment) async throws -> LightingEnvironment.Source {
         switch choice {
         case .studio, .model:
             return .studio
@@ -133,12 +133,12 @@ public final class EnvironmentLibrary {
     }
 
     /// A user-picked file is security-scoped: access is held only while it is read.
-    nonisolated private static func build(_ source: PBREnvironment.Source, choice: ViewerEnvironment) throws -> PBREnvironment {
+    nonisolated private static func build(_ source: LightingEnvironment.Source, choice: ViewerEnvironment) throws -> LightingEnvironment {
         var scoped: URL?
         if case .file(let url) = choice, url.startAccessingSecurityScopedResource() {
             scoped = url
         }
         defer { scoped?.stopAccessingSecurityScopedResource() }
-        return try PBREnvironment(source: source)
+        return try LightingEnvironment(source: source)
     }
 }

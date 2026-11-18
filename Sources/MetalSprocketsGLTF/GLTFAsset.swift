@@ -45,7 +45,7 @@ public final class GLTFAsset: @unchecked Sendable {
     public var blendedBatches: [Batch] { model.blendedBatches }
     /// Whether any material uses KHR_materials_transmission, i.e. whether a ``GLTFTransmissionPass`` is worth running.
     public var hasTransmission: Bool { model.hasTransmission }
-    public var lights: [PBRLight] { model.lights }
+    public var lights: [LightingLight] { model.lights }
     public var skins: [Skin] { model.skins }
     public var bounds: BoundingBox3D { model.bounds }
     /// See ``PBRModel/resourceCollection``.
@@ -90,9 +90,9 @@ public final class GLTFAsset: @unchecked Sendable {
     }
 
     final class EnvironmentCache: Sendable {
-        private let environments = Mutex<[Int: PBREnvironment]>([:])
+        private let environments = Mutex<[Int: LightingEnvironment]>([:])
 
-        func environment(_ index: Int, light: GLTFImageBasedLight, device: MTLDevice) throws -> PBREnvironment {
+        func environment(_ index: Int, light: GLTFImageBasedLight, device: MTLDevice) throws -> LightingEnvironment {
             if let cached = environments.withLock({ $0[index] }) {
                 return cached
             }
@@ -121,7 +121,7 @@ public final class GLTFAsset: @unchecked Sendable {
 
     /// ``imageBasedLight`` as an environment, built on first use (GPU work) and shared by this file's other scenes
     /// and variants.
-    public func environment() throws -> PBREnvironment? {
+    public func environment() throws -> LightingEnvironment? {
         guard let index = GLTFImageBasedLight.lightIndex(document: container.document, sceneIndex: sceneIndex), let light = resources.imageBasedLights[index] else {
             return nil
         }
@@ -179,7 +179,7 @@ public final class GLTFAsset: @unchecked Sendable {
 public extension GLTFAsset {
     /// The lights at `pose`: placed by it (lights on animated nodes move), with animated properties, without lights on
     /// hidden nodes. A pose from ``pose(animation:time:)`` carries them already.
-    func lights(pose: PBRPose) -> [PBRLight] {
+    func lights(pose: PBRPose) -> [LightingLight] {
         pose.lights ?? poser.lights(pose: pose)
     }
 
@@ -238,7 +238,7 @@ extension GLTFAsset {
     var mergedTransmissive: PBRMergedGeometry? { model.mergedTransmissive }
 }
 
-extension PBRLight {
+extension LightingLight {
     init(_ light: SwiftGLTF.Light, worldMatrix: simd_float4x4) {
         self.init()
         position = worldMatrix.columns.3.xyz

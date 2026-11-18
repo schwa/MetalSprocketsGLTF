@@ -3920,10 +3920,18 @@ priority: none
 kind: none
 milestone: M1
 created: 2026-11-17T19:45:07Z
-updated: 2026-11-17T19:45:07Z
 +++
 
 Unit tests hit 15 minutes - deadlock?
+
+- `2026-11-18T02:04:31Z`: Reproduced: full suite hangs only in parallel mode. Each suite passes alone; the full suite with --no-parallel passes (177 tests, 45s).
+
+`sample` of the hung test process (0% CPU, 4+ min): several test threads are blocked in
+
+GLTFTextureCache.preload (GLTFMaterialResource.swift:179, DispatchQueue.concurrentPerform)
+→ decode → makeTexture → MTKTextureLoader.newTexture(cgImage:) → _dispatch_semaphore_wait_slow
+
+Threads seen stuck: MaterialTests.materialResourceBufferFollowsTheSlots, unsupportedRequiredExtensionCanBeLoadedWithAWarning, RetroreflectionTests.loadsTrafficConeRetroreflection. No single test is at fault; it happens whenever several asset loads with textures run concurrently. Likely affects apps that load assets concurrently, not only tests.
 
 ---
 
